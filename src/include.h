@@ -49,7 +49,10 @@ enum fc_validation_mode_typedef
 };
 
 #include "systime.h"
-
-
-
+#include "math_function.h"
+#include "ringbuffer.h"
+#include "msg_def.h"
+#include "pca9685.h"
+#include "sbus_api.h"
+#include "sbus_rc_thread.h"
 #endif
