@@ -6,6 +6,7 @@ void sbus_demo(void);
 
 #define RC_MIDDLE_VALUE  1000.f
 #define RC_HALF_RANGE 600.f
+void start_sbus(const char *sbus_serial);
 
 class sbus_api_typedef
 {

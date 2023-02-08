@@ -5,28 +5,28 @@ bool core_bind(int cpu_index);
 void set_thread_policy(pthread_attr_t *attr, int policy,int priority);
 //#define USE_ADAPTIVE_DELAY 1
 #define POLL_TIME_US 10*1000
-// class scheduler_typedef
-// {
-// public:
-// 	int base_timer_rate;
-// 	bool mpc_flag;
-// 	bool pid_controller_flag;
-// 	bool imu_flag;
-// 	bool actuator_flag;
-// 	bool att_est_flag;
-// 	bool lpe_flag;
-// 	int lpe_flag_cnt;
-// 	int att_est_flag_cnt;
+class scheduler_typedef
+{
+public:
+	int base_timer_rate;
+	bool mpc_flag;
+	bool pid_controller_flag;
+	bool imu_flag;
+	bool actuator_flag;
+	bool att_est_flag;
+	bool lpe_flag;
+	int lpe_flag_cnt;
+	int att_est_flag_cnt;
 
-// 	int actuator_flag_cnt;
-// 	int mpc_flag_cnt;
-// 	int imu_flag_cnt;
-// 	int pid_controller_flag_cnt;
-// 	void start_system_timer(int base_timer);
-// 	void scheduler_timer_fcn(void);
-// 	scheduler_typedef(void);
-// };
-// extern class scheduler_typedef scheduler;
+	int actuator_flag_cnt;
+	int mpc_flag_cnt;
+	int imu_flag_cnt;
+	int pid_controller_flag_cnt;
+	void start_system_timer(int base_timer);
+	void scheduler_timer_fcn(void);
+	scheduler_typedef(void);
+};
+extern class scheduler_typedef scheduler;
 
 class adaptive_delay_typedef
 {

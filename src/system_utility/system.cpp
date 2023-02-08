@@ -88,84 +88,84 @@ void adaptive_delay_typedef::delay_us(uint64_t us)
     nanosleep(&_sleep,NULL);
 }
 
-// class scheduler_typedef scheduler;
-// void scheduler_timer(void)
-// {
-// 	scheduler.scheduler_timer_fcn();
-// }
-// void  scheduler_typedef::scheduler_timer_fcn(void)
-// {
-// 	if(mpc_flag_cnt++ == (int)(base_timer_rate/config.mpc_rate))
-// 	{
-// 		mpc_flag = true;
-// 		mpc_flag_cnt = 1;
-// 	}
-// 	if(actuator_flag_cnt++ == (int)(base_timer_rate/config.actuator_rate))
-// 	{
-// 		actuator_flag = true;
-// 		actuator_flag_cnt = 1;
-// 	}
-// 	if(pid_controller_flag_cnt++ == (int)(base_timer_rate/config.pid_controller_rate))
-// 	{
-// 		pid_controller_flag = true;
-// 		pid_controller_flag_cnt = 1;
-// 	}
-// 	if(att_est_flag_cnt++ == (int)(base_timer_rate/config.attitude_est_rate))
-// 	{
-// 		att_est_flag = true;
-// 		att_est_flag_cnt = 1;
-// 	}
-// 	if(lpe_flag_cnt++ == (int)(base_timer_rate/config.lpe_rate))
-// 	{
-// 		lpe_flag = true;
-// 		lpe_flag_cnt = 1;
-// 	}
-// 	if(imu_flag_cnt++ == (int)(base_timer_rate/config.imu_rate))
-// 	{
-// 		imu_flag = true;
-// 		imu_flag_cnt = 1;
-// 	}
-// }
+class scheduler_typedef scheduler;
+void scheduler_timer(void)
+{
+	scheduler.scheduler_timer_fcn();
+}
+void  scheduler_typedef::scheduler_timer_fcn(void)
+{
+	if(mpc_flag_cnt++ == (int)(base_timer_rate/config.mpc_rate))
+	{
+		mpc_flag = true;
+		mpc_flag_cnt = 1;
+	}
+	if(actuator_flag_cnt++ == (int)(base_timer_rate/config.actuator_rate))
+	{
+		actuator_flag = true;
+		actuator_flag_cnt = 1;
+	}
+	if(pid_controller_flag_cnt++ == (int)(base_timer_rate/config.pid_controller_rate))
+	{
+		pid_controller_flag = true;
+		pid_controller_flag_cnt = 1;
+	}
+	if(att_est_flag_cnt++ == (int)(base_timer_rate/config.attitude_est_rate))
+	{
+		att_est_flag = true;
+		att_est_flag_cnt = 1;
+	}
+	if(lpe_flag_cnt++ == (int)(base_timer_rate/config.lpe_rate))
+	{
+		lpe_flag = true;
+		lpe_flag_cnt = 1;
+	}
+	if(imu_flag_cnt++ == (int)(base_timer_rate/config.imu_rate))
+	{
+		imu_flag = true;
+		imu_flag_cnt = 1;
+	}
+}
 
-// scheduler_typedef::scheduler_typedef(void)
-// {
-// 	mpc_flag = true;
-// 	pid_controller_flag = true;
-// 	imu_flag = true;
-// 	actuator_flag = true;
-// 	att_est_flag = true;
-// 	lpe_flag = true;
+scheduler_typedef::scheduler_typedef(void)
+{
+	mpc_flag = true;
+	pid_controller_flag = true;
+	imu_flag = true;
+	actuator_flag = true;
+	att_est_flag = true;
+	lpe_flag = true;
 	
-// }
-// void scheduler_typedef::start_system_timer(int _base_timer_rate)
-// {
-//     int ret;
-//     timer_t timer;
-//     struct sigevent evp;
-//     struct timespec spec;
-//     struct itimerspec time_value;
-//     base_timer_rate = _base_timer_rate;
-//     evp.sigev_value.sival_ptr = &timer;
-//     /*定时器到期时，会产生一个信号*/
-//     evp.sigev_notify = SIGEV_SIGNAL; 
-//     evp.sigev_signo = SIGUSR1;
-//     signal(SIGUSR1, (__sighandler_t)scheduler_timer);
+}
+void scheduler_typedef::start_system_timer(int _base_timer_rate)
+{
+    int ret;
+    timer_t timer;
+    struct sigevent evp;
+    struct timespec spec;
+    struct itimerspec time_value;
+    base_timer_rate = _base_timer_rate;
+    evp.sigev_value.sival_ptr = &timer;
+    /*定时器到期时，会产生一个信号*/
+    evp.sigev_notify = SIGEV_SIGNAL; 
+    evp.sigev_signo = SIGUSR1;
+    signal(SIGUSR1, (__sighandler_t)scheduler_timer);
 
-//     /*时钟源选CLOCK_MONOTONIC主要是考虑到系统的实时时钟可能会在
-//     程序运行过程中更改，所以存在一定的不确定性，而CLOCK_MONOTONIC
-//     则不会，较为稳定*/
-//     ret = timer_create(CLOCK_MONOTONIC, &evp, &timer);
-//     if( ret )
-//         perror("timer_create");
+    /*时钟源选CLOCK_MONOTONIC主要是考虑到系统的实时时钟可能会在
+    程序运行过程中更改，所以存在一定的不确定性，而CLOCK_MONOTONIC
+    则不会，较为稳定*/
+    //ret = timer_create(CLOCK_MONOTONIC, &evp, &timer);
+    if( ret )
+        perror("timer_create");
 
-//     time_value.it_interval.tv_sec = 0;      /*每秒触发一次*/
-//     time_value.it_interval.tv_nsec = (uint32_t)(1000000000.f/base_timer_rate);//10khz timer base
-//     clock_gettime(CLOCK_MONOTONIC, &spec);         
-//     time_value.it_value.tv_sec = spec.tv_sec + 0;      /*5秒后启动*/
-//     time_value.it_value.tv_nsec = spec.tv_nsec + 0;
+    time_value.it_interval.tv_sec = 0;      /*每秒触发一次*/
+    time_value.it_interval.tv_nsec = (uint32_t)(1000000000.f/base_timer_rate);//10khz timer base
+    //clock_gettime(CLOCK_MONOTONIC, &spec);         
+    time_value.it_value.tv_sec = spec.tv_sec + 0;      /*5秒后启动*/
+    time_value.it_value.tv_nsec = spec.tv_nsec + 0;
 
-//     ret = timer_settime(timer, CLOCK_MONOTONIC, &time_value, NULL);
-//     if( ret )
-//             perror("timer_settime");
+    //ret = timer_settime(timer, CLOCK_MONOTONIC, &time_value, NULL);
+    if( ret )
+            perror("timer_settime");
 
-// }
+}

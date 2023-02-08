@@ -28,7 +28,7 @@ extern "C" {
     #include <sched.h>
     #include <sys/types.h>
     #include <unistd.h>
-    //#include "conf-c/conf.h"
+    #include "conf-c/conf.h"
     #include <termios.h>
     #include <string.h>
     #include <sys/ioctl.h>    
@@ -47,12 +47,20 @@ enum fc_validation_mode_typedef
     EXP2,
     SIH,
 };
+#include "limit.h"
 
+#include "configure.h"
+#include "system.h"
 #include "systime.h"
 #include "math_function.h"
 #include "ringbuffer.h"
 #include "msg_def.h"
 #include "pca9685.h"
 #include "sbus_api.h"
-#include "sbus_rc_thread.h"
+#include "ICM42688P.h"
+#include "sensor_calibration.h"
+#include "ellipsoid_method.h"
+#include "ellipsoid_method_types.h"
+#include "parameter_read.h"
+#include "test_time.h"
 #endif
