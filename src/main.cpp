@@ -18,6 +18,7 @@ int main(int argc, const char *argv[])
   start_attitudeEstimator();
   start_lpe();
   start_usrController();
+  start_sih();
   //printf("sizeof(uint64_t) %d\n", sizeof(uint64_t));
   //printf("sizeof(unsigned long long) %d\n", sizeof(unsigned long long));
 //   get_time_now();

@@ -71,5 +71,5 @@ enum fc_validation_mode_typedef
 #include "attitudeEstimator_thread.h"
 #include "positionEstimator_thread.h"
 #include "usrController_thread.h"
-
+#include "sih_thread.h"
 #endif

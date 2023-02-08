@@ -9,6 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
 
 add_subdirectory(src/3rdparty/sbus)
 add_subdirectory(controller_codegen)
+add_subdirectory(sih_codegen)
 
 SET(simulink_utility
     src/simulink_utility/rt_nonfinite.cpp
@@ -37,10 +38,10 @@ SET(estimator_source
 SET(controller_source
     src/thread/usrController_thread.cpp 
 )
-SET(estimator_include
-    src/thread
-    estimator_codegen    
+SET(sih_source
+    src/thread/sih_thread.cpp
 )
+
 
 SET(drivers_source
     src/drivers
@@ -89,18 +90,20 @@ include_directories(
                     src/thread
                     src/msg
                     src/parameter
-                    ${estimator_include}
                     controller_codegen
+                    estimator_codegen
+                    sih_codegen
                     )
 
 link_directories(
                 src/3rdparty/conf-c/lib
                 )
-add_executable(controller.o  
+add_executable(rflypilot.o  
     ${source_file}  
     ${simulink_utility} 
     ${drivers_source}
     ${estimator_source}
-    ${controller_source})
-target_link_libraries(controller.o   libsbus conf controller_codegen)
+    ${controller_source}
+    ${sih_source})
+target_link_libraries(rflypilot.o   libsbus conf controller_codegen sih_codegen)
 
