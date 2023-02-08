@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include "../posix/i2c.h"
+#include "../../posix/i2c.h"
 #include "iSentek_IST8310_registers.h"
 
 

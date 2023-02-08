@@ -1,11 +1,11 @@
 #include "QMC5883L.h"
 #ifndef TESTMODE
 	#include "msg_def.h"
-	#include "time_fcn.h"
+	#include "systime.h"
 	#include "sensor_calibration.h"
 	// #include "config.h"
 #else
-	#include "../px4lib/test_time.h"
+	#include "../../px4lib/test_time.h"
 #endif
 // using namespace time_literals;
 #define PX4_ERROR (-1)

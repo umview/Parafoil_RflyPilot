@@ -37,7 +37,9 @@ SET(drivers_source
     src/drivers/rc/sbus/sbus_api.cpp
     src/drivers/imu/icm42688p/ICM42688P.cpp
     src/drivers/imu/gyroscope/PX4Gyroscope.cpp
-    src/drivers/imu/accelerometer/PX4Accelerometer.cpp    
+    src/drivers/imu/accelerometer/PX4Accelerometer.cpp  
+    src/drivers/magnetometer/ist8310/ist8310.cpp
+    src/drivers/magnetometer/qmc5883l/QMC5883L.cpp  
 )
 SET(drivers_include 
     src/drivers
@@ -50,7 +52,8 @@ SET(drivers_include
     src/drivers/gps
     src/drivers/barometer
     src/drivers/barometer
-    src/drivers/magmetometer
+    src/drivers/magnetometer/ist8310
+    src/drivers/magnetometer/qmc5883l
 
 )
 SET(thread_source

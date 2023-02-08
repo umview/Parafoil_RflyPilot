@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-#include "../posix/i2c.h"
+#include "../../posix/i2c.h"
 
 
 #include "QST_QMC5883L_registers.h"

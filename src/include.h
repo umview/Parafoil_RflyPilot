@@ -63,4 +63,6 @@ enum fc_validation_mode_typedef
 #include "ellipsoid_method_types.h"
 #include "parameter_read.h"
 #include "test_time.h"
+#include "ist8310.h"
+#include "QMC5883L.h"
 #endif

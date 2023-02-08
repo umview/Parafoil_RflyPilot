@@ -1,7 +1,7 @@
 #include "ist8310.h"
 // #define TESTMODE
 #ifndef TESTMODE
-	#include "time_fcn.h"
+	#include "systime.h"
 #endif
 
 // #include "time.h"
@@ -52,23 +52,23 @@ void start_ist8310(void)
 
 /* class IST8310's Achievement  */
 
-#ifndef _TIME_H_
+#ifndef _SYSTIME_H_
 struct timeval tv;
 struct timezone tz;
-unsigned long long time_in_usec = 0;
-unsigned long long time_in_usec_last = 0;
-static unsigned long long _time_now(void);
-unsigned long long get_time_now(void);
-static unsigned long long _time_now(void)
+uint64_t time_in_usec = 0;
+uint64_t time_in_usec_last = 0;
+static uint64_t _time_now(void);
+uint64_t get_time_now(void);
+static uint64_t _time_now(void)
 {
     gettimeofday(&tv, &tz);
     time_in_usec_last = time_in_usec;
     time_in_usec = tv.tv_sec * 1e6 + tv.tv_usec;
     return time_in_usec;
 }
-unsigned long long get_time_now(void)
+uint64_t get_time_now(void)
 {
-    static unsigned long long start_time = _time_now();
+    static uint64_t start_time = _time_now();
     return _time_now() - start_time;
 }
 #endif
