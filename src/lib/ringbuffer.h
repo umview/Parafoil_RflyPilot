@@ -2,7 +2,8 @@
 #define _RINGBUFFER_
 #include "include.h"
 #include "systime.h"
-
+#include <sys/stat.h>
+#include <sys/types.h>
 // typedef struct 
 // {
 // 	uint64_t timestamp;
@@ -61,15 +62,15 @@ public:
             printf("error spin lock init failed\n");
         }
         log_enable = _log_enable;
-        // static struct tm mytm={0};
-        // static struct tm* p_tm;
-        // static time_t time;
-        //p_tm = localtime_r(&time,&mytm);        
-        //sprintf(path, "/dev/shm/log/");//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min);            
-        // if(mkdir("/dev/shm/log/", 0777) == -1)
-        // {
-        //     printf("mkdir %s error\n",msg_name);
-        // }
+        static struct tm mytm={0};
+        static struct tm* p_tm;
+        static time_t time;
+        p_tm = localtime_r(&time,&mytm);        
+        sprintf(path, "/dev/shm/log/");//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min);            
+        if(mkdir("/dev/shm/log/", 0777) == -1)
+        {
+            printf("mkdir %s error\n",msg_name);
+        }
         sprintf(path, "/dev/shm/log/%s.bin",msg_name);//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min, msg_name);
         fp=open(path, O_RDWR | O_CREAT,0777);
         if(fp == -1){
@@ -146,7 +147,7 @@ public:
             index += 1;
             unlock();
         }
-        if(log_enable)log_write(data);
+        //if(log_enable)log_write(data);
     }
     // bool readN(data_type *data,int length)
     // {

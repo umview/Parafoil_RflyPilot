@@ -19,6 +19,8 @@ int main(int argc, const char *argv[])
   start_lpe();
   start_usrController();
   start_sih();
+  start_scope();
+  start_console();
   //printf("sizeof(uint64_t) %d\n", sizeof(uint64_t));
   //printf("sizeof(unsigned long long) %d\n", sizeof(unsigned long long));
 //   get_time_now();

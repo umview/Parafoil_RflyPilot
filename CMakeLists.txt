@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
 add_subdirectory(src/3rdparty/sbus)
 add_subdirectory(controller_codegen)
 add_subdirectory(sih_codegen)
+add_subdirectory(estimator_codegen)
 
 SET(simulink_utility
     src/simulink_utility/rt_nonfinite.cpp
@@ -28,18 +29,22 @@ SET(source_file
     src/calibration/ellipsoid_method.cpp
     src/calibration/sensor_calibration.cpp
     src/parameter/parameter_read.cpp
+    src/scope/scope.cpp
+    src/application/scope_thread.cpp
+    src/console/console.cpp
+    src/application/console_thread.cpp
 )
 SET(estimator_source
-    src/thread/attitudeEstimator_thread.cpp
-    src/thread/positionEstimator_thread.cpp
-    estimator_codegen/AttitudeEstimator.cpp
-    estimator_codegen/PositionEstimator.cpp    
+    src/application/attitudeEstimator_thread.cpp
+    src/application/positionEstimator_thread.cpp
+    #estimator_codegen/AttitudeEstimator.cpp
+    #estimator_codegen/PositionEstimator.cpp    
 )
 SET(controller_source
-    src/thread/usrController_thread.cpp 
+    src/application/usrController_thread.cpp 
 )
 SET(sih_source
-    src/thread/sih_thread.cpp
+    src/application/sih_thread.cpp
 )
 
 
@@ -87,9 +92,11 @@ include_directories(
                     src/3rdparty/conf-c/include
                     src/simulink_utility
                     src/system_utility
-                    src/thread
+                    src/application
                     src/msg
                     src/parameter
+                    src/scope
+                    src/console
                     controller_codegen
                     estimator_codegen
                     sih_codegen
@@ -98,12 +105,17 @@ include_directories(
 link_directories(
                 src/3rdparty/conf-c/lib
                 )
-add_executable(rflypilot.o  
+add_executable(rflypilot
     ${source_file}  
     ${simulink_utility} 
     ${drivers_source}
     ${estimator_source}
     ${controller_source}
     ${sih_source})
-target_link_libraries(rflypilot.o   libsbus conf controller_codegen sih_codegen)
+target_link_libraries(rflypilot   
+libsbus 
+conf 
+estimator_codegen
+controller_codegen 
+sih_codegen)
 

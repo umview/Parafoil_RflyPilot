@@ -82,15 +82,21 @@ int spi_reg_read(int fd, uint8_t const addr, uint8_t *data)
 int transfer(int fd, uint8_t const *tx, uint8_t const *rx, size_t len)
 {
     int ret;
-    struct spi_ioc_transfer tr = {
-        .tx_buf = (unsigned long)tx,
-        .rx_buf = (unsigned long)rx,
-        .len = len,
-        .speed_hz = speed,
-        .delay_usecs = _delay,
-        .bits_per_word = bits,
-    };
-
+    // struct spi_ioc_transfer tr = {
+    //     .tx_buf = (unsigned long)tx,
+    //     .rx_buf = (unsigned long)rx,
+    //     .len = len,
+    //     .speed_hz = speed,
+    //     .delay_usecs = _delay,
+    //     .bits_per_word = bits,
+    // };
+    struct spi_ioc_transfer tr;
+    tr.tx_buf = (unsigned long)tx;
+    tr.rx_buf = (unsigned long)rx;
+    tr.len = len;
+    tr.speed_hz = speed;
+    tr.delay_usecs = _delay;
+    tr.bits_per_word = bits;
     ret = ioctl(fd,SPI_IOC_MESSAGE(1),&tr);
     if( ret == -1 )
     {
