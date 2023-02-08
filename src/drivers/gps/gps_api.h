@@ -1,6 +1,6 @@
 #ifndef _GPS_API_
 #define _GPS_API_
-#include "config.h"
+#include "include.h"
 #include "ubx.h"
 #include <iostream>
 #include <ostream>

@@ -6,7 +6,18 @@ int main(int argc, const char *argv[])
   (void)(argc);
   (void)(argv);
   get_time_now();
-  start_sbus("/dev/ttyAMA0");
+  // start_sbus("/dev/ttyAMA0");
+  // start_gps("/dev/ttySC0");
+
+  // start_baro();
+  // start_ist8310();
+  // start_qmc5883l();
+  // start_icm42688p();
+  // start_icm20689();
+  // pca9685_dev.pca9685_init(400);
+  start_attitudeEstimator();
+  start_lpe();
+  start_usrController();
   //printf("sizeof(uint64_t) %d\n", sizeof(uint64_t));
   //printf("sizeof(unsigned long long) %d\n", sizeof(unsigned long long));
 //   get_time_now();

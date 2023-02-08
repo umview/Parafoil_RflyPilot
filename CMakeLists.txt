@@ -8,6 +8,7 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
 
 add_subdirectory(src/3rdparty/sbus)
+add_subdirectory(controller_codegen)
 
 SET(simulink_utility
     src/simulink_utility/rt_nonfinite.cpp
@@ -27,6 +28,19 @@ SET(source_file
     src/calibration/sensor_calibration.cpp
     src/parameter/parameter_read.cpp
 )
+SET(estimator_source
+    src/thread/attitudeEstimator_thread.cpp
+    src/thread/positionEstimator_thread.cpp
+    estimator_codegen/AttitudeEstimator.cpp
+    estimator_codegen/PositionEstimator.cpp    
+)
+SET(controller_source
+    src/thread/usrController_thread.cpp 
+)
+SET(estimator_include
+    src/thread
+    estimator_codegen    
+)
 
 SET(drivers_source
     src/drivers
@@ -36,10 +50,13 @@ SET(drivers_source
     src/drivers/actuator/pca9685/pca9685.cpp
     src/drivers/rc/sbus/sbus_api.cpp
     src/drivers/imu/icm42688p/ICM42688P.cpp
+    src/drivers/imu/icm20689/icm20689.cpp
     src/drivers/imu/gyroscope/PX4Gyroscope.cpp
     src/drivers/imu/accelerometer/PX4Accelerometer.cpp  
     src/drivers/magnetometer/ist8310/ist8310.cpp
     src/drivers/magnetometer/qmc5883l/QMC5883L.cpp  
+    src/drivers/barometer/ms5611/ms5611.cpp
+    src/drivers/gps/gps_api.cpp
 )
 SET(drivers_include 
     src/drivers
@@ -49,16 +66,16 @@ SET(drivers_include
     src/drivers/imu/icm42688p
     src/drivers/imu/accelerometer
     src/drivers/imu/gyroscope
+    src/drivers/imu/icm20689
     src/drivers/gps
     src/drivers/barometer
     src/drivers/barometer
     src/drivers/magnetometer/ist8310
     src/drivers/magnetometer/qmc5883l
+    src/drivers/barometer/ms5611
+    src/drivers/gps
+)
 
-)
-SET(thread_source
-    #src/thread/sbus_rc_thread.cpp
-)
 include_directories(
                     config/
                     src
@@ -72,6 +89,8 @@ include_directories(
                     src/thread
                     src/msg
                     src/parameter
+                    ${estimator_include}
+                    controller_codegen
                     )
 
 link_directories(
@@ -81,6 +100,7 @@ add_executable(controller.o
     ${source_file}  
     ${simulink_utility} 
     ${drivers_source}
-    ${thread_source})
-target_link_libraries(controller.o  libsbus conf)
+    ${estimator_source}
+    ${controller_source})
+target_link_libraries(controller.o   libsbus conf controller_codegen)
 

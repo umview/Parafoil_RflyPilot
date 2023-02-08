@@ -113,7 +113,7 @@ bool gps_api_typedef::gps_config(char *_port)
     sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("init ok\n");
     usleep(200000);
-    printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
+    printf("size of ubx_payload_rx_nav_pvt_t %ld\n",sizeof(ubx_payload_rx_nav_pvt_t));
     return true;
 }
 void gps_api_typedef::run(void)

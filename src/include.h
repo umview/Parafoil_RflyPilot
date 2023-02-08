@@ -58,6 +58,7 @@ enum fc_validation_mode_typedef
 #include "pca9685.h"
 #include "sbus_api.h"
 #include "ICM42688P.h"
+#include "icm20689.h"
 #include "sensor_calibration.h"
 #include "ellipsoid_method.h"
 #include "ellipsoid_method_types.h"
@@ -65,4 +66,10 @@ enum fc_validation_mode_typedef
 #include "test_time.h"
 #include "ist8310.h"
 #include "QMC5883L.h"
+#include "ms5611.h"
+#include "gps_api.h"
+#include "attitudeEstimator_thread.h"
+#include "positionEstimator_thread.h"
+#include "usrController_thread.h"
+
 #endif

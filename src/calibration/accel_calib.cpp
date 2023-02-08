@@ -51,7 +51,7 @@ bool calibration_typedef::calib_accel(double G)
     usleep(calibration_delay_us);
     printf("step1 is completed!\n");
     printf("A = %.4f\n", A[48]);
-    printf("");
+    printf("\n");
 
 
 
@@ -79,7 +79,7 @@ bool calibration_typedef::calib_accel(double G)
         usleep(calibration_delay_us);
     printf("step2 is completed!\n");
     printf("A = %1.4f\n", A[48]);
-    printf("");
+    printf("\n");
 
 
      printf("Please place the (-x) axis of the aircraft upward\n");
@@ -107,7 +107,7 @@ bool calibration_typedef::calib_accel(double G)
         usleep(calibration_delay_us);
     printf("step3 is completed!\n");
     printf("A = %1.4f\n", A[48]);
-    printf("");
+    printf("\n");
 
 
     printf("Please place the (-z) axis of the aircraft upward\n");
@@ -134,7 +134,7 @@ bool calibration_typedef::calib_accel(double G)
         usleep(calibration_delay_us);
     printf("step4 is completed!\n");
     printf("A = %1.4f\n", A[48]);
-    printf("");
+    printf("\n");
 
 
     printf("Please place the (-y) axis of the aircraft upward\n");
@@ -161,7 +161,7 @@ bool calibration_typedef::calib_accel(double G)
         usleep(calibration_delay_us);
     printf("step5 is completed!\n");
     printf("A = %1.4f\n", A[48]);
-    printf("");
+    printf("\n");
 
 
     printf("Please place the (+y) axis of the aircraft upward\n");
@@ -188,7 +188,7 @@ bool calibration_typedef::calib_accel(double G)
         usleep(calibration_delay_us);
     printf("step6 is completed!\n");
     printf("A = %1.4f\n", A[48]);
-    printf("");
+    printf("\n");
     fclose(fp);
 
     ellipsoid_method_step2(A,

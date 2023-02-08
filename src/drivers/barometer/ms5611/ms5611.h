@@ -9,9 +9,9 @@
 #include <sys/time.h>
 #include <pthread.h>
 #ifndef TESTMODE
-#include "time_fcn.h"
+#include "systime.h"
 #else
-#include "px4lib/test_time.h"
+#include "../../px4lib/test_time.h"
 #endif
 
 #define DRV_BARO_DEVTYPE_MS5611		0x3D

@@ -1,6 +1,6 @@
 #ifndef _ICM20689_H_
 #define _ICM20689_H_
-#include "config.h"
+#include "include.h"
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include <stdint.h>
