@@ -26,17 +26,9 @@ void * thread_baro(void * ptr)
 
 void start_baro(void)
 {
-    printf("start baro\n");
-    int ret = 0;
-    ret = c_ms5611.init();
-    /* thread create */
-    int rc;
-    pthread_t thr_baro;
-    if(rc = pthread_create(&thr_baro, NULL, thread_baro, NULL))
-    {
-		printf(" thread cretated failed %d \n", rc);
-    }
-    printf("baro process pid : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("barometer", thread_baro, NULL);
+
 }
 
 

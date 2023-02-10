@@ -39,13 +39,12 @@ extern "C" {
 }
 #endif
 
-enum fc_validation_mode_typedef
+enum validation_mode_typedef
 {
-    HIL,
-    HIL2,
-    EXP,
-    EXP2,
+    UNDIFINED = 0,
     SIH,
+    HIL,
+    EXP
 };
 #include "limit.h"
 
@@ -76,4 +75,13 @@ enum fc_validation_mode_typedef
 #include "positionEstimator_thread.h"
 #include "usrController_thread.h"
 #include "sih_thread.h"
+#include "gps_thread.h"
+#include "sbus_thread.h"
+#include "icm20689_thread.h"
+#include "icm42688p_thread.h"
+#include "ist8310_thread.h"
+#include "qmc5883l_thread.h"
+#include "ms5611_thread.h"
+#include "log_thread.h"
+#include "binlog.h"
 #endif

@@ -40,14 +40,9 @@ void start_ist8310(void)
     ret = ist8310.init();
     ret = ist8310.probe();
     // ret = ist8310.Configure();
-    /* thread create */
-    int rc;
-    pthread_t thr_mag;
-    if(rc = pthread_create(&thr_mag, NULL, thread_ist8310, NULL))
-    {
-		printf(" thread cretated failed %d \n", rc);
-    }
-    printf("mag process pid : %d\n", (int)getpid()); 
+
+  ret = create_thread("ist8310", thread_ist8310, NULL);
+
 }
 
 /* class IST8310's Achievement  */

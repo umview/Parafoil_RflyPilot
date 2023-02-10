@@ -90,10 +90,10 @@ void * thread_usrController(void * ptr)
             _pwm_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             pwm_output_msg.publish(&_pwm_output_msg);
 
-            // pca9685_dev.updatePWM(usrController_Obj.usrController_Y._c_out_s.pwm,4);
-            // memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
-            // _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
-            // actuator_output_msg.publish(&_actuator_output_msg);
+            //pca9685_dev.updatePWM(usrController_Obj.usrController_Y._c_out_s.pwm,4);
+            memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
+            _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
+            actuator_output_msg.publish(&_actuator_output_msg);
             
             cont--;
             if (cont<1)
@@ -119,11 +119,15 @@ void * thread_usrController(void * ptr)
 
 void start_usrController(void)
 {
-    int rc;
-    pthread_t thr_usrController;
-    if(rc = pthread_create(&thr_usrController, NULL, thread_usrController, NULL))
-    {
-		printf("usrController thread cretated failed %d \n", rc);
-    }
-    printf("usrController thread created with process pid : %d\n", (int)getpid()); 
+  //   int rc;
+  //   pthread_t thr_usrController;
+  //   if(rc = pthread_create(&thr_usrController, NULL, thread_usrController, NULL))
+  //   {
+		// printf("usrController thread cretated failed %d \n", rc);
+  //   }
+  //   printf("usrController thread created with process pid : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("Controller", thread_usrController, NULL);
+
+
 }

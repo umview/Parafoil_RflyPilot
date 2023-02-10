@@ -30,23 +30,12 @@ SET(source_file
     src/calibration/sensor_calibration.cpp
     src/parameter/parameter_read.cpp
     src/scope/scope.cpp
-    src/application/scope_thread.cpp
+    src/log/binlog.cpp
     src/console/console.cpp
-    src/application/console_thread.cpp
-)
-SET(estimator_source
-    src/application/attitudeEstimator_thread.cpp
-    src/application/positionEstimator_thread.cpp
-    #estimator_codegen/AttitudeEstimator.cpp
-    #estimator_codegen/PositionEstimator.cpp    
-)
-SET(controller_source
-    src/application/usrController_thread.cpp 
-)
-SET(sih_source
-    src/application/sih_thread.cpp
 )
 
+
+aux_source_directory(src/application app_source)
 
 SET(drivers_source
     src/drivers
@@ -97,6 +86,7 @@ include_directories(
                     src/parameter
                     src/scope
                     src/console
+                    src/log
                     controller_codegen
                     estimator_codegen
                     sih_codegen
@@ -107,6 +97,7 @@ link_directories(
                 )
 add_executable(rflypilot
     ${source_file}  
+    ${app_source}
     ${simulink_utility} 
     ${drivers_source}
     ${estimator_source}

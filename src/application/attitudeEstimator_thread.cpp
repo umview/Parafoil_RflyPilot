@@ -110,11 +110,7 @@ void * thread_attitudeEstimator(void * ptr)
 
 void start_attitudeEstimator(void)
 {
-    int rc;
-    pthread_t thr_attitudeEstimator;
-    if(rc = pthread_create(&thr_attitudeEstimator, NULL, thread_attitudeEstimator, NULL))
-    {
-		printf(" thread cretated failed %d \n", rc);
-    }
-    printf("attitude estimator created with process pid : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("attitudeEstimator", thread_attitudeEstimator, NULL);
+
 }

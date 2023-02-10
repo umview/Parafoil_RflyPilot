@@ -79,7 +79,6 @@ public:
 void LLA2NED(double ref_lat, double ref_lon, double lat, double lon, float *x, float *y);
 void *gps_thread(void *ptr);
 void start_gps(const char *gps_serial);
-//extern ringbuffer_typedef<sensor_gps_typedef> gps_msg;//(GPS_N);
 
 extern class gps_api_typedef gps_api;
 #endif

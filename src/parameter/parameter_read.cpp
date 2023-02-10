@@ -79,7 +79,7 @@ void read_param(void)
 
   //打开并初始化数据结构
   //出错时返回NULL
-  if((conf=conf_open("../nmpc.conf")) == NULL)
+  if((conf=conf_open("../config/rflypilot.conf")) == NULL)
     printf("err open\n");
 
   //开始解析配置文件
@@ -103,17 +103,16 @@ void read_param(void)
   // if(list)
   //   print_all_float(list);
 
-
-  config.imu_rate = get_param("imu_rate");
-  config.pid_controller_rate = get_param("pid_controller_rate");
-  config.mpc_rate = get_param("mpc_rate");
-  config.actuator_rate = get_param("actuator_rate");
-  config.mag_rate = get_param("mag_rate");
-  config.attitude_est_rate = get_param("attitude_est_rate");
-  config.lpe_rate = get_param("lpe_rate");
-  config.accel_cutoff = get_param("accel_cutoff");
-  config.gyro_cutoff = get_param("gyro_cutoff");
-
+  rflypilot_config_typedef _config_msg;
+  _config_msg.timestamp = get_time_now();
+  _config_msg.imu_rate = get_param("imu_rate");
+  _config_msg.mag_rate = get_param("mag_rate");
+  _config_msg.attitude_est_rate = get_param("attitude_est_rate");
+  _config_msg.lpe_rate = get_param("lpe_rate");
+  _config_msg.accel_cutoff_hz = get_param("accel_cutoff_hz");
+  _config_msg.gyro_cutoff_hz = get_param("gyro_cutoff_hz");
+  _config_msg.validation_mode = validation_mode_typedef((int)(get_param("valid_mode")));
+  rflypilot_config_msg.publish(&_config_msg);
 
 
   //释放内存

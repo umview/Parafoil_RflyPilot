@@ -80,11 +80,7 @@ void * thread_sih(void * ptr)
 
 void start_sih(void)
 {
-  int rc;
-  pthread_t thr_sih;
-  if(rc = pthread_create(&thr_sih, NULL, thread_sih, NULL))
-  {
-    printf("sih thread cretated failed %d \n", rc);
-  }
-  printf("sih thread created with process pid : %d\n", (int)getpid());
+
+  bool ret = create_thread("SIH", thread_sih, NULL);
+
 }

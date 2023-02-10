@@ -12,31 +12,27 @@ void * thread_scope(void * ptr)
   int i = 0;
   //get_hight_Pri(1);
 
-  char addr[] = "192.168.199.152";
+  char *addr = (char*)ptr;
   scope.init(addr, 3333);
   rflysim3dDP.init(addr, 20010);
   rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
 	cf_output_typedef _att;
 	lpe_output_typedef _lpe;
 	imu_typedef _imu;
-	pid_output_typedef _pid_output;
 	gps_msg_typedef _gps;
 	mag_typedef _mag;
 	actuator_output_typedef _actuator_output;
 	imu_raw_typedef _imu_raw;
 
-    float buff[80];
-    buff[0] = 1234;
+  float buff[80];
+  buff[0] = 1234;
   while(1)
   {
     if(scope_debug)t0 = get_time_now();
 
-
-
     cf_output_msg.read(&_att);
     lpe_output_msg.read(&_lpe);
     imu_msg.read(&_imu);
-    pid_output_msg.read(&_pid_output);
     gps_msg.read(&_gps);
     mag_msg.read(&_mag);
     actuator_output_msg.read(&_actuator_output);
@@ -60,7 +56,7 @@ void * thread_scope(void * ptr)
     for(i = 0; i < 3; i++)buff[i+23] = 0;//omega_ref
     for(i = 0; i < 4; i++)buff[i+26] = (float)_actuator_output.actuator_output[i];//pwm
     buff[30] = 0;//cost
-    buff[31] = pid_output_msg.publish_rate_hz;
+    buff[31] = 0;
     buff[32] = 0;
     buff[33] = get_time_now() / 1e6;
     buff[34] = _imu.accel[0];
@@ -78,10 +74,10 @@ void * thread_scope(void * ptr)
     buff[55] = _att.roll;
     buff[56] = _att.pitch;
     buff[57] = _att.yaw;
-    for(i = 0; i< 3; i++)buff[i+58] = _pid_output.vel_sp_ned[i];
-    for(i = 0; i< 3; i++)buff[i+61] = _pid_output.pos_sp_ned[i];
-    for(i = 0; i< 3; i++)buff[i+64] = _pid_output.accel_setpoint[i];
-    buff[67] = pid_output_msg.publish_rate_hz;
+    for(i = 0; i< 3; i++)buff[i+58] = 0;
+    for(i = 0; i< 3; i++)buff[i+61] = 0;
+    for(i = 0; i< 3; i++)buff[i+64] = 0;
+    buff[67] = 0;
     buff[68] = mpc_output_msg.publish_rate_hz;
     buff[69] = cf_output_msg.publish_rate_hz;
     buff[70] = lpe_output_msg.publish_rate_hz;
@@ -112,14 +108,8 @@ void * thread_scope(void * ptr)
   }
 }
 
-void start_scope(void)
+void start_scope(const char *addr)
 { 
-  int rc;
-  pthread_t thr3;
-  if(rc = pthread_create(&thr3, NULL, thread_scope, NULL))
-  {
-    printf("scope thread cretated failed %d \n", rc);
-  }
-  printf("scope thread created with process pid : %d\n", (int)getpid()); 
+  bool ret = create_thread("scope", thread_scope, (void*)addr);
 }
 

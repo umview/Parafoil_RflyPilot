@@ -1,10 +1,10 @@
 #ifndef _BINLOG_
 #define _BINLOG_
-#include "config.h"
+#include "include.h"
 #include <fcntl.h>
 void binlog_demo(void);
-void binlog_write(void);
-void log_data_prepare(void);
+void binlog_write(const char *pwd, uint8_t *buff);
+//void log_data_prepare(void);
 struct debug_log_typedef
 {
 	float data[80];

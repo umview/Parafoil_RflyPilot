@@ -10,10 +10,7 @@ void *console_task(void *arg)
 
 void start_console(void)
 {
-    printf("start console");    
-    int ret = pthread_create(&console.console_thread, NULL, console_task, NULL);
-    if (ret != 0)
-    {
-        std::cout << "pthread_create error: error_code =" << ret << std::endl;
-    }
+
+  bool ret = create_thread("console", console_task, NULL);
+
 }

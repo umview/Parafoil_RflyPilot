@@ -55,4 +55,8 @@ public:
 
 };
 void scheduler_timer(void);
+
+
+
+bool create_thread(const char *name, void* (*start_rtn)(void*),void *thread_arg);
 #endif

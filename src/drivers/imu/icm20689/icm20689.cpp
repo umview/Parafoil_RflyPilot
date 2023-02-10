@@ -272,16 +272,20 @@ void *thread_icm20689(void *ptr)
 }
 void start_icm20689(void)
 {
-    printf("start icm20689\n");
-    int ret = 0;
+    // printf("start icm20689\n");
+    // int ret = 0;
 
-    int rc;
-    pthread_t thr;
-    if(rc = pthread_create(&thr, NULL, thread_icm20689, NULL))
-    {
-        printf(" thread cretated failed %d \n", rc);
-    }
-    printf("icm20689 process pid : %d\n", (int)getpid()); 
+    // int rc;
+    // pthread_t thr;
+    // if(rc = pthread_create(&thr, NULL, thread_icm20689, NULL))
+    // {
+    //     printf(" thread cretated failed %d \n", rc);
+    // }
+    // printf("icm20689 process pid : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("icm20689", thread_icm20689, NULL);
+
+
 }
 
 bool icm20689_recv_spi(icm20689_data_typedef * payload)

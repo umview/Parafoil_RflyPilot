@@ -1,4 +1,5 @@
 #include "gps_api.h"
+
 class gps_api_typedef gps_api;
 
 void *gps_thread(void *ptr)
@@ -19,16 +20,10 @@ void *gps_thread(void *ptr)
 }
 void start_gps(const char *gps_serial)
 {
-printf("start gps\n");    
-  int rc;
-  pthread_t thr;
-  if(rc = pthread_create(&thr, NULL, gps_thread, (void *)gps_serial))
-  {
-    printf(" thread cretated failed %d \n", rc);
-  }
-  printf("gps thread cretated\n"); 
-}
 
+  bool ret = create_thread("gps", gps_thread, (void*)gps_serial);
+
+}
 
 
 

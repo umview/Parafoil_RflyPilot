@@ -23,13 +23,9 @@ void *sbus_thread(void *ptr)
 }
 void start_sbus(const char *sbus_serial)
 {
-  int rc;
-  pthread_t thr;
-  if(rc = pthread_create(&thr, NULL, sbus_thread, (void *)sbus_serial))
-  {
-    printf(" thread cretated failed %d \n", rc);
-  }
-  printf("sbus thread cretated\n"); 
+
+  bool ret = create_thread("sbus", sbus_thread, (void*)sbus_serial);
+
 }
 sbus_api_typedef::sbus_api_typedef(void)
 {

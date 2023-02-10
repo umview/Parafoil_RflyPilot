@@ -169,3 +169,19 @@ void scheduler_typedef::start_system_timer(int _base_timer_rate)
             perror("timer_settime");
 
 }
+bool create_thread(const char *name, void* (*start_rtn)(void*),void  *thread_arg)
+{
+  int rc;
+  pthread_t thr;
+  if(rc = pthread_create(&thr, NULL, start_rtn, thread_arg))
+  {
+    printf("%s thread cretated failed %d \n", name, rc);
+  	printf("%s thread failed\n", name);
+    return false;
+  }
+  printf("%s thread created with process pid : %d\n", name, (int)getpid());
+  printf("%s starting\n", name);
+  return true;
+}
+
+

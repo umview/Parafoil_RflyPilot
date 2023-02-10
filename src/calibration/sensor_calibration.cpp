@@ -66,11 +66,8 @@ void start_calibration(char *inputs)
 
     calibration.calib_mode = _mode;
 
-  if(rc = pthread_create(&thr, NULL, thread_calibration, NULL))
-  {
-    printf(" thread cretated failed %d \n", rc);
-  }
-  printf("calibration process thread id : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("Calibration", thread_calibration, NULL);
 
   return;
 }

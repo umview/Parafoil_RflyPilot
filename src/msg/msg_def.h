@@ -1,18 +1,6 @@
 #ifndef _MSG_DEF_
 #define _MSG_DEF_
 #include "include.h"
-typedef struct
-{
-	uint64_t timestamp;
-	// float quat[4];
-	// float omega[3];
-	float thrust[4];
-	float accel_setpoint[3];
-	float quat_setpoint[4];
-    float vel_sp_ned[3];
-    float pos_sp_ned[3];
-}pid_output_typedef;
-extern ringbuffer_typedef<pid_output_typedef> pid_output_msg;
 
 typedef struct
 {
@@ -20,12 +8,6 @@ typedef struct
 	float thrust[4];
 }mpc_output_typedef;
 extern ringbuffer_typedef<mpc_output_typedef> mpc_output_msg;
-typedef struct
-{
-    uint64_t timestamp;
-    float actuator_feedback[4];
-}actuator_feedback_typedef;
-extern ringbuffer_typedef<actuator_feedback_typedef> actuator_feedback_msg;
 
 typedef struct
 {
@@ -139,5 +121,17 @@ typedef struct
 }rflysim3d_output_typedef;
 extern ringbuffer_typedef<rflysim3d_output_typedef> rflysim3d_output_msg;
 
+typedef struct
+{
+    uint64_t timestamp;
+    float imu_rate;
+    float mag_rate;
+    float attitude_est_rate;
+    float lpe_rate;
+    float accel_cutoff_hz;
+    float gyro_cutoff_hz;
+    validation_mode_typedef validation_mode;
+}rflypilot_config_typedef;
+extern ringbuffer_typedef<rflypilot_config_typedef> rflypilot_config_msg;
 
 #endif

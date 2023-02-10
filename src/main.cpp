@@ -6,6 +6,44 @@ int main(int argc, const char *argv[])
   (void)(argc);
   (void)(argv);
   get_time_now();
+
+  read_param();
+  usleep(500000);
+
+  rflypilot_config_typedef _config_msg;
+  rflypilot_config_msg.read(&_config_msg);
+  switch(_config_msg.validation_mode)
+  {
+    case SIH:
+      printf("mode : SIH\n");
+      start_attitudeEstimator();
+      start_lpe();
+      start_usrController();
+      start_sih();
+      start_scope("192.168.199.152");
+      start_console();
+      sleep(1);
+      start_log("/dev/shm");
+    break;
+
+    case HIL:
+      printf("mode : HIL\n");
+
+
+
+    break;
+
+
+    case EXP:
+      printf("mode : EXP\n");
+
+    break;
+
+    default:
+      printf("undifined mode\n");
+      return 0;
+    break;
+  }
   // start_sbus("/dev/ttyAMA0");
   // start_gps("/dev/ttySC0");
 
@@ -15,12 +53,12 @@ int main(int argc, const char *argv[])
   // start_icm42688p();
   // start_icm20689();
   // pca9685_dev.pca9685_init(400);
-  start_attitudeEstimator();
-  start_lpe();
-  start_usrController();
-  start_sih();
-  start_scope();
-  start_console();
+  // start_attitudeEstimator();
+  // start_lpe();
+  //  start_usrController();
+  //  start_sih();
+  //  start_scope("192.168.199.152");
+  // start_console();
   //printf("sizeof(uint64_t) %d\n", sizeof(uint64_t));
   //printf("sizeof(unsigned long long) %d\n", sizeof(unsigned long long));
 //   get_time_now();

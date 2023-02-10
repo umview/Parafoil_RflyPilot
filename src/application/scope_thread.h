@@ -3,6 +3,6 @@
 #include "include.h"
 #include "msg_def.h"
 void * thread_scope(void * ptr);
-void start_scope(void);
+void start_scope(const char *addr);
 extern class scope_class scope;
 #endif

@@ -40,14 +40,9 @@ void start_qmc5883l(void)
     
     ret = qmc5883l.init();
     ret = qmc5883l.probe();
-    /* thread create */
-    int rc;
-    pthread_t thr_qmc5883l;
-    if(rc = pthread_create(&thr_qmc5883l, NULL, thread_qmc5883l, NULL))
-    {
-		printf(" thread cretated failed %d \n", rc);
-    }
-    printf("qmc588l process pid : %d\n", (int)getpid()); 
+
+  ret = create_thread("qmc5883l", thread_qmc5883l, NULL);
+
 }
 
 //********************************************************************//

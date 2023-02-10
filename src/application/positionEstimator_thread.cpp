@@ -89,11 +89,7 @@ void * thread_lpe(void * ptr)
 
 void start_lpe(void)
 {
-    int rc;
-    pthread_t thr_lpe;
-    if(rc = pthread_create(&thr_lpe, NULL, thread_lpe, NULL))
-    {
-		printf(" thread cretated failed %d \n", rc);
-    }
-    printf("local position estimator thread created with process pid : %d\n", (int)getpid()); 
+
+  bool ret = create_thread("lpe", thread_lpe, NULL);
+
 }
