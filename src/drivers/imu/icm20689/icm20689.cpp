@@ -204,11 +204,14 @@ void *thread_icm20689(void *ptr)
 
     class iir_lpf2_typedef accel_lpf[3];
     class iir_lpf2_typedef gyro_lpf[3];
+    static rflypilot_config_typedef config;
+
+    rflypilot_config_msg.read(&config);
 
     for(int i = 0; i < 3; i ++)
     {
-        accel_lpf[i].set_cutoff_frequency(config.imu_rate, config.accel_cutoff);
-        gyro_lpf[i].set_cutoff_frequency(config.imu_rate, config.gyro_cutoff);        
+        accel_lpf[i].set_cutoff_frequency(config.imu_rate, config.accel_cutoff_hz);
+        gyro_lpf[i].set_cutoff_frequency(config.imu_rate, config.gyro_cutoff_hz);        
     }
 
     core_bind(3);

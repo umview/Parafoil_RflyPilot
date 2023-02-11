@@ -181,12 +181,16 @@ void PX4Gyroscope::updateFIFO(sensor_gyro_fifo_s &sample)
 	#ifndef TESTMODE
 
     static class iir_lpf2_typedef gyro_lpf[3];
+	static rflypilot_config_typedef config;
+
     static bool initd = false;
     if(!initd)
     {
+  		rflypilot_config_msg.read(&config);
+
 	    for(int i = 0; i < 3; i ++)
 	    {
-	        gyro_lpf[i].set_cutoff_frequency(config.imu_rate,config.gyro_cutoff);
+	        gyro_lpf[i].set_cutoff_frequency(config.imu_rate,config.gyro_cutoff_hz);
 	    }
 	    initd = true;
     }

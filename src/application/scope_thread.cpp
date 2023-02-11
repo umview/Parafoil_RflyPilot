@@ -8,7 +8,6 @@ void * thread_scope(void * ptr)
   //piHiPri(0);
  uint64_t t0 = 0;
   uint64_t t1 = 0;
-  int cnt = 0;
   int i = 0;
   //get_hight_Pri(1);
 
@@ -28,7 +27,6 @@ void * thread_scope(void * ptr)
   buff[0] = 1234;
   while(1)
   {
-    if(scope_debug)t0 = get_time_now();
 
     cf_output_msg.read(&_att);
     lpe_output_msg.read(&_lpe);
@@ -99,12 +97,6 @@ void * thread_scope(void * ptr)
     rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
 
     usleep(10000);
-    if(scope_debug)t1 = get_time_now();
-    if(cnt++ == 100)
-    {
-      //printf("scope rate : %f\n",1e6 / (t1-t0));
-      cnt = 0;
-    }
   }
 }
 

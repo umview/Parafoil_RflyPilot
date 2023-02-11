@@ -8,4 +8,12 @@ lpe_rate = 500
 #imu cutoff in Hz
 accel_cutoff_hz = 50
 gyro_cutoff_hz = 50
+#scheduler_mode delay:1 adaptive_delay:2 timer:3(NOT RECOMMEND!)
+scheduler_mode = 1
+
+
+
+
+
+
 #

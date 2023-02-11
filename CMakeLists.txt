@@ -1,16 +1,18 @@
-cmake_minimum_required(VERSION 3.4.1)
-project(RflyPilot)
-set(CMAKE_BUILD_TYPE "Release")
-
-#set(CMAKE_CXX_COMPILER "/usr/bin/arm-linux-gnueabihf-g++")
-#set(CMAKE_C_COMPILER "/usr/bin/arm-linux-gnueabihf-gcc")
-
+set(CMAKE_CXX_COMPILER "/usr/bin/arm-linux-gnueabihf-g++")
+set(CMAKE_C_COMPILER "/usr/bin/arm-linux-gnueabihf-gcc")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
-
 add_subdirectory(src/3rdparty/sbus)
 add_subdirectory(controller_codegen)
 add_subdirectory(sih_codegen)
 add_subdirectory(estimator_codegen)
+add_subdirectory(src/3rdparty/conf-c)
+
+
+
+
+cmake_minimum_required(VERSION 3.4.1)
+project(RflyPilot)
+set(CMAKE_BUILD_TYPE "Release")
 
 SET(simulink_utility
     src/simulink_utility/rt_nonfinite.cpp
@@ -32,6 +34,7 @@ SET(source_file
     src/scope/scope.cpp
     src/log/binlog.cpp
     src/console/console.cpp
+    #src/3rdparty/conf-c/src/conf.c
 )
 
 
@@ -77,7 +80,7 @@ include_directories(
                     src/lib
                     src/calibration
                     ${drivers_include}
-                    src/3rdparty/conf-c/
+                    #src/3rdparty/conf-c/
                     src/3rdparty/conf-c/include
                     src/simulink_utility
                     src/system_utility
@@ -93,7 +96,7 @@ include_directories(
                     )
 
 link_directories(
-                src/3rdparty/conf-c/lib
+                #src/3rdparty/conf-c/lib
                 )
 add_executable(rflypilot
     ${source_file}  
@@ -103,9 +106,9 @@ add_executable(rflypilot
     ${estimator_source}
     ${controller_source}
     ${sih_source})
-target_link_libraries(rflypilot   
+target_link_libraries(rflypilot 
+confc  
 libsbus 
-conf 
 estimator_codegen
 controller_codegen 
 sih_codegen)

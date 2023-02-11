@@ -206,16 +206,19 @@ void PX4Accelerometer::updateFIFO(sensor_accel_fifo_s &sample)
 	#ifndef TESTMODE
 
     static class iir_lpf2_typedef accel_lpf[3];
+	static rflypilot_config_typedef config;
+
     static bool initd = false;
     if(!initd)
     {
+  		rflypilot_config_msg.read(&config);
+
 	    for(int i = 0; i < 3; i ++)
 	    {
-	        accel_lpf[i].set_cutoff_frequency(config.imu_rate,config.accel_cutoff);
+	        accel_lpf[i].set_cutoff_frequency(config.imu_rate,config.accel_cutoff_hz);
 	    }
 	    initd = true;
     }
-
 
 	accel_raw_typedef _accel_raw;
     accel_typedef _accel;

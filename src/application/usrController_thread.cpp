@@ -14,7 +14,7 @@ void * thread_usrController(void * ptr)
     /* usrController init */
     usrController_Obj.initialize();
     int cont = 500;
-
+    int i = 0;
     sbus_packet_t _rc_input_msg;//rc_input_msg
     //use imu or, gyro and accel according to fc mode 
     imu_typedef _imu_msg;//imu_msg
@@ -32,7 +32,8 @@ void * thread_usrController(void * ptr)
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
     mpc_output_typedef _mpc_output_msg;//mpc_output_msg
     pwm_output_typedef _pwm_output_msg;//pwm_output_msg
-
+    rflypilot_config_typedef _config_msg;
+    rflypilot_config_msg.read(&_config_msg);
     while (1)
     {   
         // if(scheduler.att_est_flag)
@@ -90,11 +91,17 @@ void * thread_usrController(void * ptr)
             _pwm_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             pwm_output_msg.publish(&_pwm_output_msg);
 
-            //pca9685_dev.updatePWM(usrController_Obj.usrController_Y._c_out_s.pwm,4);
             memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
             _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
             
+
+
+            if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
+            {
+                pca9685_dev.updatePWM(_actuator_output_msg.actuator_output,4);
+            }
+
             cont--;
             if (cont<1)
             {   

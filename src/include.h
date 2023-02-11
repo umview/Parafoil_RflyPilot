@@ -41,10 +41,18 @@ extern "C" {
 
 enum validation_mode_typedef
 {
-    UNDIFINED = 0,
+    UNDIFINED_VALIDATION_MODE = 0,
     SIH,
     HIL,
     EXP
+};
+
+enum scheduler_mode_typedef
+{
+    UNDIFINED_SCHEDULER_MODE = 0,
+    DELAY,
+    ADAPTIVE_DELAY,
+    TIMER,
 };
 #include "limit.h"
 

@@ -9,19 +9,15 @@ class scheduler_typedef
 {
 public:
 	int base_timer_rate;
-	bool mpc_flag;
-	bool pid_controller_flag;
+	bool controller_flag;
 	bool imu_flag;
-	bool actuator_flag;
 	bool att_est_flag;
 	bool lpe_flag;
 	int lpe_flag_cnt;
 	int att_est_flag_cnt;
 
-	int actuator_flag_cnt;
-	int mpc_flag_cnt;
+	int controller_flag_cnt;
 	int imu_flag_cnt;
-	int pid_controller_flag_cnt;
 	void start_system_timer(int base_timer);
 	void scheduler_timer_fcn(void);
 	scheduler_typedef(void);
@@ -56,7 +52,7 @@ public:
 };
 void scheduler_timer(void);
 
-
+void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_delay_typedef *adp_delay);
 
 bool create_thread(const char *name, void* (*start_rtn)(void*),void *thread_arg);
 #endif

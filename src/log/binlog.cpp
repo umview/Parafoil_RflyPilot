@@ -19,7 +19,7 @@ void binlog_write(const char *pwd, uint8_t *buff)
         }else{
                 printf("open success!\n");
         }
-	    printf("sizeof debug log typedef : %ld\n",sizeof(struct debug_log_typedef));
+	    printf("sizeof debug log typedef : %d\n",sizeof(struct debug_log_typedef));
 	    initd = true;
     }
 

@@ -127,10 +127,12 @@ typedef struct
     float imu_rate;
     float mag_rate;
     float attitude_est_rate;
+    float controller_rate;
     float lpe_rate;
     float accel_cutoff_hz;
     float gyro_cutoff_hz;
     validation_mode_typedef validation_mode;
+    scheduler_mode_typedef scheduler_mode;
 }rflypilot_config_typedef;
 extern ringbuffer_typedef<rflypilot_config_typedef> rflypilot_config_msg;
 

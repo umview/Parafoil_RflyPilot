@@ -1,7 +1,7 @@
 #include "parameter_read.h"
 
 
-config_typedef config;
+//config_typedef config;
 
 
 
@@ -79,7 +79,7 @@ void read_param(void)
 
   //打开并初始化数据结构
   //出错时返回NULL
-  if((conf=conf_open("../config/rflypilot.conf")) == NULL)
+  if((conf=conf_open("../config/rflypilot.txt")) == NULL)
     printf("err open\n");
 
   //开始解析配置文件
@@ -109,9 +109,16 @@ void read_param(void)
   _config_msg.mag_rate = get_param("mag_rate");
   _config_msg.attitude_est_rate = get_param("attitude_est_rate");
   _config_msg.lpe_rate = get_param("lpe_rate");
+  _config_msg.controller_rate = get_param("controller_rate");
   _config_msg.accel_cutoff_hz = get_param("accel_cutoff_hz");
   _config_msg.gyro_cutoff_hz = get_param("gyro_cutoff_hz");
+
   _config_msg.validation_mode = validation_mode_typedef((int)(get_param("valid_mode")));
+  _config_msg.scheduler_mode = scheduler_mode_typedef((int)(get_param("scheduler_mode")));
+
+
+
+
   rflypilot_config_msg.publish(&_config_msg);
 
 

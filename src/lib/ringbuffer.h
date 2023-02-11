@@ -78,7 +78,7 @@ public:
         }else{
                 printf("open success!\n");
         }
-        printf("size of msg : %s is %ld\n",msg_name, sizeof(data_type));
+        printf("size of msg : %s is %d\n",msg_name, sizeof(data_type));
     }    
 
     void log_write(data_type *data)

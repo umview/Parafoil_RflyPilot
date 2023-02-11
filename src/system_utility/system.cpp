@@ -61,7 +61,7 @@ void adaptive_delay_typedef::delay_us(uint64_t us)
 {
 	if(us < offset_us)
 	{
-		printf("ERROR : too short time ! %ld\n", us);
+		printf("ERROR : too short time ! %lld\n", us);
 		return;
 	}
 	delay_us_feedback = (lpf_k * calc_delay_us(us) + (1-lpf_k) * delay_us_feedback_last);
@@ -95,32 +95,31 @@ void scheduler_timer(void)
 }
 void  scheduler_typedef::scheduler_timer_fcn(void)
 {
-	if(mpc_flag_cnt++ == (int)(base_timer_rate/config.mpc_rate))
+  static rflypilot_config_typedef _config;
+  static bool initd = false;
+  if(!initd)
+  {
+  	initd = true;
+  	rflypilot_config_msg.read(&_config);
+
+  }	
+	if(controller_flag_cnt++ == (int)(base_timer_rate/_config.controller_rate))
 	{
-		mpc_flag = true;
-		mpc_flag_cnt = 1;
+		controller_flag = true;
+		controller_flag_cnt = 1;
 	}
-	if(actuator_flag_cnt++ == (int)(base_timer_rate/config.actuator_rate))
-	{
-		actuator_flag = true;
-		actuator_flag_cnt = 1;
-	}
-	if(pid_controller_flag_cnt++ == (int)(base_timer_rate/config.pid_controller_rate))
-	{
-		pid_controller_flag = true;
-		pid_controller_flag_cnt = 1;
-	}
-	if(att_est_flag_cnt++ == (int)(base_timer_rate/config.attitude_est_rate))
+
+	if(att_est_flag_cnt++ == (int)(base_timer_rate/_config.attitude_est_rate))
 	{
 		att_est_flag = true;
 		att_est_flag_cnt = 1;
 	}
-	if(lpe_flag_cnt++ == (int)(base_timer_rate/config.lpe_rate))
+	if(lpe_flag_cnt++ == (int)(base_timer_rate/_config.lpe_rate))
 	{
 		lpe_flag = true;
 		lpe_flag_cnt = 1;
 	}
-	if(imu_flag_cnt++ == (int)(base_timer_rate/config.imu_rate))
+	if(imu_flag_cnt++ == (int)(base_timer_rate/_config.imu_rate))
 	{
 		imu_flag = true;
 		imu_flag_cnt = 1;
@@ -129,13 +128,10 @@ void  scheduler_typedef::scheduler_timer_fcn(void)
 
 scheduler_typedef::scheduler_typedef(void)
 {
-	mpc_flag = true;
-	pid_controller_flag = true;
+	controller_flag = true;
 	imu_flag = true;
-	actuator_flag = true;
 	att_est_flag = true;
 	lpe_flag = true;
-	
 }
 void scheduler_typedef::start_system_timer(int _base_timer_rate)
 {
@@ -185,3 +181,41 @@ bool create_thread(const char *name, void* (*start_rtn)(void*),void  *thread_arg
 }
 
 
+void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_delay_typedef *adp_delay)
+{
+  static timespec delay_us_combined_sleep;
+  static bool initd = false;
+  static rflypilot_config_typedef _config_msg;
+  if(!initd)
+  {
+  	initd = true;
+  	rflypilot_config_msg.read(&_config_msg);
+
+  }
+  delay_us_combined_sleep.tv_sec = 0;
+
+  switch(_config_msg.scheduler_mode)
+  {
+    case DELAY:
+		delay_us_combined_sleep.tv_nsec = _delay_us * 1000;//2ms
+        nanosleep(&delay_us_combined_sleep,NULL);
+    break;
+
+    case ADAPTIVE_DELAY:
+        adp_delay->delay_us(_delay_us);
+    break;
+
+    case TIMER:
+    	while(!(*timer_flag))
+    	{
+			delay_us_combined_sleep.tv_nsec = POLL_TIME_US;//2ms
+	        nanosleep(&delay_us_combined_sleep,NULL);
+    	}
+    	*timer_flag = false;
+    break;
+
+    default:
+      printf("undifined scheduler method\n");
+    break;
+  }
+}

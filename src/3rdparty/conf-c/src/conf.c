@@ -125,7 +125,7 @@ int conf_parse(CONF *conf)
 	data=malloc(sizeof(char)*file_len+1);
 	//最后一个字符为0
 	data[file_len]='\0';
-	fread(data,file_len,1,conf->fp);
+	int ret = fread(data,file_len,1,conf->fp);
 	//关闭文件
 	fclose(conf->fp);
 

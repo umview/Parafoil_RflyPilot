@@ -5,38 +5,63 @@ int main(int argc, const char *argv[])
 {
   (void)(argc);
   (void)(argv);
-  get_time_now();
+  get_time_now();// reset time counter begin from zero
 
-  read_param();
+  //read_param();
+  calibration.calibration_file_check_and_load();
+
   usleep(500000);
 
   rflypilot_config_typedef _config_msg;
   rflypilot_config_msg.read(&_config_msg);
+
+
+  _config_msg.validation_mode = SIH;
+  start_console();
   switch(_config_msg.validation_mode)
   {
-    case SIH:
-      printf("mode : SIH\n");
+    case HIL:
+      printf("mode : HIL\n");
+      pca9685_dev.pca9685_init(400);
+      start_icm20689();
+      start_ist8310();
+      start_baro();
+      start_gps("/dev/ttySC0");
+      start_sbus("/dev/ttyAMA0");
+      usleep(500000);
       start_attitudeEstimator();
       start_lpe();
+      usleep(500000);
       start_usrController();
-      start_sih();
-      start_scope("192.168.199.152");
-      start_console();
-      sleep(1);
+      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
       start_log("/dev/shm");
     break;
 
-    case HIL:
-      printf("mode : HIL\n");
-
-
-
+    case EXP:
+    printf("mode : EXP\n");
+      pca9685_dev.pca9685_init(400);
+      start_icm42688p();    
+      start_baro();
+      start_gps("/dev/ttyUSB0");
+      start_qmc5883l();
+      start_sbus("/dev/ttyAMA0");
+      usleep(500000);
+      start_attitudeEstimator();
+      start_lpe();
+      usleep(500000);
+      start_usrController();
+      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
+      start_log("/dev/shm");
     break;
 
+    case SIH:
+      printf("mode : SIH\n");
+      start_sih();
+      start_sbus("/dev/ttyAMA0");
+      usleep(500000);      
+      start_usrController();
 
-    case EXP:
-      printf("mode : EXP\n");
-
+      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
     break;
 
     default:
@@ -44,128 +69,6 @@ int main(int argc, const char *argv[])
       return 0;
     break;
   }
-  // start_sbus("/dev/ttyAMA0");
-  // start_gps("/dev/ttySC0");
-
-  // start_baro();
-  // start_ist8310();
-  // start_qmc5883l();
-  // start_icm42688p();
-  // start_icm20689();
-  // pca9685_dev.pca9685_init(400);
-  // start_attitudeEstimator();
-  // start_lpe();
-  //  start_usrController();
-  //  start_sih();
-  //  start_scope("192.168.199.152");
-  // start_console();
-  //printf("sizeof(uint64_t) %d\n", sizeof(uint64_t));
-  //printf("sizeof(unsigned long long) %d\n", sizeof(unsigned long long));
-//   get_time_now();
-
-//   read_param();// read param from nmpc.conf
-//   calibration.calibration_file_check_and_load();
-//   fc_api.init();
-//   switch(fc_api.valid_mode)
-//   {
-//     case HIL:
-//       usleep(500000);
-//       start_attitudeEstimator();
-//       start_lpe();
-//       usleep(500000);
-
-//       start_state_machine();
-//       start_pid_controller();
-//       usleep(500000);
-
-//       start_nmpc();
-//       start_scope();  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
-//       start_actuator();
-//     break;
-
-//     case EXP:
-//       usleep(500000);
-//       start_attitudeEstimator();
-//       start_lpe();
-//       usleep(500000);
-
-//       start_state_machine();
-//       start_pid_controller();
-//       usleep(500000);
-
-//       start_nmpc();
-//       start_scope();  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
-//       start_actuator();
-//     break;
-
-//     case HIL2:
-//       // pca9685_dev.pca9685_init(400);
-//       start_icm20689();
-//       start_ist8310();
-//       start_baro();
-//       start_gps("/dev/ttySC0");
-//       start_sbus("/dev/ttyAMA0");
-
-//       usleep(500000);
-//       start_attitudeEstimator();
-//       start_lpe();
-//       usleep(500000);
-
-//       start_state_machine();
-//       start_pid_controller();
-//       usleep(500000);
-
-//       // start_nmpc();
-//       start_usrController();
-//       start_scope();  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
-//       start_actuator();
-//     break;
-
-//     case EXP2:
-//       start_icm42688p();    
-//       start_baro();
-//       start_gps("/dev/ttyUSB0");
-//       start_qmc5883l();
-//       start_sbus("/dev/ttyAMA0");
-
-//       usleep(500000);
-//       start_attitudeEstimator();
-//       start_lpe();
-//       usleep(500000);
-
-//       start_state_machine();
-//       start_pid_controller();
-//       usleep(500000);
-
-//       start_nmpc();
-//       start_scope();  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
-//       start_actuator();
-//     break;
-
-//     case SIH:
-//       start_sih();
-//       start_sbus("/dev/ttyAMA0");
-//       start_usrController();
-
-//       // usleep(500000);
-//       // start_attitudeEstimator();
-//       // start_lpe();
-//       // usleep(500000);
-
-//       start_state_machine();
-//       // start_pid_controller();
-//       usleep(500000);
-
-//       // start_nmpc();
-//       start_scope();  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
-//       start_actuator(); // start nmpc controller
-//     break;
-
-//     default:
-//       printf("undifined mode\n");
-//       return 0;
-//     break;
-//   }
 
    
 //   if(CONSOLE_ENABLE)

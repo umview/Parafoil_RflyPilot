@@ -5,7 +5,7 @@ uint64_t time_in_usec = 0;
 uint64_t time_in_usec_last = 0;
 //#define fw_variant_ msp::FirmwareVariant::BAFL
 
-static unsigned long long _time_now(void)
+static uint64_t _time_now(void)
 {
     gettimeofday(&tv, &tz);
     time_in_usec_last = time_in_usec;
