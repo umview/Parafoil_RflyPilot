@@ -39,13 +39,14 @@ typedef struct
 class calibration_typedef
 {
 public:
+	const char *filename;
 	calibration_mode_typedef calib_mode;
 	calib_data_typedef calib_data;
 	orientation_typedef orientation;
 	bool calibration_busy_flag;
 	bool sensor_calib_enable;
 	bool rc_calib_enable;
-	calibration_typedef(void);
+	calibration_typedef(const char *_file);
 	void init(void);
 	void run_calibration(void);
 	bool calib_accel(double G);

@@ -1,5 +1,5 @@
 #include "sensor_calibration.h"
-class calibration_typedef calibration;
+class calibration_typedef calibration("./calibration.txt");
 static CONF *conf; //需要的数据结构
 
 static void * thread_calibration(void * ptr)
@@ -73,10 +73,11 @@ void start_calibration(char *inputs)
 }
 
 
-calibration_typedef::calibration_typedef(void)
+calibration_typedef::calibration_typedef(const char * _file)
 {
 	calib_mode = CAL_DISABLE;
 	calibration_busy_flag = false;
+    filename = _file;
 }
 
 
@@ -131,7 +132,7 @@ void calibration_typedef::write_config(calib_data_typedef config)
 {
     FILE *fp;
     char str[20];
-    if( (fp=fopen("../calibration.conf","wt+")) == NULL ){
+    if( (fp=fopen(filename,"wt+")) == NULL ){
         printf("Fail to open file!\n");
         return ;
     }
@@ -313,7 +314,7 @@ void calibration_typedef::load_param(calib_data_typedef *config)
     static int code; //返回的错误代码    
   //打开并初始化数据结构
   //出错时返回NULL
-  if((conf=conf_open("../calibration.conf")) == NULL)
+  if((conf=conf_open(filename)) == NULL)
     printf("err open\n");
 
   //开始解析配置文件
@@ -365,8 +366,8 @@ void calibration_typedef::load_param(calib_data_typedef *config)
 void calibration_typedef::calibration_file_check_and_load(void)
 {
     FILE *fp;
-    if( (fp=fopen("../calibration.conf","r")) == NULL ){
-        printf("The file: calibration.conf DOESN'T EXISIT !\n");
+    if( (fp=fopen(filename,"r")) == NULL ){
+        printf("The file: %s DOESN'T EXISIT !\n",filename);
         sensor_calib_enable = false;
         return;
     }else{
