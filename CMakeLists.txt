@@ -34,7 +34,6 @@ SET(source_file
     src/scope/scope.cpp
     src/log/binlog.cpp
     src/console/console.cpp
-    #src/3rdparty/conf-c/src/conf.c
 )
 
 
@@ -80,7 +79,6 @@ include_directories(
                     src/lib
                     src/calibration
                     ${drivers_include}
-                    #src/3rdparty/conf-c/
                     src/3rdparty/conf-c/include
                     src/simulink_utility
                     src/system_utility
@@ -96,7 +94,6 @@ include_directories(
                     )
 
 link_directories(
-                #src/3rdparty/conf-c/lib
                 )
 add_executable(rflypilot
     ${source_file}  
@@ -113,3 +110,7 @@ estimator_codegen
 controller_codegen 
 sih_codegen)
 
+add_custom_target(
+    upload
+    COMMAND "../tools/upload.sh"
+)

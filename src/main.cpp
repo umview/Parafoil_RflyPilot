@@ -7,7 +7,7 @@ int main(int argc, const char *argv[])
   (void)(argv);
   get_time_now();// reset time counter begin from zero
 
-  //read_param();
+  read_param();
   calibration.calibration_file_check_and_load();
 
   usleep(500000);
@@ -15,8 +15,7 @@ int main(int argc, const char *argv[])
   rflypilot_config_typedef _config_msg;
   rflypilot_config_msg.read(&_config_msg);
 
-
-  _config_msg.validation_mode = SIH;
+  //_config_msg.validation_mode = SIH;
   start_console();
   switch(_config_msg.validation_mode)
   {

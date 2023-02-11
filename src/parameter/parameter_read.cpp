@@ -79,7 +79,7 @@ void read_param(void)
 
   //打开并初始化数据结构
   //出错时返回NULL
-  if((conf=conf_open("../config/rflypilot.txt")) == NULL)
+  if((conf=conf_open("./rflypilot.txt")) == NULL)
     printf("err open\n");
 
   //开始解析配置文件

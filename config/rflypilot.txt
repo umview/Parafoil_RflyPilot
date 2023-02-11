@@ -1,19 +1,10 @@
-#validation mode SIH:1 HIL:2 EXP:3
-valid_mode = 1
-#system sample rate
-imu_rate = 1000
+valid_mode = 1 #validation mode SIH:1 HIL:2 EXP:3
+imu_rate = 1000 #system sample rate
 mag_rate = 100
+controller_rate = 400
 attitude_est_rate = 500
 lpe_rate = 500
-#imu cutoff in Hz
-accel_cutoff_hz = 50
+accel_cutoff_hz = 50 #imu cutoff in Hz
 gyro_cutoff_hz = 50
-#scheduler_mode delay:1 adaptive_delay:2 timer:3(NOT RECOMMEND!)
-scheduler_mode = 1
-
-
-
-
-
-
+scheduler_mode = 1 #scheduler_mode delay:1 adaptive_delay:2 timer:3(NOT RECOMMEND!)
 #
