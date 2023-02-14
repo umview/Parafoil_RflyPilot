@@ -7,7 +7,7 @@ void * thread_lpe(void * ptr)
 {
     timespec thread_lpe_sleep;
     thread_lpe_sleep.tv_sec = 0;
-    thread_lpe_sleep.tv_nsec = POLL_TIME_US;//10ms
+    thread_lpe_sleep.tv_nsec = 2*1000;//10ms
 
     /* define lpe input struct */
     core_bind(0);
@@ -27,11 +27,11 @@ void * thread_lpe(void * ptr)
     lpe_output_typedef _lpe_msg;        
     while (1)
     {   
-        if(scheduler.lpe_flag)
-        {
-            #ifndef USE_ADAPTIVE_DELAY
-            scheduler.lpe_flag = false;
-            #endif
+        // if(scheduler.lpe_flag)
+        // {
+        //     #ifndef USE_ADAPTIVE_DELAY
+        //     scheduler.lpe_flag = false;
+        //     #endif
             if(gps_msg.read(&_gps))
             {//read success
                 memcpy(&lpe_Obj.rtU._m_gps_s,&_gps,sizeof(lpe_Obj.rtU._m_gps_s));
@@ -76,12 +76,12 @@ void * thread_lpe(void * ptr)
                 // printf("body_accx: %f, body_accy: %f, body_accz: %f\n", lpe_Obj.rtY._e_lpe_s.pos_accel_body[0], lpe_Obj.rtY._e_lpe_s.pos_accel_body[1], lpe_Obj.rtY._e_lpe_s.pos_accel_body[2]);
                 cont = 100;
             }
-        }
-        #ifndef USE_ADAPTIVE_DELAY
+        //}
+        //#ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_lpe_sleep, NULL);
-        #else
-        lpe_rate.delay_us(1e6/config.lpe_rate);
-        #endif
+        // #else
+        // lpe_rate.delay_us(1e6/config.lpe_rate);
+        // #endif
     }
 
     return NULL;

@@ -45,6 +45,7 @@ SET(drivers_source
     src/drivers/posix/i2c.cpp
     src/drivers/posix/spi.cpp
     src/drivers/actuator/pca9685/pca9685.cpp
+    src/drivers/actuator/fpga/actuator_fpga.cpp
     src/drivers/rc/sbus/sbus_api.cpp
     src/drivers/imu/icm42688p/ICM42688P.cpp
     src/drivers/imu/icm20689/icm20689.cpp
@@ -54,11 +55,13 @@ SET(drivers_source
     src/drivers/magnetometer/qmc5883l/QMC5883L.cpp  
     src/drivers/barometer/ms5611/ms5611.cpp
     src/drivers/gps/gps_api.cpp
+
 )
 SET(drivers_include 
     src/drivers
     src/drivers/px4lib
     src/drivers/actuator/pca9685
+    src/drivers/actuator/fpga
     src/drivers/rc/sbus
     src/drivers/imu/icm42688p
     src/drivers/imu/accelerometer

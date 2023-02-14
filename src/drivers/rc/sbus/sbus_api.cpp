@@ -114,21 +114,21 @@ void sbus_api_typedef::loop(bool demo_en)
             printf("SBUS desync\n");
         }
 
-        if(demo_en && cnt++ > 10) // for demo
-        {
-            cnt = 0;
-            sbus_packet_t packet;
-            packet.ch17 = true;
-            packet.ch18 = true;
-            for (int i = 0; i < 16; i++)
-            {
-                packet.channels[i] = get_time_now() % 100;
-            }
-            // packet_print();
+        // if(demo_en && cnt++ > 10) // for demo
+        // {
+        //     cnt = 0;
+        //     sbus_packet_t packet;
+        //     packet.ch17 = true;
+        //     packet.ch18 = true;
+        //     for (int i = 0; i < 16; i++)
+        //     {
+        //         packet.channels[i] = get_time_now() % 100;
+        //     }
+        //     // packet_print();
 
-            // make sure to limit sending frequency, SBUS is not that fast
-            sbus.write(packet);
-        }
+        //     // make sure to limit sending frequency, SBUS is not that fast
+        //     sbus.write(packet);
+        // }
 
         usleep(10000);
     }

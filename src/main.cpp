@@ -74,7 +74,7 @@ int main(int argc, const char *argv[])
 //   {
 //     start_console();
 //   }
-scheduler.start_system_timer(2000);
+scheduler.start_system_timer(TIMER_TICK_RATE);
 //   printf("System Ready !!!!!!!!!!!!!!!\n");
 
 

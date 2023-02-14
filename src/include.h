@@ -74,6 +74,7 @@ enum scheduler_mode_typedef
 #include "ist8310.h"
 #include "QMC5883L.h"
 #include "ms5611.h"
+#include "actuator_fpga.h"
 #include "gps_api.h"
 #include "scope.h"
 #include "scope_thread.h"

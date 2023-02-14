@@ -7,7 +7,7 @@ void * thread_attitudeEstimator(void * ptr)
 {
     timespec thread_attitudeEstimator_sleep;
     thread_attitudeEstimator_sleep.tv_sec = 0;
-    thread_attitudeEstimator_sleep.tv_nsec = POLL_TIME_US;//2ms
+    thread_attitudeEstimator_sleep.tv_nsec = 2*1000;//2ms
 
     /* define attitude estimator input struct */
     core_bind(0);
@@ -31,11 +31,11 @@ void * thread_attitudeEstimator(void * ptr)
           
     while (1)
     {   
-        if(scheduler.att_est_flag)
-        {
-            #ifndef USE_ADAPTIVE_DELAY
-            scheduler.att_est_flag = false;
-            #endif
+        // if(scheduler.att_est_flag)
+        // {
+        //     #ifndef USE_ADAPTIVE_DELAY
+        //     scheduler.att_est_flag = false;
+        //     #endif
             // if(fc_api.valid_mode == EXP2 || fc_api.valid_mode == SIH){
                 if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
                     memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
@@ -97,12 +97,12 @@ void * thread_attitudeEstimator(void * ptr)
                 // printf("mag x: %f, mag y: %f, mag z: %f \n", _mag.mag[0], _mag.mag[1], _mag.mag[2]);
                 cont = 500;
             }
-        }
-        #ifndef USE_ADAPTIVE_DELAY
+        //}
+        //#ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_attitudeEstimator_sleep,NULL);
-        #else
-        attitude_est_delay.delay_us(1e6/config.attitude_est_rate);
-        #endif
+        // #else
+        // attitude_est_delay.delay_us(1e6/config.attitude_est_rate);
+        // #endif
     }
 
     return NULL;

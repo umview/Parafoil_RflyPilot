@@ -190,7 +190,7 @@ void *thread_icm20689(void *ptr)
 {
     timespec thread_icm20689_sleep;
     thread_icm20689_sleep.tv_sec = 0;
-    thread_icm20689_sleep.tv_nsec = POLL_TIME_US;
+    thread_icm20689_sleep.tv_nsec = 2*1000;
     
     icm20689_data_typedef icm20689_data; 
     gyro_raw_typedef _gyro_raw;
@@ -216,62 +216,40 @@ void *thread_icm20689(void *ptr)
 
     core_bind(3);
     icm20689_spi_init();
+    usleep(100000);
     while (1)
     {
-        if(scheduler.imu_flag)
-        {
-            #ifndef USE_ADAPTIVE_DELAY
-            scheduler.imu_flag = false;
-            #endif
+
           if(icm20689_recv_spi(&icm20689_data))
           {
-            time_us = get_time_now();
-            // _accel_raw.timestamp = time_us;
 
-            // for(i = 0; i < 3; i++)
-            // {
-            //     _accel_raw.accel[i] = icm20689_data.accel_xyz[i];
-            //     _gyro_raw.gyro[i] = icm20689_data.gyro_xyz[i];
-            // }
-            // // calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
-            // calibration.apply_accel_calibration(_accel_raw.accel, _accel.accel);
-            // _accel.timestamp = time_us;
-            // accel_raw_msg.publish(&_accel_raw);
-            // accel_msg.publish(&_accel);
-            // _gyro_raw.timestamp = time_us;
-            // // calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
-            // calibration.apply_gyro_calibration(_gyro_raw.gyro, _gyro.gyro);
-            // _gyro.timestamp = time_us;
-            // gyro_raw_msg.publish(&_gyro_raw);
-            // gyro_msg.publish(&_gyro);
-            
-              _imu_raw.timestamp = get_time_now();
-              for(int i = 0; i < 3; i++)
-              {
-                _imu_raw.accel[i] = accel_lpf[i].apply(icm20689_data.accel_xyz[i]);
-                _imu_raw.gyro[i] = gyro_lpf[i].apply(icm20689_data.gyro_xyz[i]);
-              }
-              calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
-              calibration.apply_gyro_calibration(_imu_raw.gyro, _imu.gyro);
-              _imu.timestamp = _imu_raw.timestamp;
-              imu_raw_msg.publish(&_imu_raw);
-              imu_msg.publish(&_imu);
+              // time_us = get_time_now();
+              // for(int i = 0; i < 3; i++)
+              // {
+              //   _accel_raw.accel[i]  = accel_lpf[i].apply(icm20689_data.accel_xyz[i]);
+              //   _gyro_raw.gyro[i]  = gyro_lpf[i].apply(icm20689_data.gyro_xyz[i]);
+              // }
+              printf(" accel %f %f %f\n",icm20689_data.accel_xyz[0],icm20689_data.accel_xyz[1],icm20689_data.accel_xyz[2]);
+              // calibration.apply_accel_calibration(_accel_raw.accel, _accel.accel);
+              // calibration.apply_gyro_calibration(_gyro_raw.gyro, _gyro.gyro);
+              // _accel_raw.timestamp = _gyro_raw.timestamp = time_us;
+              // _accel.timestamp = _gyro.timestamp = time_us;
 
+              //   accel_raw_msg.publish(&_accel_raw);
+              //   accel_msg.publish(&_accel);
+              //   gyro_raw_msg.publish(&_gyro_raw);
+              //   gyro_msg.publish(&_gyro);
 
-            //printf("OK\n");
-            //printf("%x \n", msg_id);
-            //printf("recv size %d\n",recvsize);
           }else{
             printf("icm20689 recv failed\n");
           }
-        }
-        #ifndef USE_ADAPTIVE_DELAY
+        
+        //#ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_icm20689_sleep,NULL);
-        #else
-        icm20689_delay.delay_us(1e6/config.imu_rate);
-        #endif
+        // #else
+        // icm20689_delay.delay_us(1e6/config.imu_rate);
+        // #endif
     }
-    return NULL;
 }
 void start_icm20689(void)
 {

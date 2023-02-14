@@ -22,7 +22,8 @@ void * thread_scope(void * ptr)
 	mag_typedef _mag;
 	actuator_output_typedef _actuator_output;
 	imu_raw_typedef _imu_raw;
-
+    gyro_typedef _gyro;
+    accel_typedef _accel;
   float buff[80];
   buff[0] = 1234;
   while(1)
@@ -35,13 +36,15 @@ void * thread_scope(void * ptr)
     mag_msg.read(&_mag);
     actuator_output_msg.read(&_actuator_output);
     imu_raw_msg.read(&_imu_raw);
+    gyro_msg.read(&_gyro);
+    accel_msg.read(&_accel);
     for(i = 0; i < 4; i++)
     {
         buff[i+1] = _att.quat[i];
     }
     for(i = 0; i < 3; i++)
     {
-        buff[i+5] = get_time_now() / 1e6;//_imu.gyro[i];
+        buff[i+5] = _gyro.gyro[i];
     }
     for(i = 0; i<4;i++)
     {

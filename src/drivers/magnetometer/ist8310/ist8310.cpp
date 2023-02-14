@@ -253,6 +253,8 @@ void IST8310::RunImpl()
 					_mag.timestamp = _mag_raw.timestamp;
 					mag_raw_msg.publish(&_mag_raw);
 					mag_msg.publish(&_mag);
+					//printf("time %f %f %f %f\n", (float)timestamp[0]/1e6,magData[0], magData[1], magData[2]);
+
 					#else
 					// printf("time %f %f %f %f\n", (float)timestamp[0]/1e6,magData[0], magData[1], magData[2]);
 					#endif
