@@ -95,11 +95,16 @@ void * thread_usrController(void * ptr)
             _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
             
-
-
+            float _pwm[4] = {0};
+            for(int i = 0; i < 4; i++)
+            {
+                _pwm[i] = _pwm_output_msg.pwm[i];
+            }
             if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
             {
-                pca9685_dev.updatePWM(_actuator_output_msg.actuator_output,4);
+                pca9685_dev.updatePWM(_pwm,4);
+                //printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
+
             }
 
             cont--;

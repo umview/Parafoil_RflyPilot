@@ -79,7 +79,7 @@ void * thread_scope(void * ptr)
     for(i = 0; i< 3; i++)buff[i+61] = 0;
     for(i = 0; i< 3; i++)buff[i+64] = 0;
     buff[67] = 0;
-    buff[68] = mpc_output_msg.publish_rate_hz;
+    buff[68] = actuator_output_msg.publish_rate_hz;
     buff[69] = cf_output_msg.publish_rate_hz;
     buff[70] = lpe_output_msg.publish_rate_hz;
     buff[71] = imu_msg.publish_rate_hz;

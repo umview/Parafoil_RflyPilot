@@ -7,7 +7,7 @@ void * thread_lpe(void * ptr)
 {
     timespec thread_lpe_sleep;
     thread_lpe_sleep.tv_sec = 0;
-    thread_lpe_sleep.tv_nsec = 2*1000;//10ms
+    thread_lpe_sleep.tv_nsec = 2*1000*1000;//10ms
 
     /* define lpe input struct */
     core_bind(0);

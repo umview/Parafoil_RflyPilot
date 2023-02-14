@@ -7,7 +7,7 @@ void * thread_attitudeEstimator(void * ptr)
 {
     timespec thread_attitudeEstimator_sleep;
     thread_attitudeEstimator_sleep.tv_sec = 0;
-    thread_attitudeEstimator_sleep.tv_nsec = 2*1000;//2ms
+    thread_attitudeEstimator_sleep.tv_nsec = 2*1000*1000;//2ms
 
     /* define attitude estimator input struct */
     core_bind(0);
