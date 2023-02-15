@@ -47,7 +47,7 @@ bool actuator_fpga_typedef::setPWM(int _num_chn, actuator_mode_typdef *mode, flo
 			default:
 				data_period = 0;
 				data_duty = 0;			
-				printf("actuator fpga : undefined mode %d\n", (int)mode);
+				printf("actuator fpga : undefined mode %d\n", (int)mode[i]);
 			break;
 		}
 		//data_period = (uint32_t)(48000000 / freq_hz[i]);
