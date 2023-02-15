@@ -22,14 +22,16 @@ void * thread_icm42688p(void * ptr)
 {
     timespec thread_icm42688p_sleep;
     thread_icm42688p_sleep.tv_sec = 0;
-    thread_icm42688p_sleep.tv_nsec = POLL_TIME_US;//1250us
+    thread_icm42688p_sleep.tv_nsec = 2*1000*1000;//1250us
     core_bind(3);
     
     while (1)
     {
     	if(scheduler.imu_flag)
     	{
+    		#ifndef USE_ADAPTIVE_DELAY
     		scheduler.imu_flag = false;
+    		#endif
         	my_icm42688p.RunImpl();
     	}
         //usleep(1000);

@@ -24,7 +24,7 @@ int main(int argc, const char *argv[])
       pca9685_dev.pca9685_init(400);
       start_icm20689();
       start_ist8310();
-      //start_baro();
+      start_baro();
       start_gps("/dev/ttySC0");
       start_sbus("/dev/ttyAMA0");
       usleep(500000);
@@ -40,7 +40,7 @@ int main(int argc, const char *argv[])
     printf("mode : EXP\n");
       pca9685_dev.pca9685_init(400);
       start_icm42688p();    
-      //start_baro();
+      start_baro();
       start_gps("/dev/ttyUSB0");
       start_qmc5883l();
       start_sbus("/dev/ttyAMA0");

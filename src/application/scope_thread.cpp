@@ -1,10 +1,12 @@
 #include "scope_thread.h"
-class scope_class scope;
+class scope_class system_scope;
 class scope_class rflysim3dDP;
+class scope_class controller_scope;
+class scope_class attitude_est_scope;
+class scope_class lpe_scope;
 #define scope_debug 0
 void * thread_scope(void * ptr)
 {
-  printf("thread scope running\n");
   //piHiPri(0);
  uint64_t t0 = 0;
   uint64_t t1 = 0;
@@ -12,7 +14,7 @@ void * thread_scope(void * ptr)
   //get_hight_Pri(1);
 
   char *addr = (char*)ptr;
-  scope.init(addr, 3333);
+  system_scope.init(addr, 3333);
   rflysim3dDP.init(addr, 20010);
   rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
 	cf_output_typedef _att;
@@ -94,7 +96,7 @@ void * thread_scope(void * ptr)
     //for(i = 0; i< 3; i++)buff[i+75] = _mag.mag[i];
     //for(i = 0; i< 3; i++)buff[i+75] = _imu_raw.gyro[i];
     
-	scope.udp_send((uint8_t*)(buff),sizeof(buff));
+	system_scope.udp_send((uint8_t*)(buff),sizeof(buff));
 
     rflysim3d_output_msg.read(&_rflysim3d_output_msg);
     rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
