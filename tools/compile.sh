@@ -1,0 +1,1 @@
+cmake .. && make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf -j32 && make upload
