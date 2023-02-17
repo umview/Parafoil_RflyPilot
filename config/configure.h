@@ -1,2 +1,3 @@
 #define POLL_TIME_US 10*1000// 10*1000ns = 10us
 #define TIMER_TICK_RATE 2000
+#define SCOPE_DATA_N 40

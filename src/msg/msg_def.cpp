@@ -45,3 +45,7 @@ ringbuffer_typedef<pwm_output_typedef> pwm_output_msg(PWM_N);
 ringbuffer_typedef<rflysim3d_output_typedef> rflysim3d_output_msg(1);
 
 ringbuffer_typedef<rflypilot_config_typedef> rflypilot_config_msg(1);
+
+ringbuffer_typedef<scope_data_typedef> controller_scope_msg(20,"controller_debug_data",true);
+ringbuffer_typedef<scope_data_typedef> att_est_scope_msg(20,"att_est_debug_data",true);
+ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg(20,"pos_est_debug_data",true);

@@ -24,7 +24,11 @@ void * thread_lpe(void * ptr)
     // read barometer data 
     baro_typedef _baro_rcv;
     //push data
-    lpe_output_typedef _lpe_msg;        
+    lpe_output_typedef _lpe_msg;      
+
+    scope_data_typedef _pos_est_debug;
+
+
     while (1)
     {   
         // if(scheduler.lpe_flag)
@@ -65,7 +69,13 @@ void * thread_lpe(void * ptr)
 
             memcpy(&_lpe_msg,&lpe_Obj.rtY._e_lpe_s,sizeof(_lpe_msg));
             lpe_output_msg.publish(&_lpe_msg);
-            
+
+            for(int i = 0; i < 3; i++)
+            {
+                _pos_est_debug.data[i] = _accel.accel[i];
+            }
+            pos_est_scope_msg.publish(&_pos_est_debug);
+
             cont--;
             if (cont<1)
             {   

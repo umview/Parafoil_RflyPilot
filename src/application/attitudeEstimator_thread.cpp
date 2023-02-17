@@ -29,6 +29,8 @@ void * thread_attitudeEstimator(void * ptr)
     //set lpe data
     lpe_output_typedef _lpe_msg;  
           
+    scope_data_typedef _att_est_debug;
+
     while (1)
     {   
         // if(scheduler.att_est_flag)
@@ -87,7 +89,13 @@ void * thread_attitudeEstimator(void * ptr)
 
             memcpy(&_cf_msg,&AttitudeEstimator_Obj.rtY._e_cf_s,sizeof(_cf_msg));
             cf_output_msg.publish(&_cf_msg);
-            
+
+            for(int i = 0; i < 3; i++)
+            {
+                _att_est_debug.data[i] = _accel.accel[i];
+            }
+            att_est_scope_msg.publish(&_att_est_debug);
+
             cont--;
             if (cont<1)
             {   

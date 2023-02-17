@@ -136,4 +136,16 @@ typedef struct
 }rflypilot_config_typedef;
 extern ringbuffer_typedef<rflypilot_config_typedef> rflypilot_config_msg;
 
+typedef struct
+{
+    uint64_t timestamp;
+    uint32_t rate_hz;
+    float data[SCOPE_DATA_N];
+}scope_data_typedef;
+
+extern ringbuffer_typedef<scope_data_typedef> controller_scope_msg;
+extern ringbuffer_typedef<scope_data_typedef> att_est_scope_msg;
+extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
+
+
 #endif

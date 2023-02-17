@@ -32,6 +32,10 @@ void * thread_usrController(void * ptr)
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
     mpc_output_typedef _mpc_output_msg;//mpc_output_msg
     pwm_output_typedef _pwm_output_msg;//pwm_output_msg
+
+    scope_data_typedef _controller_debug;
+
+
     rflypilot_config_typedef _config_msg;
     rflypilot_config_msg.read(&_config_msg);
     while (1)
@@ -95,6 +99,12 @@ void * thread_usrController(void * ptr)
             _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
             
+            for(int i = 0; i < 4; i++)
+            {
+                _controller_debug.data[i] = _pwm_output_msg.pwm[i];
+            }
+            controller_scope_msg.publish(&_controller_debug);
+
             float _pwm[4] = {0};
             for(int i = 0; i < 4; i++)
             {

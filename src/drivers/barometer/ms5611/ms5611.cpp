@@ -14,7 +14,7 @@ void * thread_baro(void * ptr)
     timespec thread_baro_sleep;
     thread_baro_sleep.tv_sec = 0;
     thread_baro_sleep.tv_nsec = 10*1000*1000;//10ms
-    
+    c_ms5611.init();
     while (1)
     {
         c_ms5611.RunImpl();
