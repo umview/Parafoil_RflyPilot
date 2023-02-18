@@ -7,6 +7,9 @@ int main(int argc, const char *argv[])
   (void)(argv);
   get_time_now();// reset time counter begin from zero
 
+
+
+
   read_param();
   calibration.calibration_file_check_and_load();
 
@@ -17,6 +20,11 @@ int main(int argc, const char *argv[])
 
   //_config_msg.validation_mode = SIH;
   start_console();
+
+
+   start_sbus("/dev/ttyAMA0");
+   rc_check();
+  
   switch(_config_msg.validation_mode)
   {
     case HIL:
@@ -26,13 +34,12 @@ int main(int argc, const char *argv[])
       start_ist8310();
       start_baro();
       start_gps("/dev/ttySC0");
-      start_sbus("/dev/ttyAMA0");
       usleep(500000);
       start_attitudeEstimator();
       start_lpe();
       usleep(500000);
       start_usrController();
-      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
+      start_scope("192.168.199.152");  
       start_log("/dev/shm");
     break;
 
@@ -43,24 +50,22 @@ int main(int argc, const char *argv[])
       start_baro();
       start_gps("/dev/ttyUSB0");
       start_qmc5883l();
-      start_sbus("/dev/ttyAMA0");
       usleep(500000);
       start_attitudeEstimator();
       start_lpe();
       usleep(500000);
       start_usrController();
-      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
+      start_scope("192.168.199.152");  
       start_log("/dev/shm");
     break;
 
     case SIH:
       printf("mode : SIH\n");
       start_sih();
-      start_sbus("/dev/ttyAMA0");
       usleep(500000);      
       start_usrController();
 
-      start_scope("192.168.199.152");  //start realtime scope (ip address configure is needed, pc scope : udp_recv.slx)
+      start_scope("192.168.199.152");
     break;
 
     default:

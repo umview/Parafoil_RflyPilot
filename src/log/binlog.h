@@ -3,17 +3,28 @@
 #include "include.h"
 #include <fcntl.h>
 void binlog_demo(void);
-void binlog_write(const char *pwd, uint8_t *buff);
-//void log_data_prepare(void);
-struct debug_log_typedef
+
+class binlog_typedef
 {
-	float data[80];
+public:
+	int fp;
+	bool initd;
+	void binlog_write(const char *file, uint8_t *buff,uint32_t len);
+
 };
-union log_union_typedef
-{
-	struct debug_log_typedef s;
-	uint8_t buff[sizeof(struct debug_log_typedef)];
-};
-extern union log_union_typedef binlog_data;
+
+
+// void binlog_write(const char *file, uint8_t *buff,uint32_t len);
+// //void log_data_prepare(void);
+// struct debug_log_typedef
+// {
+// 	float data[80];
+// };
+// union log_union_typedef
+// {
+// 	struct debug_log_typedef s;
+// 	uint8_t buff[sizeof(struct debug_log_typedef)];
+// };
+// extern union log_union_typedef binlog_data;
 
 #endif

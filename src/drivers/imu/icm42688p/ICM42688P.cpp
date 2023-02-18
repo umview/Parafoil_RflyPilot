@@ -27,19 +27,10 @@ void * thread_icm42688p(void * ptr)
     
     while (1)
     {
-    	if(scheduler.imu_flag)
-    	{
-    		#ifndef USE_ADAPTIVE_DELAY
-    		scheduler.imu_flag = false;
-    		#endif
+
         	my_icm42688p.RunImpl();
-    	}
-        //usleep(1000);
-        #ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_icm42688p_sleep,NULL);
-        #else
-        icm42688p_delay.delay_us(1e6/config.imu_rate);
-        #endif
+
     }
     return NULL;
 }

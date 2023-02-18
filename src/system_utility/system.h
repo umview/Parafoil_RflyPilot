@@ -3,7 +3,6 @@
 #include "include.h"
 bool core_bind(int cpu_index);
 void set_thread_policy(pthread_attr_t *attr, int policy,int priority);
-//#define USE_ADAPTIVE_DELAY 1
 #define POLL_TIME_US 10*1000
 class scheduler_typedef
 {

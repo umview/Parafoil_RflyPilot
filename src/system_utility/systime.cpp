@@ -32,5 +32,5 @@ void get_format_time_string(time_t time, const char* format, char *buf)
 }
  
 void get_compact_time_string(time_t time, char* buf) {
-    get_format_time_string(time, "/log-%04d-%02d-%02d-%02d-%02d-%02d.bin", buf);
+    get_format_time_string(time, "%04d-%02d-%02d-%02d-%02d-%02d", buf);
 }

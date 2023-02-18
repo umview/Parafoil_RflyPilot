@@ -146,6 +146,7 @@ typedef struct
 extern ringbuffer_typedef<scope_data_typedef> controller_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> att_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
+extern ringbuffer_typedef<scope_data_typedef> system_scope_msg;//(20,"system_debug_data",true);
 
 
 #endif

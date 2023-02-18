@@ -209,11 +209,7 @@ void *thread_icm20689(void *ptr)
     icm20689_spi_init();
     while (1)
     {
-        // if(scheduler.imu_flag)
-        // {
-        //     #ifndef USE_ADAPTIVE_DELAY
-        //     scheduler.imu_flag = false;
-        //     #endif
+
           if(icm20689_recv_spi(&icm20689_data))
           {
             time_us = get_time_now();
@@ -260,11 +256,8 @@ void *thread_icm20689(void *ptr)
             printf("icm20689 recv failed\n");
           }
         //}
-        //#ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_icm20689_sleep,NULL);
-        //#else
-        //icm20689_delay.delay_us(1e6/config.imu_rate);
-        //#endif
+
     }
     return NULL;
 }

@@ -31,11 +31,7 @@ void * thread_lpe(void * ptr)
 
     while (1)
     {   
-        // if(scheduler.lpe_flag)
-        // {
-        //     #ifndef USE_ADAPTIVE_DELAY
-        //     scheduler.lpe_flag = false;
-        //     #endif
+
             if(gps_msg.read(&_gps))
             {//read success
                 memcpy(&lpe_Obj.rtU._m_gps_s,&_gps,sizeof(lpe_Obj.rtU._m_gps_s));
@@ -87,11 +83,8 @@ void * thread_lpe(void * ptr)
                 cont = 100;
             }
         //}
-        //#ifndef USE_ADAPTIVE_DELAY
         nanosleep(&thread_lpe_sleep, NULL);
-        // #else
-        // lpe_rate.delay_us(1e6/config.lpe_rate);
-        // #endif
+
     }
 
     return NULL;

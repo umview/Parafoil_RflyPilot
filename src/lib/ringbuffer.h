@@ -62,23 +62,23 @@ public:
             printf("error spin lock init failed\n");
         }
         log_enable = _log_enable;
-        static struct tm mytm={0};
-        static struct tm* p_tm;
-        static time_t time;
-        p_tm = localtime_r(&time,&mytm);        
-        sprintf(path, "/dev/shm/log/");//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min);            
-        if(mkdir("/dev/shm/log/", 0777) == -1)
-        {
-            printf("mkdir %s error\n",msg_name);
-        }
-        sprintf(path, "/dev/shm/log/%s.bin",msg_name);//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min, msg_name);
-        fp=open(path, O_RDWR | O_CREAT,0777);
-        if(fp == -1){
-                printf("open failed!\n");
-        }else{
-                printf("open success!\n");
-        }
-        printf("size of msg : %s is %d\n",msg_name, sizeof(data_type));
+        // static struct tm mytm={0};
+        // static struct tm* p_tm;
+        // static time_t time;
+        // p_tm = localtime_r(&time,&mytm);        
+        // sprintf(path, "/dev/shm/log/");//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min);            
+        // if(mkdir("/dev/shm/log/", 0777) == -1)
+        // {
+        //     printf("mkdir %s error\n",msg_name);
+        // }
+        // sprintf(path, "/dev/shm/log/%s.bin",msg_name);//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min, msg_name);
+        // fp=open(path, O_RDWR | O_CREAT,0777);
+        // if(fp == -1){
+        //         printf("open failed!\n");
+        // }else{
+        //         printf("open success!\n");
+        // }
+        // printf("size of msg : %s is %d\n",msg_name, sizeof(data_type));
     }    
 
     void log_write(data_type *data)

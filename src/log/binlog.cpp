@@ -1,31 +1,28 @@
 #include "binlog.h"
 
-static int fp;
-void binlog_write(const char *pwd, uint8_t *buff)
+void binlog_typedef::binlog_write(const char *file, uint8_t *buff, uint32_t len)
 {
 
-	static bool initd = false;
-    static char time_buf[50]={0};
-    static char file_buf[100] = {0};
-    get_compact_time_string(time(NULL), time_buf);   
-    sprintf(file_buf, "%s%s", pwd, time_buf);
+
+
     if(!initd)
     {
-        printf("log file path: %s\n",file_buf);
+      
+        printf("log file path: %s\n",file);
 
-		fp=open(file_buf, O_RDWR | O_CREAT,0777);
+		fp=open(file, O_RDWR | O_CREAT,0777);
         if(fp == -1){
                 printf("open failed!\n");
         }else{
                 printf("open success!\n");
         }
-	    printf("sizeof debug log typedef : %d\n",sizeof(struct debug_log_typedef));
+	    printf("sizeof %s log typedef : %d\n",file,len);
 	    initd = true;
     }
 
 
     //将数组a的内容写入到文件
-    int ret = write(fp, buff, sizeof(struct debug_log_typedef));
+    int ret = write(fp, buff, len);
     //fflush(fp);
 }
 // void log_data_prepare(void)

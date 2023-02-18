@@ -35,16 +35,12 @@ void * thread_usrController(void * ptr)
 
     scope_data_typedef _controller_debug;
 
+    //rc_input_typedef _rc_input;
 
     rflypilot_config_typedef _config_msg;
     rflypilot_config_msg.read(&_config_msg);
     while (1)
     {   
-        // if(scheduler.att_est_flag)
-        // {
-            // #ifndef USE_ADAPTIVE_DELAY
-            // scheduler.att_est_flag = false;
-            // #endif
 
             //time_stamp
             usrController_Obj.usrController_U.time_stamp = get_time_now();
@@ -110,6 +106,20 @@ void * thread_usrController(void * ptr)
             {
                 _pwm[i] = _pwm_output_msg.pwm[i];
             }
+            // printf("rc timestamp : %f \n", _rc_input_msg.timestamp/1e6);
+            // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
+            //        _rc_input_msg.channels[4],_rc_input_msg.channels[5],_rc_input_msg.channels[6],_rc_input_msg.channels[7]);
+            // printf("failsafe %d framelost %d\n", _rc_input_msg.failsafe, _rc_input_msg.frameLost);
+              if(((get_time_now() - _rc_input_msg.timestamp) > 5e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost)) 
+              {
+                printf("remote controller signal loss\n");
+                for(i = 0; i<4; i++)
+                {
+                  _pwm[i] = 1000.f;
+                }
+              }
+
+
             if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
             {
                 pca9685_dev.updatePWM(_pwm,4);
@@ -128,12 +138,9 @@ void * thread_usrController(void * ptr)
                 // printf("vel: %f %f %f ", usrController_Obj.usrController_U._e_lpe_s.vel_ned[0], usrController_Obj.usrController_U._e_lpe_s.vel_ned[1], usrController_Obj.usrController_U._e_lpe_s.vel_ned[2]);
                 // printf("sbus: %d %d %d %d \n", usrController_Obj.usrController_U._c_subs_s.channels[0], usrController_Obj.usrController_U._c_subs_s.channels[1], usrController_Obj.usrController_U._c_subs_s.channels[2], usrController_Obj.usrController_U._c_subs_s.channels[3]);
             }
-        // }
-        // #ifndef USE_ADAPTIVE_DELAY
+
         nanosleep(&thread_usrController_sleep,NULL);
-        // #else
-        // attitude_est_delay.delay_us(1e6/config.attitude_est_rate);
-        // #endif
+
     }
 
     return NULL;

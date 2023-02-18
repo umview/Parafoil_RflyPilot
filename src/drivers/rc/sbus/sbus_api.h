@@ -3,11 +3,10 @@
 #include "include.h"
 #include "SBUS.h"
 void sbus_demo(void);
-
+void start_sbus(const char *sbus_serial);
 #define RC_MIDDLE_VALUE  1000.f
 #define RC_HALF_RANGE 600.f
-void start_sbus(const char *sbus_serial);
-
+void rc_check();
 class sbus_api_typedef
 {
 public:
@@ -20,5 +19,4 @@ public:
 	//void get_rc_input(uint16_t *value, int n_value);
 };
 extern class sbus_api_typedef sbus_api;
-
 #endif
