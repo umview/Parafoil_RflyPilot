@@ -23,7 +23,7 @@ void * thread_ist8310(void * ptr)
     timespec thread_mag_sleep;
     thread_mag_sleep.tv_sec = 0;
     thread_mag_sleep.tv_nsec = 10*1000*1000;//10ms
-    core_bind(1);
+    core_bind(MAG_CORE);
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);    
     while (1)

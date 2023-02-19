@@ -50,7 +50,7 @@ void * thread_system_app(void * ptr)
 	    _system_debug_data.data[30] = accel_msg.publish_rate_hz;
 	    _system_debug_data.data[31] = mag_msg.publish_rate_hz;   
 	    system_scope_msg.publish(&_system_debug_data);  
-		
+		//printf("%f %f %f %f\n",actuator_output_msg.publish_rate_hz, cf_output_msg.publish_rate_hz,mag_msg.publish_rate_hz,accel_msg.publish_rate_hz);
 
 		usleep(10000);
 	}

@@ -6,7 +6,7 @@ void * thread_sih(void * ptr)
   thread_sih_sleep.tv_sec = 0;
   thread_sih_sleep.tv_nsec = 0.88*1000*1000;//0.5ms
 
-  core_bind(0);
+  core_bind(SIH_CORE);
 
   sbus_packet_t _rc_input_msg;//rc_input_msg
   //use imu or, gyro and accel according to fc mode 

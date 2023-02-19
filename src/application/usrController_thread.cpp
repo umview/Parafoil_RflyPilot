@@ -10,7 +10,7 @@ void * thread_usrController(void * ptr)
     thread_usrController_sleep.tv_nsec = 2.5*1000*1000;//2ms
 
     /* define input struct */
-    core_bind(2);
+    core_bind(CTRL_CORE);
 
     /* usrController init */
     usrController_Obj.initialize();

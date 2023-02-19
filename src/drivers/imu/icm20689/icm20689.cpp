@@ -205,7 +205,7 @@ void *thread_icm20689(void *ptr)
         gyro_lpf[i].set_cutoff_frequency(config.imu_rate, config.gyro_cutoff_hz);        
     }
 
-    core_bind(3);
+    core_bind(IMU_CORE);
     icm20689_spi_init();
     while (1)
     {

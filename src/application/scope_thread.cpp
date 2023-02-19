@@ -22,13 +22,12 @@ void * thread_system_scope(void * ptr)
   while(1)
   {
 
-
     system_scope_msg.read(&_system_debug_data);  
     rflysim3d_output_msg.read(&_rflysim3d_output_msg);
 	  system_scope.udp_send((uint8_t*)(_system_debug_data.data),sizeof(_system_debug_data.data));  
     rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
 
-    usleep(10000);
+    usleep(11000);
   }
 }
 void * thread_controller_scope(void * ptr)
@@ -41,7 +40,7 @@ void * thread_controller_scope(void * ptr)
     controller_scope_msg.read(&_controller_debug);
     controller_scope.udp_send((uint8_t*)(_controller_debug.data),sizeof(_controller_debug.data));
 
-    usleep(10000);
+    usleep(11000);
 
   }
 }
@@ -57,7 +56,7 @@ void * thread_att_est_scope(void * ptr)
     att_est_scope.udp_send((uint8_t*)(_att_est_debug.data),sizeof(_att_est_debug.data));
 
 
-    usleep(10000);
+    usleep(11000);
 
 
   }
@@ -72,7 +71,7 @@ void * thread_pos_est_scope(void * ptr)
     pos_est_scope_msg.read(&_pos_est_debug);
     pos_est_scope.udp_send((uint8_t*)(_pos_est_debug.data),sizeof(_pos_est_debug.data));
 
-    usleep(10000);
+    usleep(11000);
 
 
   }

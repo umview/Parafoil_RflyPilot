@@ -23,7 +23,7 @@ void * thread_icm42688p(void * ptr)
     timespec thread_icm42688p_sleep;
     thread_icm42688p_sleep.tv_sec = 0;
     thread_icm42688p_sleep.tv_nsec = 2*1000*1000;//1250us
-    core_bind(3);
+    core_bind(IMU_CORE);
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
     while (1)

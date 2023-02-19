@@ -10,7 +10,7 @@ void * thread_lpe(void * ptr)
     thread_lpe_sleep.tv_nsec = 2*1000*1000;//10ms
 
     /* define lpe input struct */
-    core_bind(0);
+    core_bind(POS_EST_CORE);
 
     /* lpe init */
     lpe_Obj.initialize();

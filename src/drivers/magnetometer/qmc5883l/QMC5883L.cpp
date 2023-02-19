@@ -25,7 +25,7 @@ void * thread_qmc5883l(void * ptr)
     timespec thread_qmc5883l_sleep;
     thread_qmc5883l_sleep.tv_sec = 0;
     thread_qmc5883l_sleep.tv_nsec = 10*1000*1000;//10ms
-    core_bind(1);
+    core_bind(MAG_CORE);
     printf("qmc5883l thread starting !!!!!!!!!!!!!\n");
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config); 
