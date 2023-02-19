@@ -1,4 +1,5 @@
 #include "usrController_thread.h"
+class adaptive_delay_typedef controller_delay(0.5,15,1000);
 
 static usrController usrController_Obj;
 
@@ -112,7 +113,7 @@ void * thread_usrController(void * ptr)
             // printf("failsafe %d framelost %d\n", _rc_input_msg.failsafe, _rc_input_msg.frameLost);
               if(((get_time_now() - _rc_input_msg.timestamp) > 5e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost)) 
               {
-                printf("remote controller signal loss\n");
+                if(cont == 500)printf("remote controller signal loss\n");
                 for(i = 0; i<4; i++)
                 {
                   _pwm[i] = 1000.f;
@@ -139,7 +140,8 @@ void * thread_usrController(void * ptr)
                 // printf("sbus: %d %d %d %d \n", usrController_Obj.usrController_U._c_subs_s.channels[0], usrController_Obj.usrController_U._c_subs_s.channels[1], usrController_Obj.usrController_U._c_subs_s.channels[2], usrController_Obj.usrController_U._c_subs_s.channels[3]);
             }
 
-        nanosleep(&thread_usrController_sleep,NULL);
+        //nanosleep(&thread_usrController_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / _config_msg.controller_rate),&scheduler.controller_flag,&controller_delay);
 
     }
 

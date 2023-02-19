@@ -13,7 +13,6 @@ add_subdirectory(src/3rdparty/conf-c)
 
 
 
-
 cmake_minimum_required(VERSION 3.4.1)
 project(RflyPilot)
 set(CMAKE_BUILD_TYPE "Release")
@@ -115,7 +114,8 @@ confc
 libsbus 
 estimator_codegen
 controller_codegen 
-sih_codegen)
+sih_codegen
+rt)
 
 add_custom_target(
     upload

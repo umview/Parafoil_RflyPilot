@@ -256,7 +256,8 @@ void *thread_icm20689(void *ptr)
             printf("icm20689 recv failed\n");
           }
         //}
-        nanosleep(&thread_icm20689_sleep,NULL);
+        //nanosleep(&thread_icm20689_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm20689_delay);
 
     }
     return NULL;

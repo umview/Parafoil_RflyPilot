@@ -1,6 +1,7 @@
 #ifndef _UTILITY_SYSTEM_
 #define _UTILITY_SYSTEM_
 #include "include.h"
+
 bool core_bind(int cpu_index);
 void set_thread_policy(pthread_attr_t *attr, int policy,int priority);
 #define POLL_TIME_US 10*1000
@@ -12,9 +13,10 @@ public:
 	bool imu_flag;
 	bool att_est_flag;
 	bool lpe_flag;
+	bool mag_flag;
 	int lpe_flag_cnt;
 	int att_est_flag_cnt;
-
+	int mag_flag_cnt;
 	int controller_flag_cnt;
 	int imu_flag_cnt;
 	void start_system_timer(int base_timer);

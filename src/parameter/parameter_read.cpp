@@ -116,6 +116,13 @@ void read_param(void)
   _config_msg.validation_mode = validation_mode_typedef((int)(get_param("valid_mode")));
   _config_msg.scheduler_mode = scheduler_mode_typedef((int)(get_param("scheduler_mode")));
 
+  _config_msg.sys_log_en = (int)get_param("sys_log_en");
+  _config_msg.est_log_en = (int)get_param("est_log_en");
+  _config_msg.ctrl_log_en = (int)get_param("ctrl_log_en");
+
+  _config_msg.sys_scope_en = (int)(int)get_param("sys_scope_en");
+  _config_msg.est_scope_en = (int)get_param("est_scope_en");
+  _config_msg.ctrl_scope_en = (int)get_param("ctrl_scope_en");
 
 
 

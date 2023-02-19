@@ -18,6 +18,7 @@ using namespace QST_QMC5883L;
 /* using example */
 
 class QMC5883L qmc5883l;
+class adaptive_delay_typedef qmc5883l_delay(0.5,15,1000);
 
 void * thread_qmc5883l(void * ptr)
 {
@@ -26,10 +27,14 @@ void * thread_qmc5883l(void * ptr)
     thread_qmc5883l_sleep.tv_nsec = 10*1000*1000;//10ms
     core_bind(1);
     printf("qmc5883l thread starting !!!!!!!!!!!!!\n");
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config); 
     while (1)
     {
         qmc5883l.RunImpl();
-        nanosleep(&thread_qmc5883l_sleep,NULL);
+        //nanosleep(&thread_qmc5883l_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.mag_rate),&scheduler.mag_flag,&qmc5883l_delay);
+        
     }
     return NULL;
 }

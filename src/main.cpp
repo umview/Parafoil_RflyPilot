@@ -23,8 +23,8 @@ int main(int argc, const char *argv[])
 
 
    start_sbus("/dev/ttyAMA0");
-   rc_check();
-  
+   //rc_check();
+   start_system_app();
   switch(_config_msg.validation_mode)
   {
     case HIL:
@@ -79,7 +79,7 @@ int main(int argc, const char *argv[])
 //   {
 //     start_console();
 //   }
-scheduler.start_system_timer(TIMER_TICK_RATE);
+//scheduler.start_system_timer(TIMER_TICK_RATE);
 //   printf("System Ready !!!!!!!!!!!!!!!\n");
 
 

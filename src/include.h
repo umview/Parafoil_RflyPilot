@@ -39,6 +39,7 @@ extern "C" {
 }
 #endif
 
+
 enum validation_mode_typedef
 {
     UNDIFINED_VALIDATION_MODE = 0,
@@ -93,4 +94,5 @@ enum scheduler_mode_typedef
 //#include "ms5611_thread.h"
 #include "log_thread.h"
 #include "binlog.h"
+#include "system_app.h"
 #endif

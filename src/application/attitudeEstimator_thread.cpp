@@ -30,6 +30,8 @@ void * thread_attitudeEstimator(void * ptr)
     lpe_output_typedef _lpe_msg;  
           
     scope_data_typedef _att_est_debug;
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config);
 
     while (1)
     {   
@@ -101,8 +103,8 @@ void * thread_attitudeEstimator(void * ptr)
                 cont = 500;
             }
 
-        nanosleep(&thread_attitudeEstimator_sleep,NULL);
-
+        //nanosleep(&thread_attitudeEstimator_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.attitude_est_rate),&scheduler.att_est_flag,&attitude_est_delay);
     }
 
     return NULL;

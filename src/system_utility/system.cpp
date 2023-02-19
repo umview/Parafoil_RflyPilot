@@ -124,6 +124,11 @@ void  scheduler_typedef::scheduler_timer_fcn(void)
 		imu_flag = true;
 		imu_flag_cnt = 1;
 	}
+	if(mag_flag_cnt++ == (int)(base_timer_rate / _config.mag_rate))
+	{
+		mag_flag = true;
+		mag_flag_cnt = 1;
+	}
 }
 
 scheduler_typedef::scheduler_typedef(void)
@@ -156,11 +161,11 @@ void scheduler_typedef::start_system_timer(int _base_timer_rate)
 
     time_value.it_interval.tv_sec = 0;      /*每秒触发一次*/
     time_value.it_interval.tv_nsec = (uint32_t)(1000000000.f/base_timer_rate);//10khz timer base
-    //clock_gettime(CLOCK_MONOTONIC, &spec);         
+    clock_gettime(CLOCK_MONOTONIC, &spec);         
     time_value.it_value.tv_sec = spec.tv_sec + 0;      /*5秒后启动*/
     time_value.it_value.tv_nsec = spec.tv_nsec + 0;
 
-    //ret = timer_settime(timer, CLOCK_MONOTONIC, &time_value, NULL);
+    ret = timer_settime(timer, CLOCK_MONOTONIC, &time_value, NULL);
     if( ret )
             perror("timer_settime");
 
@@ -206,10 +211,11 @@ void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_dela
     break;
 
     case TIMER:
-    	while(!(*timer_flag))
+    	while((*timer_flag) == false)
     	{
 			delay_us_combined_sleep.tv_nsec = POLL_TIME_US;//2ms
 	        nanosleep(&delay_us_combined_sleep,NULL);
+	        //printf("waiting reset!\n");
     	}
     	*timer_flag = false;
     break;

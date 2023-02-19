@@ -24,12 +24,14 @@ void * thread_icm42688p(void * ptr)
     thread_icm42688p_sleep.tv_sec = 0;
     thread_icm42688p_sleep.tv_nsec = 2*1000*1000;//1250us
     core_bind(3);
-    
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config);
     while (1)
     {
 
         	my_icm42688p.RunImpl();
-        nanosleep(&thread_icm42688p_sleep,NULL);
+        //nanosleep(&thread_icm42688p_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm42688p_delay);
 
     }
     return NULL;

@@ -16,6 +16,7 @@
 using namespace iSentek_IST8310;
 /* using example */
 class IST8310 ist8310;
+class adaptive_delay_typedef ist8310_delay(0.5,15,1000);
 
 void * thread_ist8310(void * ptr)
 {
@@ -23,12 +24,15 @@ void * thread_ist8310(void * ptr)
     thread_mag_sleep.tv_sec = 0;
     thread_mag_sleep.tv_nsec = 10*1000*1000;//10ms
     core_bind(1);
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config);    
     while (1)
     {
         // ist8310.ist8310_read(magData, timestamp);
         ist8310.RunImpl();
         // nanosleep(&thread_mag_sleep,NULL);
         // usleep(500*1000);
+        delay_us_combined((uint64_t)(1000000.f / config.mag_rate),&scheduler.mag_flag,&ist8310_delay);
     }
     return NULL;
 }

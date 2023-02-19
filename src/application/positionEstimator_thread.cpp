@@ -1,7 +1,7 @@
 #include "positionEstimator_thread.h"
 
 static local_position_estimator lpe_Obj; // Instance of model class
-class adaptive_delay_typedef lpe_rate(0.5,15,10);
+class adaptive_delay_typedef lpe_adaotive_delay(0.5,15,10);
 
 void * thread_lpe(void * ptr)
 {
@@ -28,7 +28,8 @@ void * thread_lpe(void * ptr)
 
     scope_data_typedef _pos_est_debug;
 
-
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config);
     while (1)
     {   
 
@@ -83,7 +84,8 @@ void * thread_lpe(void * ptr)
                 cont = 100;
             }
         //}
-        nanosleep(&thread_lpe_sleep, NULL);
+        //nanosleep(&thread_lpe_sleep, NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.lpe_rate),&scheduler.lpe_flag,&lpe_adaotive_delay);
 
     }
 

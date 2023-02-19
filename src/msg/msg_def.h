@@ -131,6 +131,12 @@ typedef struct
     float lpe_rate;
     float accel_cutoff_hz;
     float gyro_cutoff_hz;
+    bool sys_log_en;
+    bool est_log_en;
+    bool ctrl_log_en;
+    bool sys_scope_en;
+    bool est_scope_en;
+    bool ctrl_scope_en;
     validation_mode_typedef validation_mode;
     scheduler_mode_typedef scheduler_mode;
 }rflypilot_config_typedef;
