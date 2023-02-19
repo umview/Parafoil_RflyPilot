@@ -137,6 +137,8 @@ typedef struct
     bool sys_scope_en;
     bool est_scope_en;
     bool ctrl_scope_en;
+    char scope_ip[20];
+    char log_dir[50];
     validation_mode_typedef validation_mode;
     scheduler_mode_typedef scheduler_mode;
 }rflypilot_config_typedef;

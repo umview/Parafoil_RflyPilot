@@ -3,7 +3,7 @@ valid_mode = 2
 #system sample rate
 imu_rate = 1000 
 mag_rate = 100 # max rate 100Hz
-controller_rate = 400
+controller_rate = 250
 attitude_est_rate = 500
 lpe_rate = 500
 #imu cutoff in Hz
@@ -19,4 +19,7 @@ ctrl_log_en = 1
 sys_scope_en = 1
 est_scope_en = 0
 ctrl_scope_en = 0
+# test
+scope_ip = "192.168.199.152"
+log_dir = "."
 #

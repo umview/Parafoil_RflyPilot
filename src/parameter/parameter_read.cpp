@@ -96,7 +96,7 @@ void read_param(void)
   // key=conf_key_list(conf);
   // if(key)
   //   print_key(key);
-  printf("key has %d\n",conf_count(conf));
+  //printf("key has %d\n",conf_count(conf));
   //得到所有键/值参数
   //出错时返回NULL
   // list=conf_value_get_all(conf);
@@ -123,10 +123,17 @@ void read_param(void)
   _config_msg.sys_scope_en = (int)(int)get_param("sys_scope_en");
   _config_msg.est_scope_en = (int)get_param("est_scope_en");
   _config_msg.ctrl_scope_en = (int)get_param("ctrl_scope_en");
+  printf("#########################################\n");
+  value=conf_value_get(conf,"scope_ip");
+  strcpy(_config_msg.scope_ip, value->value[0]);
+  printf("scope ip : %s\n",_config_msg.scope_ip);
 
-
+  value=conf_value_get(conf,"log_dir");
+  strcpy(_config_msg.log_dir, value->value[0]);
+  printf("log_dir  : %s\n",_config_msg.log_dir);
 
   rflypilot_config_msg.publish(&_config_msg);
+
 
 
   //释放内存

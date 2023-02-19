@@ -85,18 +85,18 @@ void start_scope(const char *addr)
   rflypilot_config_msg.read(&config);
   if(config.sys_scope_en)
   {
-    ret = create_thread("system_scope", thread_system_scope, (void*)addr);
+    ret = create_thread("system_scope", thread_system_scope, (void*)config.scope_ip);
   }
 
   if(config.ctrl_scope_en)
   {
-    ret = create_thread("controller_scope", thread_controller_scope, (void*)addr);
+    ret = create_thread("controller_scope", thread_controller_scope, (void*)config.scope_ip);
   }
 
   if(config.est_scope_en)
   {
-    ret = create_thread("att_est_scope", thread_att_est_scope, (void*)addr);
-    ret = create_thread("pos_est_scope", thread_pos_est_scope, (void*)addr);
+    ret = create_thread("att_est_scope", thread_att_est_scope, (void*)config.scope_ip);
+    ret = create_thread("pos_est_scope", thread_pos_est_scope, (void*)config.scope_ip);
   }
 
 

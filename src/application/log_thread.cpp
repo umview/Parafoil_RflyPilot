@@ -70,6 +70,8 @@ void * thread_log(void * dir)
 }
 void start_log(const char * dir)
 {
-  bool ret = create_thread("log", thread_log, (void*)dir);
+  rflypilot_config_typedef config;
+  rflypilot_config_msg.read(&config);    
+  bool ret = create_thread("log", thread_log, (void*)config.log_dir);
 }
 

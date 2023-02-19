@@ -25,6 +25,10 @@ int main(int argc, const char *argv[])
    start_sbus("/dev/ttyAMA0");
    //rc_check();
    start_system_app();
+
+   start_scope(NULL);
+
+
   switch(_config_msg.validation_mode)
   {
     case HIL:
@@ -39,8 +43,7 @@ int main(int argc, const char *argv[])
       start_lpe();
       usleep(500000);
       start_usrController();
-      start_scope("192.168.199.152");  
-      start_log("/dev/shm");
+      start_log(NULL);
     break;
 
     case EXP:
@@ -55,8 +58,7 @@ int main(int argc, const char *argv[])
       start_lpe();
       usleep(500000);
       start_usrController();
-      start_scope("192.168.199.152");  
-      start_log("/dev/shm");
+      start_log(NULL);
     break;
 
     case SIH:
@@ -65,7 +67,6 @@ int main(int argc, const char *argv[])
       usleep(500000);      
       start_usrController();
 
-      start_scope("192.168.199.152");
     break;
 
     default:
