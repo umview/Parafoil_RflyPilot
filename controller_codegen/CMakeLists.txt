@@ -5,6 +5,8 @@ set(CMAKE_BUILD_TYPE "Release")
 
 
 aux_source_directory(./ controler_source)
+SET(param_source
+param_load_block_wrapper.cpp)
 SET(acado_source
     ./acado/acado_solver.c
     ./acado/acado_integrator.c
@@ -32,4 +34,4 @@ include_directories(
     ./acado/qpoases/SRC/EXTRAS   
     ./acado/qpoases/SRC       
     )
-add_library(controller_codegen ${controler_source}  ${acado_source})
+add_library(controller_codegen ${param_source} ${controler_source}  ${acado_source})

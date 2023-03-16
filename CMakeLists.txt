@@ -17,11 +17,9 @@ cmake_minimum_required(VERSION 3.4.1)
 project(RflyPilot)
 set(CMAKE_BUILD_TYPE "Release")
 
-SET(simulink_utility
-    src/simulink_utility/rt_nonfinite.cpp
-    src/simulink_utility/rtGetInf.cpp
-    src/simulink_utility/rtGetNaN.cpp
-)
+aux_source_directory(src/simulink_utility simulink_utility)
+
+
 SET(source_file
     src/main.cpp
     src/system_utility/systime.cpp

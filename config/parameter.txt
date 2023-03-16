@@ -1,0 +1,15 @@
+Wvx = 20
+Wvy = 20
+Wvz = 1000
+Wqz = 0
+Wwnx = 0
+Wwny = 0
+Wwnz = 0
+Wax = 0
+Way = 0
+Waz = 0
+Wwx = 0.2
+Wwy = 0.2
+Wwz = 0.2
+Wmotor = 0.1
+Wservo = 0.08

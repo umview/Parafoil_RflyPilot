@@ -15,7 +15,7 @@ void * thread_system_scope(void * ptr)
 
     char *addr = (char*)ptr;
     system_scope.init(addr, 3333);
-    rflysim3dDP.init(addr, 20010);
+    //rflysim3dDP.init(addr, 20010);
     rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
 
     scope_data_typedef  _system_debug_data;
@@ -25,9 +25,9 @@ void * thread_system_scope(void * ptr)
     system_scope_msg.read(&_system_debug_data);  
     rflysim3d_output_msg.read(&_rflysim3d_output_msg);
 	  system_scope.udp_send((uint8_t*)(_system_debug_data.data),sizeof(_system_debug_data.data));  
-    rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
-
-    usleep(11000);
+    //rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
+    //printf("scope running \n");
+    usleep(10000);
   }
 }
 void * thread_controller_scope(void * ptr)

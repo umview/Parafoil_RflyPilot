@@ -44,7 +44,7 @@ void * thread_usrController(void * ptr)
     {   
 
             //time_stamp
-            usrController_Obj.usrController_U.time_stamp = get_time_now();
+            usrController_Obj.usrController_U.usec = get_time_now();
             //rc
             rc_input_msg.read(&_rc_input_msg);
             memcpy(&usrController_Obj.usrController_U._c_subs_s, &_rc_input_msg, sizeof(usrController_Obj.usrController_U._c_subs_s));
@@ -95,11 +95,19 @@ void * thread_usrController(void * ptr)
             memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
             _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
+
+            //printf("controller output %d %d %d %d\n", usrController_Obj.usrController_Y._c_out_s.pwm[0], usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
+
             
             for(int i = 0; i < 4; i++)
             {
                 _controller_debug.data[i] = _pwm_output_msg.pwm[i];
             }
+
+
+            memcpy(&_controller_debug, &usrController_Obj.usrController_Y._s_scope_s, sizeof(scope_data_typedef));
+            _controller_debug.timestamp = usrController_Obj.usrController_Y._s_scope_s.time_stamp;
+            //printf("%f %f %f %f\n", _controller_debug.data[0], _controller_debug.data[1], _controller_debug.data[2],_controller_debug.data[3]);
             controller_scope_msg.publish(&_controller_debug);
 
             float _pwm[4] = {0};
@@ -111,7 +119,7 @@ void * thread_usrController(void * ptr)
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
             //        _rc_input_msg.channels[4],_rc_input_msg.channels[5],_rc_input_msg.channels[6],_rc_input_msg.channels[7]);
             // printf("failsafe %d framelost %d\n", _rc_input_msg.failsafe, _rc_input_msg.frameLost);
-              if(((get_time_now() - _rc_input_msg.timestamp) > 5e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost)) 
+              if(((get_time_now() - _rc_input_msg.timestamp) > 5e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
               {
                 if(cont == 500)printf("remote controller signal loss\n");
                 for(i = 0; i<4; i++)

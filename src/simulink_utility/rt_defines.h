@@ -1,16 +1,11 @@
 //
 // File: rt_defines.h
 //
-// Code generated for Simulink model 'pid_controller'.
+// Code generated for Simulink model 'MPCControllerCodeGen_BICOPTER_2020b'.
 //
-// Model version                  : 7.103
-// Simulink Coder version         : 9.4 (R2020b) 29-Jul-2020
-// C/C++ source code generated on : Wed Dec 14 18:47:43 2022
-//
-// Target selection: ert.tlc
-// Embedded hardware selection: Intel->x86-64 (Linux 64)
-// Code generation objectives: Unspecified
-// Validation result: Not run
+// Model version                  : 5.10
+// Simulink Coder version         : 9.8 (R2022b) 13-May-2022
+// C/C++ source code generated on : Fri Mar 10 16:52:53 2023
 //
 #ifndef RTW_HEADER_rt_defines_h_
 #define RTW_HEADER_rt_defines_h_

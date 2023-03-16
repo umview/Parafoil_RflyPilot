@@ -76,8 +76,10 @@ void adaptive_delay_typedef::delay_us(uint64_t us)
 	if(!locked)
 	{
 		ff = us - offset_us;
-		kp_output = 0.01 * err;
+		kp_output = kp * 0.02 * err;
 		integral += ki * err * us / 1e6;
+		if(integral > 15*1000) integral = 15 *1000;
+		else if(integral < -15*1000) integral = -15 * 1000;
 		delay_ns_output = (long)((kp_output + integral + ff) * 1e3);
 		if(delay_ns_output > 100 * 1e3 * ff)delay_ns_output = 100 * 1e3 * ff;
 		if(delay_ns_output < 1e-3 * 1e3 * ff)delay_ns_output = 1e-3 * 1e3 * ff;

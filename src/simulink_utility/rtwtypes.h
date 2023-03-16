@@ -1,22 +1,12 @@
 //
 // File: rtwtypes.h
 //
-// Code generated for Simulink model 'PositionEstimator'.
+// Code generated for Simulink model 'MPCControllerCodeGen_BICOPTER_2020b'.
 //
-// Model version                  : 2.57
+// Model version                  : 5.10
 // Simulink Coder version         : 9.8 (R2022b) 13-May-2022
-// C/C++ source code generated on : Thu Dec 15 17:43:54 2022
+// C/C++ source code generated on : Fri Mar 10 16:52:53 2023
 //
-// Target selection: ert.tlc
-// Embedded hardware selection: ARM Compatible->ARM Cortex-A
-// Emulation hardware selection:
-//    Differs from embedded hardware (MATLAB Host)
-// Code generation objectives:
-//    1. Execution efficiency
-//    2. RAM efficiency
-// Validation result: Not run
-//
-
 #ifndef RTWTYPES_H
 #define RTWTYPES_H
 
@@ -33,10 +23,10 @@
 
 //=======================================================================*
 //  Target hardware information
-//    Device type: MATLAB Host
+//    Device type: ARM Compatible->ARM Cortex-A
 //    Number of bits:     char:   8    short:   16    int:  32
 //                        long:  32    long long:  64
-//                        native word size:  64
+//                        native word size:  32
 //    Byte ordering: LittleEndian
 //    Signed integer division rounds to: Zero
 //    Shift right on a signed integer as arithmetic shift: on
