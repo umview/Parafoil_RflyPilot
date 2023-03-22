@@ -59,8 +59,9 @@ void * thread_system_app(void * ptr)
 	    _system_debug_data.data[34] = _baro.pressure;
 	    _system_debug_data.data[35] = _rc_input_msg.channels[0];
 	    _system_debug_data.data[36] = _rc_input_msg.channels[1];
-	    _system_debug_data.data[37] = _rc_input_msg.channels[2];
-	    _system_debug_data.data[38] = _rc_input_msg.channels[3];
+	    _system_debug_data.data[37] = _mag.mag[0];
+	    _system_debug_data.data[38] = _mag.mag[1];
+	    _system_debug_data.data[39] = _mag.mag[2];
 
 	    system_scope_msg.publish(&_system_debug_data);  
 		//printf("%f %f %f %f\n",actuator_output_msg.publish_rate_hz, cf_output_msg.publish_rate_hz,mag_msg.publish_rate_hz,accel_msg.publish_rate_hz);

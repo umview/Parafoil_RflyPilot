@@ -1,8 +1,8 @@
-set(CMAKE_CXX_COMPILER "/usr/bin/arm-linux-gnueabihf-g++")
-set(CMAKE_C_COMPILER "/usr/bin/arm-linux-gnueabihf-gcc")
+#set(CMAKE_CXX_COMPILER "/usr/bin/arm-linux-gnueabihf-g++")
+#set(CMAKE_C_COMPILER "/usr/bin/arm-linux-gnueabihf-gcc")
 
-#set(CMAKE_CXX_COMPILER "/usr/bin/aarch64-linux-gnu-g++")
-#set(CMAKE_C_COMPILER "/usr/bin/aarch64-linux-gnu-gcc")
+set(CMAKE_CXX_COMPILER "/usr/bin/aarch64-linux-gnu-g++")
+set(CMAKE_C_COMPILER "/usr/bin/aarch64-linux-gnu-gcc")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
 add_subdirectory(src/3rdparty/sbus)

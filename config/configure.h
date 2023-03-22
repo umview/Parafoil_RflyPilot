@@ -7,3 +7,5 @@
 #define CTRL_CORE 3
 #define SIH_CORE 3
 #define MAG_CORE 2
+
+#define USE_RFLYPILOT 1

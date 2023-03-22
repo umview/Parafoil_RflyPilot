@@ -223,14 +223,26 @@ void PX4Accelerometer::updateFIFO(sensor_accel_fifo_s &sample)
 	accel_raw_typedef _accel_raw;
     accel_typedef _accel;
 	_accel_raw.timestamp = report.timestamp;
-	_accel_raw.accel[0] = accel_lpf[0].apply(-report.x);
-	_accel_raw.accel[1] = accel_lpf[1].apply(-report.y);
-	_accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+
+	if(USE_RFLYPILOT == 1)
+	{
+		_accel_raw.accel[0] = accel_lpf[0].apply(-report.y);
+		_accel_raw.accel[1] = accel_lpf[1].apply(report.x);
+		_accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+	}else{
+		_accel_raw.accel[0] = accel_lpf[0].apply(-report.x);
+		_accel_raw.accel[1] = accel_lpf[1].apply(-report.y);
+		_accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+	}
+
+
 	// calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
 	calibration.apply_accel_calibration(_accel_raw.accel, _accel.accel);
 	_accel.timestamp = report.timestamp;
 	accel_raw_msg.publish(&_accel_raw);
 	accel_msg.publish(&_accel);
+	//printf("accel x: %f, accel y: %f, accel z: %f\n", _accel.accel[0], _accel.accel[1], _accel.accel[2]);
+
 	#else
 	printf("accel x: %f, accel y: %f, accel z: %f\n", report.x, report.y, report.z);
 	#endif

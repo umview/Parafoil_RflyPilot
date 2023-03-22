@@ -183,7 +183,7 @@ bool calibration_typedef::orientation_check(float accel[3],float gyro[3],orienta
 {
     static float _time = get_time_now() / 1e6;
     float check_time = 2;
-    if(sqrtf(gyro[0]*gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]) > (3.f / 180 * M_PI))
+    if(sqrtf(gyro[0]*gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]) > (10.f / 180 * M_PI))
     {
         _time = get_time_now() / 1e6;
         //printf("large angular velocity\n");// %f-%f = %f \n",  sqrtf(gyro[0]*gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]), (20.f / 180 * M_PI),sqrtf(gyro[0]*gyro[0] + gyro[1] * gyro[1] + gyro[2] * gyro[2]),-(20 / 180 * M_PI));
@@ -372,7 +372,7 @@ void calibration_typedef::calibration_file_check_and_load(void)
         return;
     }else{
         load_param(&calib_data);
-        //printf("mag scale %f\n",calib_data.mag_scale[2]);
+        printf("calibration data loads successfully\n");
         sensor_calib_enable = true;
     }
 

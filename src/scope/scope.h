@@ -16,6 +16,7 @@ public:
 	int sockfd;
 	char buf[32];
 	uint16_t port;
+	int ret;
 	struct sockaddr_in serveraddr;	
 	//scope_class::scope_class(uint16_t _port);
 	void init(const char *addr, uint16_t port);

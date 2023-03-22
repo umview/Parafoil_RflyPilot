@@ -525,7 +525,9 @@ bool ICM42688P::FIFORead(const hrt_abstime &timestamp_sample, uint8_t samples)
 // In file included from /RflyPilot_Project/RflyPilot/src/drivers/imu/icm42688p/ICM42688P.h:22:0,
 //                  from RflyPilot_Project/RflyPilot/src/drivers/imu/icm42688p/ICM42688P.cpp:1:
 // RflyPilot_Project/RflyPilot/src/drivers/imu/icm42688p/limit.h:12:16: note: candidate: template<class _Tp> constexpr _Tp math_px4::min(_Tp, _Tp)
-	const size_t transfer_size = math_px4::min(samples * sizeof(FIFO::DATA) + 4, (FIFO::SIZE));
+	const size_t transfer_size = math_px4::min(samples * sizeof(FIFO::DATA) + 4, (long unsigned int)(FIFO::SIZE));
+//	const size_t transfer_size = math_px4::min(samples * sizeof(FIFO::DATA) + 4, (FIFO::SIZE));
+
 	SelectRegisterBank(REG_BANK_SEL_BIT::USER_BANK_0);
 
 	if (transfer((uint8_t *)&buffer, (uint8_t *)&buffer, transfer_size) != PX4_OK) {

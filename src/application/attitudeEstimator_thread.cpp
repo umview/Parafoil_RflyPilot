@@ -37,6 +37,7 @@ void * thread_attitudeEstimator(void * ptr)
     {   
 
                 if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
+                    //printf("gyro : %f %f %f\n accel : %f %f %f\n",_gyro.gyro[0],_gyro.gyro[1],_gyro.gyro[2],_accel.accel[0],_accel.accel[1],_accel.accel[2]);
                     memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
                     memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
                     _imu.timestamp = _gyro.timestamp;

@@ -225,9 +225,17 @@ void QMC5883L::RunImpl()
 						z = (z == INT16_MIN) ? INT16_MAX : -z; // -z
 
 						// _px4_mag.update(now, x, y, z);
-						magData[0] = (float)y/12000;
-						magData[1] = -(float)x/12000;
-						magData[2] = (float)z/12000;
+						if(USE_RFLYPILOT == 1)
+						{
+							magData[0] = (float)y/12000;
+							magData[1] = (float)x/12000;
+							magData[2] = -(float)z/12000;
+						}else{
+							magData[0] = (float)y/12000;
+							magData[1] = -(float)x/12000;
+							magData[2] = (float)z/12000;
+						}
+
 						timestamp[0] = now;
 
 						success = true;

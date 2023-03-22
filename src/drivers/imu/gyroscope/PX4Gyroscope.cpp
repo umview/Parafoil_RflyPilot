@@ -200,9 +200,18 @@ void PX4Gyroscope::updateFIFO(sensor_gyro_fifo_s &sample)
 	gyro_raw_typedef _gyro_raw;
     gyro_typedef _gyro;
 	_gyro_raw.timestamp = report.timestamp;
-	_gyro_raw.gyro[0] = gyro_lpf[0].apply(-report.x);
-	_gyro_raw.gyro[1] = gyro_lpf[1].apply(-report.y);
-	_gyro_raw.gyro[2] = gyro_lpf[2].apply(report.z);
+
+	if(USE_RFLYPILOT == 1)
+	{
+		_gyro_raw.gyro[0] = gyro_lpf[0].apply(-report.y);
+		_gyro_raw.gyro[1] = gyro_lpf[1].apply(report.x);
+		_gyro_raw.gyro[2] = gyro_lpf[2].apply(report.z);
+	}else{
+		_gyro_raw.gyro[0] = gyro_lpf[0].apply(-report.x);
+		_gyro_raw.gyro[1] = gyro_lpf[1].apply(-report.y);
+		_gyro_raw.gyro[2] = gyro_lpf[2].apply(report.z);
+	}
+
 	// calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
 	calibration.apply_gyro_calibration(_gyro_raw.gyro, _gyro.gyro);
 	_gyro.timestamp = report.timestamp;
