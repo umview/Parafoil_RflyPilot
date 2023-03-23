@@ -119,7 +119,7 @@ void * thread_usrController(void * ptr)
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
             //        _rc_input_msg.channels[4],_rc_input_msg.channels[5],_rc_input_msg.channels[6],_rc_input_msg.channels[7]);
             // printf("failsafe %d framelost %d\n", _rc_input_msg.failsafe, _rc_input_msg.frameLost);
-              if(((get_time_now() - _rc_input_msg.timestamp) > 5e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
+              if(((get_time_now() - _rc_input_msg.timestamp) > 8e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
               {
                 if(cont == 500)printf("remote controller signal loss\n");
                 for(i = 0; i<4; i++)

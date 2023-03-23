@@ -8,4 +8,4 @@
 #define SIH_CORE 3
 #define MAG_CORE 2
 
-#define USE_RFLYPILOT 1
+#define USE_RFLYPILOT 0

@@ -1,6 +1,6 @@
 ########################### SYSTEM PARAMETER ###################
 #validation mode SIH:1 HIL:2 EXP:3
-valid_mode = 3 
+valid_mode = 2
 #system sample rate
 imu_rate = 800 
 mag_rate = 95 # max rate 100Hz
@@ -19,7 +19,7 @@ ctrl_log_en = 0
 # msg scope enable
 sys_scope_en = 1
 est_scope_en = 0
-ctrl_scope_en = 0
+ctrl_scope_en = 1
 # string
 scope_ip = "192.168.199.152" # 152
 log_dir = "."
