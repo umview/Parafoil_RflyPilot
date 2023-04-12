@@ -73,7 +73,8 @@ void adaptive_delay_typedef::delay_us(uint64_t us)
 	}else{
 		lock_cnt = 0;
 	}
-	if(!locked)
+
+	if(!locked || 1)
 	{
 		ff = us - offset_us;
 		kp_output = kp * 0.02 * err;

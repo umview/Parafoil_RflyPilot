@@ -7,6 +7,8 @@ set(CMAKE_C_COMPILER "/usr/bin/arm-linux-gnueabihf-gcc")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lrt -O3")
 add_subdirectory(src/3rdparty/sbus)
 add_subdirectory(controller_codegen)
+add_subdirectory(basic_controller_codegen)
+
 add_subdirectory(sih_codegen)
 add_subdirectory(estimator_codegen)
 add_subdirectory(src/3rdparty/conf-c)
@@ -95,6 +97,7 @@ include_directories(
                     controller_codegen
                     estimator_codegen
                     sih_codegen
+                    basic_controller_codegen
                     )
 
 link_directories(
@@ -106,12 +109,14 @@ add_executable(rflypilot
     ${drivers_source}
     ${estimator_source}
     ${controller_source}
+    ${basic_controller_codegen}
     ${sih_source})
 target_link_libraries(rflypilot 
 confc  
 libsbus 
 estimator_codegen
 controller_codegen 
+basic_controller_codegen
 sih_codegen
 rt)
 

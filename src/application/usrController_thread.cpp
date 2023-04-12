@@ -83,6 +83,9 @@ void * thread_usrController(void * ptr)
             memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpe_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
             //run step
             usrController_Obj.step();
+            float _pwm[4] = {0};
+        //if(_rc_input_msg.channels[5] > 1750)
+        //{
             //set output
             memcpy(&_mpc_output_msg.thrust,&usrController_Obj.usrController_Y._c_out_s.thrust, sizeof(_mpc_output_msg.thrust));
             _mpc_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
@@ -110,7 +113,6 @@ void * thread_usrController(void * ptr)
             //printf("%f %f %f %f\n", _controller_debug.data[0], _controller_debug.data[1], _controller_debug.data[2],_controller_debug.data[3]);
             controller_scope_msg.publish(&_controller_debug);
 
-            float _pwm[4] = {0};
             for(int i = 0; i < 4; i++)
             {
                 _pwm[i] = _pwm_output_msg.pwm[i];
@@ -135,7 +137,15 @@ void * thread_usrController(void * ptr)
                 //printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
 
             }
-
+        //}
+        if(_rc_input_msg.channels[5] <1200)
+        {
+                for(i = 0; i<4; i++)
+                {
+                  _pwm[i] = 1000.f;
+                }
+                pca9685_dev.updatePWM(_pwm,4);
+        }
             cont--;
             if (cont<1)
             {   

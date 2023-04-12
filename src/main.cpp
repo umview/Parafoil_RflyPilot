@@ -43,6 +43,7 @@ int main(int argc, const char *argv[])
       start_lpe();
       usleep(500000);
       start_usrController();
+      //start_basicController();
       start_log(NULL);
     break;
 
@@ -58,6 +59,7 @@ int main(int argc, const char *argv[])
       start_lpe();
       usleep(500000);
       start_usrController();
+      //start_basicController();
       start_log(NULL);
     break;
 

@@ -84,6 +84,7 @@ enum scheduler_mode_typedef
 #include "attitudeEstimator_thread.h"
 #include "positionEstimator_thread.h"
 #include "usrController_thread.h"
+#include "basicController_thread.h"
 #include "sih_thread.h"
 //#include "gps_thread.h"
 //#include "sbus_thread.h"
