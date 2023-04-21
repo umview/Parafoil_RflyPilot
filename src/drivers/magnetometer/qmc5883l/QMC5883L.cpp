@@ -157,12 +157,12 @@ void QMC5883L::RunImpl()
 		} else {
 			// RESET not complete
 			if (get_time_now()-_reset_timestamp > 1000*1000) {
-				printf("Reset failed, retrying");
+				printf("QMC5883L: Reset failed, retrying");
 				_state = STATE::RESET;
 				usleep(100*1000);
 
 			} else {
-				printf("Reset not complete, check again in 10 ms");
+				printf("QMC5883L: Reset not complete, check again in 10 ms");
 				usleep(10*1000);
 			}
 		}

@@ -165,13 +165,13 @@ void IST8310::RunImpl()
 		} else {
 			// RESET not complete
 			if (elapsed_time(_reset_timestamp) > 1000*1000) {
-				printf("Reset failed, retrying\n");
+				printf("IST8310: Reset failed, retrying\n");
 				_state = STATE::RESET;
 				// ScheduleDelayed(100_ms);
 				usleep(100*1000);
 
 			} else {
-				printf("Reset not complete, check again in 10 ms\n");
+				printf("IST8310: Reset not complete, check again in 10 ms\n");
 				// ScheduleDelayed(10_ms);
 				usleep(10*1000);
 			}
