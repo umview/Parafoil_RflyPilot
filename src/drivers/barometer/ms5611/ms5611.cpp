@@ -288,7 +288,7 @@ int MS5611::collect()
 		// publish baro data
 		baro_typedef _baro;
 		_baro.timestamp = _timestamp_sample;
-		_baro.temperature = _pressure;
+		_baro.pressure = _pressure;
 		_baro.temperature = _temperature;
 		baro_msg.publish(&_baro);
 		#endif
