@@ -27,7 +27,7 @@ void * thread_attitudeEstimator(void * ptr)
     //read mag data from ringbuffer memcpy
     mag_typedef _mag;     
     //set lpe data
-    lpe_output_typedef _lpe_msg;  
+    lpe_output_typedef _lpelp_msg;  
           
     scope_data_typedef _att_est_debug;
     rflypilot_config_typedef config;
@@ -73,8 +73,11 @@ void * thread_attitudeEstimator(void * ptr)
             if(mag_msg.read(&_mag))memcpy(&AttitudeEstimator_Obj.rtU._m_mag_s,&_mag,sizeof(AttitudeEstimator_Obj.rtU._m_mag_s));
 
 
-            if(lpe_output_msg.read(&_lpe_msg)){
-                memcpy(&AttitudeEstimator_Obj.rtU._e_lpe_s, &_lpe_msg, sizeof(AttitudeEstimator_Obj.rtU._e_lpe_s));
+            if(lpeLowPass_output_msg.read(&_lpelp_msg)){
+                // _lpelp_msg.pos_accel_body[0] = 0;
+                // _lpelp_msg.pos_accel_body[1] = 0;
+                // _lpelp_msg.pos_accel_body[2] = 0;
+                memcpy(&AttitudeEstimator_Obj.rtU._e_lpe_s, &_lpelp_msg, sizeof(AttitudeEstimator_Obj.rtU._e_lpe_s));
             }
 
             // mag decl data in beijing
@@ -101,6 +104,8 @@ void * thread_attitudeEstimator(void * ptr)
                 // printf("gyro x: %f, gyro y: %f, gyro z: %f ", _gyro.gyro[0], _gyro.gyro[1], _gyro.gyro[2]);
                 // printf("accel x: %f, accel y: %f, accel z: %f ", _accel.accel[0], _accel.accel[1], _accel.accel[2]);
                 // printf("mag x: %f, mag y: %f, mag z: %f \n", _mag.mag[0], _mag.mag[1], _mag.mag[2]);
+                // printf("Accel Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[2]);
+                // printf("Mag Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[2]);
                 cont = 500;
             }
 

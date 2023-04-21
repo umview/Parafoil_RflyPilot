@@ -19,7 +19,7 @@ void * thread_system_app(void * ptr)
 	while(1)
 	{
 	    cf_output_msg.read(&_att);
-	    lpe_output_msg.read(&_lpe);
+	    lpeLowPass_output_msg.read(&_lpe);
 	    gps_msg.read(&_gps);
 	    mag_msg.read(&_mag);
 	    actuator_output_msg.read(&_actuator_output);

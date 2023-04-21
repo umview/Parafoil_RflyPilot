@@ -183,13 +183,13 @@ void ICM42688P::RunImpl()
 		} else {
 			// RESET not complete
 			if (get_time_now()-_reset_timestamp > 1000*1000) {
-				printf("Reset failed, retrying");
+				printf("ICM42688p: Reset failed, retrying");
 				_state = STATE::RESET;
 				// ScheduleDelayed(100_ms);
 				usleep(100*1000);
 
 			} else {
-				printf("Reset not complete, check again in 10 ms");
+				printf("ICM42688p: Reset not complete, check again in 10 ms");
 				// ScheduleDelayed(10_ms);
 				usleep(10*1000);
 			}

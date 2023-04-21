@@ -24,6 +24,7 @@ ringbuffer_typedef<mpc_output_typedef> mpc_output_msg(MPC_OUTPUT_N);//, "mpc_out
 
 ringbuffer_typedef<cf_output_typedef> cf_output_msg(CF_OUTPUT_N, "cf_output", true);
 ringbuffer_typedef<lpe_output_typedef> lpe_output_msg(LPE_OUTPUT_N, "lpe_output", true);
+ringbuffer_typedef<lpe_output_typedef> lpeLowPass_output_msg(LPE_OUTPUT_N, "lpeLowPass_output", true);
 
 ringbuffer_typedef<imu_raw_typedef> imu_raw_msg(IMU_RAW_N);//, "imu_raw", true);
 ringbuffer_typedef<mag_raw_typedef> mag_raw_msg(MAG_RAW_N);//, "mag_raw", true);

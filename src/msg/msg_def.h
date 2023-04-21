@@ -28,6 +28,7 @@ typedef struct
     double accel_bias[3];
 }lpe_output_typedef;
 extern ringbuffer_typedef<lpe_output_typedef> lpe_output_msg;//local position estimator output message
+extern ringbuffer_typedef<lpe_output_typedef> lpeLowPass_output_msg;//local position estimator output message
 
 typedef struct
 {
@@ -103,7 +104,7 @@ extern ringbuffer_typedef<sbus_packet_t> rc_input_msg;//(GPS_N);
 typedef struct
 {
     uint64_t timestamp;
-    float actuator_output[4];
+    uint16_t actuator_output[4];
 }actuator_output_typedef;
 extern ringbuffer_typedef<actuator_output_typedef> actuator_output_msg;//(GPS_N);
 
