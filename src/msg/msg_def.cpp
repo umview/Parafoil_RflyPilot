@@ -1,6 +1,6 @@
 #include "msg_def.h"
 #define PID_OUTPUT_N 5
-#define MPC_OUTPUT_N 5
+// #define MPC_OUTPUT_N 5
 
 #define CF_OUTPUT_N 5
 #define LPE_OUTPUT_N 5
@@ -20,7 +20,7 @@
 #define ACTUATOR_OUTPUT_N 5
 #define ACTUATOR_FEEDBACK_N 5
 #define PWM_N 5
-ringbuffer_typedef<mpc_output_typedef> mpc_output_msg(MPC_OUTPUT_N);//, "mpc_output", false);
+// ringbuffer_typedef<mpc_output_typedef> mpc_output_msg(MPC_OUTPUT_N);//, "mpc_output", false);
 
 ringbuffer_typedef<cf_output_typedef> cf_output_msg(CF_OUTPUT_N, "cf_output", true);
 ringbuffer_typedef<lpe_output_typedef> lpe_output_msg(LPE_OUTPUT_N, "lpe_output", true);

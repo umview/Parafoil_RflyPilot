@@ -23,7 +23,7 @@ void * thread_sih(void * ptr)
 
   //at present mpc_output_typedef is used for tranfor control, but in future actuator_output_typedef will be used
   actuator_output_typedef _actuator_output_msg;//actuator_output_msg
-  mpc_output_typedef _mpc_output_msg;//mpc_output_msg
+  // mpc_output_typedef _mpc_output_msg;//mpc_output_msg
   pwm_output_typedef _pwm_output_msg;//pwm_output_msg
   rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
 

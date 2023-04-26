@@ -31,7 +31,7 @@ void * thread_usrController(void * ptr)
 
     //at present mpc_output_typedef is used for tranfor control, but in future actuator_output_typedef will be used
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
-    mpc_output_typedef _mpc_output_msg;//mpc_output_msg
+    // mpc_output_typedef _mpc_output_msg;//mpc_output_msg
     pwm_output_typedef _pwm_output_msg;//pwm_output_msg
 
     scope_data_typedef _controller_debug;
@@ -44,7 +44,7 @@ void * thread_usrController(void * ptr)
     {   
 
             //time_stamp
-            usrController_Obj.usrController_U.usec = get_time_now();
+            usrController_Obj.usrController_U.time_stamp = get_time_now();
             //rc
             rc_input_msg.read(&_rc_input_msg);
             memcpy(&usrController_Obj.usrController_U._c_subs_s, &_rc_input_msg, sizeof(usrController_Obj.usrController_U._c_subs_s));
@@ -87,9 +87,9 @@ void * thread_usrController(void * ptr)
         //if(_rc_input_msg.channels[5] > 1750)
         //{
             //set output
-            memcpy(&_mpc_output_msg.thrust,&usrController_Obj.usrController_Y._c_out_s.thrust, sizeof(_mpc_output_msg.thrust));
-            _mpc_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
-            mpc_output_msg.publish(&_mpc_output_msg);
+            // memcpy(&_mpc_output_msg.thrust,&usrController_Obj.usrController_Y._c_out_s.thrust, sizeof(_mpc_output_msg.thrust));
+            // _mpc_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
+            // mpc_output_msg.publish(&_mpc_output_msg);
             
             memcpy(&_pwm_output_msg.pwm, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_pwm_output_msg.pwm));
             _pwm_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
@@ -99,7 +99,8 @@ void * thread_usrController(void * ptr)
             _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
 
-            //printf("controller output %d %d %d %d\n", usrController_Obj.usrController_Y._c_out_s.pwm[0], usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
+            // printf("controller output %d %d %d %d\n", usrController_Obj.usrController_Y._c_out_s.pwm[0], usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
+            // printf("controller output? %d %d %d %d\n", _actuator_output_msg.actuator_output[0], _actuator_output_msg.actuator_output[1],_actuator_output_msg.actuator_output[2],_actuator_output_msg.actuator_output[3]);
 
             
             for(int i = 0; i < 4; i++)
@@ -115,7 +116,7 @@ void * thread_usrController(void * ptr)
 
             for(int i = 0; i < 4; i++)
             {
-                _pwm[i] = _pwm_output_msg.pwm[i];
+                _pwm[i] = ((float)_pwm_output_msg.pwm[i])/8;
             }
             // printf("rc timestamp : %f \n", _rc_input_msg.timestamp/1e6);
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
@@ -123,10 +124,10 @@ void * thread_usrController(void * ptr)
             // printf("failsafe %d framelost %d\n", _rc_input_msg.failsafe, _rc_input_msg.frameLost);
               if(((get_time_now() - _rc_input_msg.timestamp) > 8e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
               {
-                if(cont == 500)printf("remote controller signal loss\n");
+                // if(cont == 500)printf("remote controller signal loss\n");
                 for(i = 0; i<4; i++)
                 {
-                  _pwm[i] = 1000.f;
+                  _pwm[i] = 125.f;
                 }
               }
 
@@ -134,7 +135,7 @@ void * thread_usrController(void * ptr)
             if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
             {
                 pca9685_dev.updatePWM(_pwm,4);
-                //printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
+                // printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
 
             }
         //}
@@ -142,7 +143,7 @@ void * thread_usrController(void * ptr)
         {
                 for(i = 0; i<4; i++)
                 {
-                  _pwm[i] = 1000.f;
+                  _pwm[i] = 125.f;
                 }
                 pca9685_dev.updatePWM(_pwm,4);
         }
