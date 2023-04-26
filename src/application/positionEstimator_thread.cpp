@@ -80,7 +80,7 @@ void * thread_lpe(void * ptr)
             static bool gpsInitOK_last = false;
             if(gpsInitOK&&!gpsInitOK_last)printf("GPS Init status %d, GPS Alt Origin is %f \n",gpsInitOK, gpsAltOrigin);
             gpsInitOK_last = gpsInitOK;
-
+            
             static bool baroInitOK_last = false;
             if(baroInitOK&&!baroInitOK_last)printf("Baro Init status %d, Baro Alt Origin is %f, Baro pressure is: %f \n",baroInitOK, baroAltOrigin, _baro_rcv.pressure);
             baroInitOK_last = baroInitOK;
@@ -88,6 +88,7 @@ void * thread_lpe(void * ptr)
             cont--;
             if (cont<1)
             {   
+                if(!gpsInitOK)printf("GPS hacc is %f, vacc is %f, sacc is %f\n", _gps.hacc, _gps.vacc, _gps.sacc);
                 // printf("roll: %f, pitch: %f, yaw: %f\n", _cf_msg.roll, _cf_msg.pitch, _cf_msg.yaw);
                 //  printf("px: %f, py: %f, pz: %f ", lpe_Obj.rtY._e_lpe_s.pos_ned[0], lpe_Obj.rtY._e_lpe_s.pos_ned[1], lpe_Obj.rtY._e_lpe_s.pos_ned[2]);
                 //  printf("vx: %f, vy: %f, vz: %f ", lpe_Obj.rtY._e_lpe_s.vel_ned[0], lpe_Obj.rtY._e_lpe_s.vel_ned[1], lpe_Obj.rtY._e_lpe_s.vel_ned[2]);
