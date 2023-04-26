@@ -64,6 +64,10 @@ public:
 	PX4Gyroscope();
 	~PX4Gyroscope();
 
+	double theta = 0.0*0.01745329252;
+	double phi = 0.0*0.01745329252;
+	double psi = 0.0*0.01745329252;
+
 	uint32_t get_device_id() const { return _device_id; }
 
 	int32_t get_max_rate_hz() const { return math_px4::constrain(_imu_gyro_rate_max, static_cast<int32_t>(100), static_cast<int32_t>(4000)); }
@@ -98,6 +102,9 @@ private:
 	uint32_t		_error_count{0};
 
 	int16_t			_last_sample[3] {};
+
+	//Define rotation matrix for imu based on body
+	double rotation[3][3];//Reb
 };
 
 // #ifdef __cplusplus
