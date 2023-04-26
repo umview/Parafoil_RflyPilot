@@ -141,8 +141,8 @@ struct m_baro_s
 struct c_out_s
 {
   uint64_T time_stamp;
-  uint16_T pwm[4];
-  real32_T thrust[4];
+  uint16_T pwm[8];
+  real32_T thrust[8];
 };
 
 #endif

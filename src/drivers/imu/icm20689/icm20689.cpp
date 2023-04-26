@@ -22,6 +22,12 @@ static uint8_t bits = 8;                // 接收、发送数据位数
 static uint32_t speed = 10000000;        // 发送速度
 static uint16_t _delay;                  //保存延时时间
 
+//Define rotation matrix for imu based on body
+double theta = 0.0*0.01745329252;
+double phi = 0.0*0.01745329252;
+double psi = 0.0*0.01745329252;
+double rotation[3][3];//Reb
+
 //spi发送数据
 static int transfer(int fd, uint8_t const *tx, uint8_t const *rx, size_t len);
 static int spi_reg_read(int fd, uint8_t const addr, uint8_t *data);
@@ -264,7 +270,18 @@ void *thread_icm20689(void *ptr)
 }
 void start_icm20689(void)
 {
-
+    //1 column
+    rotation[0][0] = cos(theta)*cos(psi);
+    rotation[1][0] = cos(theta)*sin(psi);
+    rotation[2][0] = -sin(theta);
+    //2 column
+    rotation[0][1] = cos(psi)*sin(theta)*sin(phi) - sin(psi)*cos(phi);
+    rotation[1][1] = sin(psi)*sin(theta)*sin(phi) + cos(psi)*cos(phi);
+    rotation[2][1] = sin(phi)*cos(theta);
+    //3 column
+    rotation[0][2] = cos(psi)*sin(theta)*cos(phi) + sin(psi)*sin(phi);
+    rotation[1][2] = sin(psi)*sin(theta)*cos(phi) - cos(psi)*sin(phi);
+    rotation[2][2] = cos(phi)*cos(theta);
   bool ret = create_thread("icm20689", thread_icm20689, NULL);
 
 }
@@ -273,13 +290,19 @@ bool icm20689_recv_spi(icm20689_data_typedef * payload)
 {
   float sensorData[6];
   icm20689_read(sensorData);
-  payload->accel_xyz[0] = sensorData[0];
-  payload->accel_xyz[1] = sensorData[1];
-  payload->accel_xyz[2] = sensorData[2];
-  payload->gyro_xyz[0] = sensorData[3];
-  payload->gyro_xyz[1] = sensorData[4];
-  payload->gyro_xyz[2] = sensorData[5];
-
+//   payload->accel_xyz[0] = sensorData[0];
+//   payload->accel_xyz[1] = sensorData[1];
+//   payload->accel_xyz[2] = sensorData[2];
+  payload->accel_xyz[0] = rotation[0][0]*sensorData[0] + rotation[0][1]*sensorData[1] + rotation[0][2]*sensorData[2];
+  payload->accel_xyz[1] = rotation[1][0]*sensorData[0] + rotation[1][1]*sensorData[1] + rotation[1][2]*sensorData[2];
+  payload->accel_xyz[2] = rotation[2][0]*sensorData[0] + rotation[2][1]*sensorData[1] + rotation[2][2]*sensorData[2];
+  
+//   payload->gyro_xyz[0] = sensorData[3];
+//   payload->gyro_xyz[1] = sensorData[4];
+//   payload->gyro_xyz[2] = sensorData[5];
+  payload->gyro_xyz[0] = rotation[0][0]*sensorData[3] + rotation[0][1]*sensorData[4] + rotation[0][2]*sensorData[5];
+  payload->gyro_xyz[1] = rotation[1][0]*sensorData[3] + rotation[1][1]*sensorData[4] + rotation[1][2]*sensorData[5];
+  payload->gyro_xyz[2] = rotation[2][0]*sensorData[3] + rotation[2][1]*sensorData[4] + rotation[2][2]*sensorData[5];
   // tmp.accel_xyz[0] = -sensorData[1];
   // tmp.accel_xyz[1] = -sensorData[0];
   // tmp.accel_xyz[2] = sensorData[2];

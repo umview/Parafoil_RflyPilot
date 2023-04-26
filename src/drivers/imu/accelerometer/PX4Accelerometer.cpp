@@ -84,7 +84,18 @@ static constexpr uint8_t clipping(const int16_t samples[], int16_t clip_limit, u
 // }
 PX4Accelerometer::PX4Accelerometer()
 {
-
+	//1 column
+    rotation[0][0] = cos(theta)*cos(psi);
+    rotation[1][0] = cos(theta)*sin(psi);
+    rotation[2][0] = -sin(theta);
+    //2 column
+    rotation[0][1] = cos(psi)*sin(theta)*sin(phi) - sin(psi)*cos(phi);
+    rotation[1][1] = sin(psi)*sin(theta)*sin(phi) + cos(psi)*cos(phi);
+    rotation[2][1] = sin(phi)*cos(theta);
+    //3 column
+    rotation[0][2] = cos(psi)*sin(theta)*cos(phi) + sin(psi)*sin(phi);
+    rotation[1][2] = sin(psi)*sin(theta)*cos(phi) - cos(psi)*sin(phi);
+    rotation[2][2] = cos(phi)*cos(theta);
 }
 
 PX4Accelerometer::~PX4Accelerometer()
@@ -226,13 +237,19 @@ void PX4Accelerometer::updateFIFO(sensor_accel_fifo_s &sample)
 
 	if(USE_RFLYPILOT == 1)
 	{
-		_accel_raw.accel[0] = accel_lpf[0].apply(-report.y);
-		_accel_raw.accel[1] = accel_lpf[1].apply(report.x);
-		_accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+		// _accel_raw.accel[0] = accel_lpf[0].apply(-report.y);
+		// _accel_raw.accel[1] = accel_lpf[1].apply(report.x);
+		// _accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+		_accel_raw.accel[0] = rotation[0][0]*accel_lpf[0].apply(-report.y) + rotation[0][1]*accel_lpf[1].apply(report.x) + rotation[0][2]*accel_lpf[2].apply(report.z);
+  		_accel_raw.accel[1] = rotation[1][0]*accel_lpf[0].apply(-report.y) + rotation[1][1]*accel_lpf[1].apply(report.x) + rotation[1][2]*accel_lpf[2].apply(report.z);
+  		_accel_raw.accel[2] = rotation[2][0]*accel_lpf[0].apply(-report.y) + rotation[2][1]*accel_lpf[1].apply(report.x) + rotation[2][2]*accel_lpf[2].apply(report.z);
 	}else{
-		_accel_raw.accel[0] = accel_lpf[0].apply(-report.x);
-		_accel_raw.accel[1] = accel_lpf[1].apply(-report.y);
-		_accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+		// _accel_raw.accel[0] = accel_lpf[0].apply(-report.x);
+		// _accel_raw.accel[1] = accel_lpf[1].apply(-report.y);
+		// _accel_raw.accel[2] = accel_lpf[2].apply(report.z);
+		_accel_raw.accel[0] = rotation[0][0]*accel_lpf[0].apply(-report.x) + rotation[0][1]*accel_lpf[1].apply(-report.y) + rotation[0][2]*accel_lpf[2].apply(report.z);
+		_accel_raw.accel[1] = rotation[1][0]*accel_lpf[0].apply(-report.x) + rotation[1][1]*accel_lpf[1].apply(-report.y) + rotation[1][2]*accel_lpf[2].apply(report.z);
+		_accel_raw.accel[2] = rotation[2][0]*accel_lpf[0].apply(-report.x) + rotation[2][1]*accel_lpf[1].apply(-report.y) + rotation[2][2]*accel_lpf[2].apply(report.z);
 	}
 
 
