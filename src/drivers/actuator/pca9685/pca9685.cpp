@@ -11,7 +11,7 @@
 class PCA9685 pca9685_dev;
 class i2c i2c_pca9685(PCA9685_DEVICE_ADDRESS);
 
-int PCA9685::pca9685_init(float pwmFreq)
+int PCA9685::pca9685_init(float pwmFreq, bool extClock)
 {
 	int ret = 0;
 	ret = i2c_pca9685.init(PCA9685_DEVICE_BASE_PATH);
@@ -19,22 +19,32 @@ int PCA9685::pca9685_init(float pwmFreq)
         printf("i2c_pca9685.init failed (%i)", ret);
 		return ret;
 	}
-    pca9685_dev.disableAllOutput();
+	//set clock
+	if(extClock){
+		PCA9685_CLOCK_FREQ = 25000000.0;
+		DEFAULT_MODE1_CFG = 0x70; // Auto-Increment, Sleep, EXTCLK
+	}
+	else{
+		DEFAULT_MODE1_CFG = 0x30; // Auto-Increment, Sleep
+		PCA9685_CLOCK_FREQ = 24450000.0; //25MHz internal clock  26075000.0 27777778 25000000
+	}
+	
+    disableAllOutput();
     usleep(5000);
-    pca9685_dev.triggerRestart();
+    triggerRestart();
     usleep(5000);
-    pca9685_dev.stopOscillator();
+    stopOscillator();
     usleep(50000);
-    ret = pca9685_dev.initReg();
+    ret = initReg();
     if (OK != ret) {
 		return ret;
 	}
-    ret = pca9685_dev.setFreq(pwmFreq);//setFreq = Freq/0.915?
+    ret = setFreq(pwmFreq);//setFreq = Freq/0.915?
     if (OK != ret) {
 		return ret;
 	}
-    printf("PWM freq: %f\n\r", pca9685_dev.getFrequency());
-    pca9685_dev.startOscillator();
+    printf("PWM freq: %f\n\r", getFrequency());
+    startOscillator();
     usleep(5000);
 	return ret;
 }

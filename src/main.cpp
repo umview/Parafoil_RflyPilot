@@ -33,7 +33,7 @@ int main(int argc, const char *argv[])
   {
     case HIL:
       printf("mode : HIL\n");
-      pca9685_dev.pca9685_init(1500);
+      pca9685_dev.pca9685_init(1500, false);
       start_icm20689();
       start_ist8310();
       start_baro();
@@ -49,7 +49,7 @@ int main(int argc, const char *argv[])
 
     case EXP:
     printf("mode : EXP\n");
-      pca9685_dev.pca9685_init(400);
+      pca9685_dev.pca9685_init(400, true);
       start_icm42688p();    
       start_baro();
       start_gps("/dev/ttySC0");

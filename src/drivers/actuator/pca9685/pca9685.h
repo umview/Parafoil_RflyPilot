@@ -68,13 +68,13 @@
  * Reference: https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library/blob/6664ce936210eea53259b814062009d9569a4213/Adafruit_PWMServoDriver.h#L66 */
 #define PCA9685_CLOCK_INT 24450000.0 //25MHz internal clock  26075000.0 27777778 25000000
 
-//#define PCA9685_CLOCK_EXT 25000000.0
+#define PCA9685_CLOCK_EXT 25000000.0
 
-#ifndef PCA9685_CLOCK_EXT
-#define PCA9685_CLOCK_FREQ PCA9685_CLOCK_INT   // use int clk
-#else
-#define PCA9685_CLOCK_FREQ PCA9685_CLOCK_EXT   // use ext clk
-#endif
+// #ifndef PCA9685_CLOCK_EXT
+// #define PCA9685_CLOCK_FREQ PCA9685_CLOCK_INT   // use int clk
+// #else
+// #define PCA9685_CLOCK_FREQ PCA9685_CLOCK_EXT   // use ext clk
+// #endif
 
 #define PCA9685_DEVICE_BASE_PATH	"/dev/i2c-1"
 #define PWM_DEFAULT_FREQUENCY 50    // default pwm frequency
@@ -83,7 +83,8 @@
 class PCA9685
 {
 public:
-
+    uint8_t DEFAULT_MODE1_CFG;
+    float PCA9685_CLOCK_FREQ;
     int Stop();
 
     /*
@@ -119,7 +120,7 @@ public:
     /* 
     * pca9685 init
     */
-    int pca9685_init(float pwmFreq);
+    int pca9685_init(float pwmFreq, bool extClock);
 
     /*
     * Init i2c-1 device
@@ -156,11 +157,11 @@ protected:
      *			otherwise.
     */
     // int transfer(const uint8_t *send, const unsigned send_len, uint8_t *recv, const unsigned recv_len);
-    #ifdef PCA9685_CLOCK_EXT
-        static const uint8_t DEFAULT_MODE1_CFG = 0x70;  // Auto-Increment, Sleep, EXTCLK
-    #else
-        static const uint8_t DEFAULT_MODE1_CFG = 0x30;  // Auto-Increment, Sleep
-    #endif
+    // #ifdef PCA9685_CLOCK_EXT
+    //     static const uint8_t DEFAULT_MODE1_CFG = 0x70;  // Auto-Increment, Sleep, EXTCLK
+    // #else
+    //     static const uint8_t DEFAULT_MODE1_CFG = 0x30;  // Auto-Increment, Sleep
+    // #endif
     static const uint8_t DEFAULT_MODE2_CFG = 0x04;  // totem pole
 
     float _Freq = PWM_DEFAULT_FREQUENCY;
