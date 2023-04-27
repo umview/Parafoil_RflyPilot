@@ -33,7 +33,7 @@ int main(int argc, const char *argv[])
   {
     case HIL:
       printf("mode : HIL\n");
-      pca9685_dev.pca9685_init(400);
+      pca9685_dev.pca9685_init(1500);
       start_icm20689();
       start_ist8310();
       start_baro();
@@ -52,7 +52,7 @@ int main(int argc, const char *argv[])
       pca9685_dev.pca9685_init(400);
       start_icm42688p();    
       start_baro();
-      start_gps("/dev/ttyUSB0");
+      start_gps("/dev/ttySC0");
       start_qmc5883l();
       usleep(500000);
       start_attitudeEstimator();
@@ -66,6 +66,12 @@ int main(int argc, const char *argv[])
     case SIH:
       printf("mode : SIH\n");
       start_sih();
+      usleep(500000);
+      if(!(_config_msg.sih_use_real_state))
+      {
+        start_attitudeEstimator();
+        start_lpe();
+      }
       usleep(500000);      
       start_usrController();
 

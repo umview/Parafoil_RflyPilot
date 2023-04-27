@@ -2,13 +2,6 @@
 #define _MSG_DEF_
 #include "include.h"
 
-// typedef struct
-// {
-// 	uint64_t timestamp;
-// 	float thrust[8];
-// }mpc_output_typedef;
-// extern ringbuffer_typedef<mpc_output_typedef> mpc_output_msg;
-
 typedef struct
 {
     uint64_t timestamp;
@@ -111,13 +104,6 @@ extern ringbuffer_typedef<actuator_output_typedef> actuator_output_msg;//(GPS_N)
 typedef struct
 {
     uint64_t timestamp;
-    uint16_t pwm[8];
-}pwm_output_typedef;
-extern ringbuffer_typedef<pwm_output_typedef> pwm_output_msg;
-
-typedef struct
-{
-    uint64_t timestamp;
     uint8_t unrealdata[200];
 }rflysim3d_output_typedef;
 extern ringbuffer_typedef<rflysim3d_output_typedef> rflysim3d_output_msg;
@@ -141,6 +127,7 @@ typedef struct
     char scope_ip[20];
     char log_dir[50];
     validation_mode_typedef validation_mode;
+    bool sih_use_real_state;
     scheduler_mode_typedef scheduler_mode;
 }rflypilot_config_typedef;
 extern ringbuffer_typedef<rflypilot_config_typedef> rflypilot_config_msg;
