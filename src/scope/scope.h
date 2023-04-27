@@ -19,7 +19,7 @@ public:
 	int ret;
 	struct sockaddr_in serveraddr;	
 	//scope_class::scope_class(uint16_t _port);
-	void init(const char *addr, uint16_t port);
+	void init(const char *addr, uint16_t port, bool BROADCAST);
 	void udp_send(uint8_t *data, int len);
 };
 #endif

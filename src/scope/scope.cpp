@@ -1,7 +1,7 @@
 #include "scope.h"
 
 
-void scope_class::init(const char *addr, uint16_t port)
+void scope_class::init(const char *addr, uint16_t port, bool BROADCAST)
 {
 
   /* 建立udp socket */
@@ -16,7 +16,12 @@ void scope_class::init(const char *addr, uint16_t port)
 
   memset(&serveraddr, 0, sizeof(serveraddr));
   serveraddr.sin_family = AF_INET;
-  serveraddr.sin_addr.s_addr = INADDR_BROADCAST;//inet_addr(addr);
+  if (BROADCAST)
+  {
+    serveraddr.sin_addr.s_addr = INADDR_BROADCAST;//inet_addr(addr);
+  }else{
+    serveraddr.sin_addr.s_addr = inet_addr(addr);
+  }
   serveraddr.sin_port = htons(port);
   ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &serveraddr, sizeof(serveraddr));
 

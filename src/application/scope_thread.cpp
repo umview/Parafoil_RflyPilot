@@ -14,7 +14,7 @@ void * thread_system_scope(void * ptr)
   //get_hight_Pri(1);
 
   char *addr = (char*)ptr;
-  system_scope.init(addr, 3333);
+  system_scope.init(addr, 3333, true);
   scope_data_typedef  _system_debug_data;
   //SIH mode: init UDP sender for RflySim3D
   rflypilot_config_typedef config;
@@ -22,7 +22,7 @@ void * thread_system_scope(void * ptr)
   rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
   if(config.validation_mode == SIH)
   {
-    rflysim3dDP.init(addr, 20010);
+    rflysim3dDP.init(addr, 20010, false);
   }
   
   while(1)
@@ -42,7 +42,7 @@ void * thread_system_scope(void * ptr)
 void * thread_controller_scope(void * ptr)
 {
   char *addr = (char*)ptr;   
-  controller_scope.init(addr,3334);
+  controller_scope.init(addr,3334,true);
   scope_data_typedef _controller_debug;
   while(1)
   {
@@ -56,7 +56,7 @@ void * thread_controller_scope(void * ptr)
 void * thread_att_est_scope(void * ptr)
 {
   char *addr = (char*)ptr;    
-  att_est_scope.init(addr,3335);
+  att_est_scope.init(addr,3335,true);
   scope_data_typedef _att_est_debug;
   while(1)
   {
@@ -73,7 +73,7 @@ void * thread_att_est_scope(void * ptr)
 void * thread_pos_est_scope(void * ptr)
 {
   char *addr = (char*)ptr;    
-  pos_est_scope.init(addr,3336);
+  pos_est_scope.init(addr,3336,true);
   scope_data_typedef _pos_est_debug;
   while(1)
   {
