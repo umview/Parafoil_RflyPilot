@@ -8,4 +8,5 @@
 #define SIH_CORE 1
 #define MAG_CORE 2
 #define BASIC_CTRL_CORE 2
-#define USE_RFLYPILOT 1
+#define USE_RFLYPILOT 0
+#define USE_ONESHOT_125 1

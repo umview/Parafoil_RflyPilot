@@ -98,13 +98,25 @@ void * thread_usrController(void * ptr)
         // if(cont == 500)printf("remote controller signal loss\n");
         for(i = 0; i<8; i++)
         {
-          _pwm[i] = 125.f;
-          usrController_Obj.usrController_Y._c_out_s.pwm[i] = 125;
+            if(USE_ONESHOT_125 == 1)
+            {
+                _pwm[i] = 125.f;
+            }
+            else
+            {
+                _pwm[i] = 1000.f;
+            }
+            usrController_Obj.usrController_Y._c_out_s.pwm[i] = 1000;
         }
       }else{
         for(int i = 0; i < 8; i++)
         {
-            _pwm[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
+            if(USE_ONESHOT_125 == 1)
+            {
+                _pwm[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
+            }else{
+                _pwm[i] = ((float)_actuator_output_msg.actuator_output[i]);
+            }
         }
       }
 
