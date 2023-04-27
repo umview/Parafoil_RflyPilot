@@ -98,7 +98,7 @@ void * thread_lpe(void * ptr)
                 // printf("P_p: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[0],lpe_Obj.rtY._e_lpe_status_s.p_diag[1],lpe_Obj.rtY._e_lpe_status_s.p_diag[2]);
                 // printf("P_v: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[3],lpe_Obj.rtY._e_lpe_status_s.p_diag[4],lpe_Obj.rtY._e_lpe_status_s.p_diag[5]);
                 // printf("P_b: %f, %f, %f \n", lpe_Obj.rtY._e_lpe_status_s.p_diag[6],lpe_Obj.rtY._e_lpe_status_s.p_diag[7],lpe_Obj.rtY._e_lpe_status_s.p_diag[8]);
-                cont = 500;
+                cont = 1000;
             }
         //}
         //nanosleep(&thread_lpe_sleep, NULL);

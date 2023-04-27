@@ -23,30 +23,35 @@ void * thread_sih(void * ptr)
 
   //at present mpc_output_typedef is used for tranfor control, but in future actuator_output_typedef will be used
   actuator_output_typedef _actuator_output_msg;//actuator_output_msg
-  // mpc_output_typedef _mpc_output_msg;//mpc_output_msg
-  pwm_output_typedef _pwm_output_msg;//pwm_output_msg
+
   rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
+
+  rflypilot_config_typedef _config;//rflypilot_config_msg
+  rflypilot_config_msg.read(&_config);
 
   /* Initialize model */
   SIH_Model_initialize();
   while(1){
     /* Set model inputs here */
     // SIH_Model_U._c_out_s;
-    pwm_output_msg.read(&_pwm_output_msg);
-    memcpy(&SIH_Model_U._c_out_s.pwm, _pwm_output_msg.pwm, sizeof(SIH_Model_U._c_out_s.pwm));
-    SIH_Model_U._c_out_s.time_stamp = _pwm_output_msg.timestamp;
+    actuator_output_msg.read(&_actuator_output_msg);
+    memcpy(&SIH_Model_U._c_out_s.pwm, _actuator_output_msg.actuator_output, sizeof(SIH_Model_U._c_out_s.pwm));
+    SIH_Model_U._c_out_s.time_stamp = _actuator_output_msg.timestamp;
     
     /* Step the model */
     SIH_Model_step();
 
     /* Get model outputs here */
-    // SIH_Model_Y._e_cf_s;
-    memcpy(&_cf_msg, &SIH_Model_Y._e_cf_s, sizeof(_cf_msg));
-    cf_output_msg.publish(&_cf_msg);
-    
-    // SIH_Model_Y._e_lpe_s;
-    memcpy(&_lpe_msg, &SIH_Model_Y._e_lpe_s, sizeof(_lpe_msg));
-    lpe_output_msg.publish(&_lpe_msg);
+    if(_config.sih_use_real_state)
+    {
+      // SIH_Model_Y._e_cf_s;
+      memcpy(&_cf_msg, &SIH_Model_Y._e_cf_s, sizeof(_cf_msg));
+      cf_output_msg.publish(&_cf_msg);
+      
+      // SIH_Model_Y._e_lpe_s;
+      memcpy(&_lpe_msg, &SIH_Model_Y._e_lpe_s, sizeof(_lpe_msg));
+      lpe_output_msg.publish(&_lpe_msg);
+    }
 
     // SIH_Model_Y._m_accel_s;
     memcpy(&_accel_msg, &SIH_Model_Y._m_accel_s, sizeof(_accel_msg));

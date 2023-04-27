@@ -31,8 +31,6 @@ void * thread_basicController(void * ptr)
 
     //at present mpc_output_typedef is used for tranfor control, but in future actuator_output_typedef will be used
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
-    // mpc_output_typedef _mpc_output_msg;//mpc_output_msg
-    pwm_output_typedef _pwm_output_msg;//pwm_output_msg
 
     scope_data_typedef _controller_debug;
 
@@ -86,13 +84,6 @@ void * thread_basicController(void * ptr)
 
 
             //set output
-            // memcpy(&_mpc_output_msg.thrust,&basicController_Obj.basicController_Y._c_out_s.thrust, sizeof(_mpc_output_msg.thrust));
-            // _mpc_output_msg.timestamp = basicController_Obj.basicController_Y._c_out_s.time_stamp;
-            // mpc_output_msg.publish(&_mpc_output_msg);
-            
-            memcpy(&_pwm_output_msg.pwm, &basicController_Obj.basicController_Y._c_out_s.pwm, sizeof(_pwm_output_msg.pwm));
-            _pwm_output_msg.timestamp = basicController_Obj.basicController_Y._c_out_s.time_stamp;
-            pwm_output_msg.publish(&_pwm_output_msg);
 
             memcpy(&_actuator_output_msg.actuator_output, &basicController_Obj.basicController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
             _actuator_output_msg.timestamp = basicController_Obj.basicController_Y._c_out_s.time_stamp;
@@ -109,7 +100,7 @@ void * thread_basicController(void * ptr)
             
             for(int i = 0; i < 4; i++)
             {
-                _controller_debug.data[i] = _pwm_output_msg.pwm[i];
+                _controller_debug.data[i] = _actuator_output_msg.actuator_output[i];
             }
 
 
@@ -120,7 +111,7 @@ void * thread_basicController(void * ptr)
 
             for(int i = 0; i < 4; i++)
             {
-                _pwm[i] = _pwm_output_msg.pwm[i];
+                _pwm[i] = _actuator_output_msg.actuator_output[i];
             }
             // printf("rc timestamp : %f \n", _rc_input_msg.timestamp/1e6);
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],

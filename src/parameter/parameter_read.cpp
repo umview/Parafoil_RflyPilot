@@ -114,6 +114,7 @@ void read_param(void)
   _config_msg.gyro_cutoff_hz = get_param("gyro_cutoff_hz");
 
   _config_msg.validation_mode = validation_mode_typedef((int)(get_param("valid_mode")));
+  _config_msg.sih_use_real_state = (int)get_param("sih_use_real_state");
   _config_msg.scheduler_mode = scheduler_mode_typedef((int)(get_param("scheduler_mode")));
 
   _config_msg.sys_log_en = (int)get_param("sys_log_en");

@@ -8,24 +8,33 @@ class scope_class pos_est_scope;
 void * thread_system_scope(void * ptr)
 {
   //piHiPri(0);
- uint64_t t0 = 0;
+  uint64_t t0 = 0;
   uint64_t t1 = 0;
   int i = 0;
   //get_hight_Pri(1);
 
-    char *addr = (char*)ptr;
-    system_scope.init(addr, 3333);
-    //rflysim3dDP.init(addr, 20010);
-    rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
-
-    scope_data_typedef  _system_debug_data;
+  char *addr = (char*)ptr;
+  system_scope.init(addr, 3333);
+  scope_data_typedef  _system_debug_data;
+  //SIH mode: init UDP sender for RflySim3D
+  rflypilot_config_typedef config;
+  rflypilot_config_msg.read(&config);
+  rflysim3d_output_typedef _rflysim3d_output_msg;//rflysim3d_output_msg
+  if(config.validation_mode == SIH)
+  {
+    rflysim3dDP.init(addr, 20010);
+  }
+  
   while(1)
   {
-
     system_scope_msg.read(&_system_debug_data);  
-    rflysim3d_output_msg.read(&_rflysim3d_output_msg);
-	  system_scope.udp_send((uint8_t*)(_system_debug_data.data),sizeof(_system_debug_data.data));  
-    //rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
+	  system_scope.udp_send((uint8_t*)(_system_debug_data.data),sizeof(_system_debug_data.data));
+    //SIH mode: send RflySim3D data
+    if(config.validation_mode == SIH)
+    {
+      rflysim3d_output_msg.read(&_rflysim3d_output_msg);
+      rflysim3dDP.udp_send(_rflysim3d_output_msg.unrealdata,200);
+    }
     //printf("scope running \n");
     usleep(10000);
   }
