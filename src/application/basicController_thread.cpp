@@ -120,7 +120,12 @@ void * thread_basicController(void * ptr)
 
             for(int i = 0; i < 4; i++)
             {
-                _pwm[i] = _pwm_output_msg.pwm[i];
+                if(USE_ONESHOT_125 == 1)
+                {
+                    _pwm[i] = ((float)_pwm_output_msg.pwm[i])/8;
+                }else{
+                    _pwm[i] = ((float)_pwm_output_msg.pwm[i]);
+                }
             }
             // printf("rc timestamp : %f \n", _rc_input_msg.timestamp/1e6);
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
@@ -131,7 +136,13 @@ void * thread_basicController(void * ptr)
                 if(cont == 500)printf("remote controller signal loss\n");
                 for(i = 0; i<4; i++)
                 {
-                  _pwm[i] = 1000.f;
+                    if(USE_ONESHOT_125 == 1)
+                    {
+                        _pwm[i] = 125.f;
+
+                    }else{
+                        _pwm[i] = 1000.f;
+                    }
                 }
               }
 
@@ -147,7 +158,13 @@ void * thread_basicController(void * ptr)
         {
                 for(i = 0; i<4; i++)
                 {
-                  _pwm[i] = 1000.f;
+                    if(USE_ONESHOT_125 == 1)
+                    {
+                        _pwm[i] = 125.f;
+
+                    }else{
+                        _pwm[i] = 1000.f;
+                    }
                 }
                 pca9685_dev.updatePWM(_pwm,4);
         }
