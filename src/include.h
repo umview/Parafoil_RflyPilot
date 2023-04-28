@@ -45,7 +45,8 @@ enum validation_mode_typedef
     UNDIFINED_VALIDATION_MODE = 0,
     SIH,
     HIL,
-    EXP
+    EXP,
+    OFFBOARD,
 };
 
 enum scheduler_mode_typedef
@@ -96,4 +97,5 @@ enum scheduler_mode_typedef
 #include "log_thread.h"
 #include "binlog.h"
 #include "system_app.h"
+#include "offboard_thread.h"
 #endif
