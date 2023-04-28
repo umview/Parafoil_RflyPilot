@@ -138,11 +138,17 @@ typedef struct
     uint32_t rate_hz;
     float data[SCOPE_DATA_N];
 }scope_data_typedef;
-
+typedef struct
+{
+    uint64_t timestamp;
+    uint32_t rate_hz;
+    float data[OFFBOARD_DATA_N];
+}offboard_data_typedef;
 extern ringbuffer_typedef<scope_data_typedef> controller_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> att_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> system_scope_msg;//(20,"system_debug_data",true);
+extern ringbuffer_typedef<offboard_data_typedef> offboard_msg;//(20,"system_debug_data",true);
 
 
 #endif
