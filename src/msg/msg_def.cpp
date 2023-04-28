@@ -47,3 +47,4 @@ ringbuffer_typedef<scope_data_typedef> controller_scope_msg(20,"controller_debug
 ringbuffer_typedef<scope_data_typedef> att_est_scope_msg(20,"att_est_debug_data",true);
 ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg(20,"pos_est_debug_data",true);
 ringbuffer_typedef<scope_data_typedef> system_scope_msg(20,"system_debug_data",false);
+ringbuffer_typedef<offboard_data_typedef> offboard_msg(5,"offboard_data",false);
