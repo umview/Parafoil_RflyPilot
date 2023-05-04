@@ -39,14 +39,13 @@ void * thread_offboard(void * ptr)
             }else{
                 pwm_output[i] = ((float)_offboard_data.data[i]);
             }
-                pwm_output[i] =1500;
-
+                //pwm_output[i] =1500;
         }
 
         for(int i = 8; i < 16; i++)
         {
 
-            aux_pwm_output[i-8] = 1500;//((float)_offboard_data.data[i]);
+            aux_pwm_output[i-8] = ((float)_offboard_data.data[i]);
 
         }
 
@@ -58,10 +57,9 @@ void * thread_offboard(void * ptr)
     	  actuator_output_msg.publish(&_actuator_output_msg);
     	  aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
 
-          //pca9685_dev.updatePWM(pwm_output,8);
+          pca9685_dev.updatePWM(pwm_output,8);
           pca9685_dev_aux.updatePWM(aux_pwm_output,8);
           // printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
-
 
 		usleep(10000);
 		//printf("%lld %f %f %f %f\n", _offboard_data.timestamp, _offboard_data.data[0], _offboard_data.data[1],
