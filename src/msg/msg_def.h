@@ -100,6 +100,7 @@ typedef struct
     uint16_t actuator_output[8];
 }actuator_output_typedef;
 extern ringbuffer_typedef<actuator_output_typedef> actuator_output_msg;//(GPS_N);
+extern ringbuffer_typedef<actuator_output_typedef> aux_actuator_output_msg;//(GPS_N);
 
 typedef struct
 {

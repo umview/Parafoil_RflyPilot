@@ -38,6 +38,7 @@ ringbuffer_typedef<baro_typedef> baro_msg(BARO_N, "baro", true);
 ringbuffer_typedef<gps_msg_typedef> gps_msg(GPS_N, "gps", true);
 ringbuffer_typedef<sbus_packet_t> rc_input_msg(SBUS_N, "rc_input", true);
 ringbuffer_typedef<actuator_output_typedef> actuator_output_msg(ACTUATOR_OUTPUT_N, "actuator_output", true);
+ringbuffer_typedef<actuator_output_typedef> aux_actuator_output_msg(ACTUATOR_OUTPUT_N, "aux_actuator_output", true);
 
 ringbuffer_typedef<rflysim3d_output_typedef> rflysim3d_output_msg(1);
 

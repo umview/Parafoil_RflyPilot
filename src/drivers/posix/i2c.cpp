@@ -5,15 +5,15 @@
 #define OK 0
 #define EINVAL   22
 
-i2c::i2c(unsigned char device_addr)
+i2c::i2c(void)
 {
-    _addr = device_addr;
 }
 
 
-int i2c::init(const char *i2c_dev)
+int i2c::init(const char *i2c_dev, unsigned char device_addr)
 {
 	int ret = PX4_ERROR;
+    _addr = device_addr;
 
 	// Open the actual I2C device
 	// char dev_path[16] {};
