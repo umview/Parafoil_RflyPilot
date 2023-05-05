@@ -36,11 +36,11 @@ public:
     /* 
     * push <device address> to <_addr> for <tranfer()> 
     */
-    i2c(unsigned char device_addr); 
+    i2c(void); 
     /* 
     * open i2c device according to path <i2c_dev> 
     */
-    int init(const char *i2c_dev);
+    int init(const char *i2c_dev, unsigned char device_addr);
     /* 
     * transfer data 
     */

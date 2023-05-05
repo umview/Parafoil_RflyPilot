@@ -33,7 +33,7 @@ int main(int argc, const char *argv[])
   {
     case HIL:
       printf("mode : HIL\n");
-      pca9685_dev.pca9685_init(PWM_FREQ, false);
+      pca9685_dev.pca9685_init(I2C_BUS_1,PWM_FREQ, false);
       start_icm20689();
       start_ist8310();
       start_baro();
@@ -49,7 +49,9 @@ int main(int argc, const char *argv[])
 
     case EXP:
     printf("mode : EXP\n");
-      pca9685_dev.pca9685_init(PWM_FREQ, true);
+      pca9685_dev.pca9685_init(I2C_BUS_1,PWM_FREQ, true);
+      pca9685_dev_aux.pca9685_init(I2C_BUS_0,333, true);
+
       start_icm42688p();    
       start_baro();
       start_gps("/dev/ttySC0");
@@ -78,7 +80,9 @@ int main(int argc, const char *argv[])
 
     case OFFBOARD:
       printf("mode : OFFBOARD\n");
-      pca9685_dev.pca9685_init(PWM_FREQ, false);
+      pca9685_dev.pca9685_init(I2C_BUS_1,PWM_FREQ, true);
+      pca9685_dev_aux.pca9685_init(I2C_BUS_0,SERVO_PWM_FREQ, true);
+
       start_offboard();
     break;
 

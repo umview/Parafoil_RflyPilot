@@ -76,7 +76,7 @@ static constexpr int16_t combine(uint8_t msb, uint8_t lsb)
 {
 	return (msb << 8u) | lsb;
 }
-class i2c i2c_ist8310(iSentek_IST8310::I2C_ADDRESS_DEFAULT);
+class i2c i2c_ist8310;
 // IST8310::IST8310(I2CSPIBusOption bus_option, int bus, uint8_t addr, int bus_frequency, enum Rotation rotation) :
 // 	I2C(DRV_MAG_DEVTYPE_IST8310, MODULE_NAME, bus, addr, bus_frequency),
 // 	I2CSPIDriver(MODULE_NAME, px4::device_bus_to_wq(get_device_id()), bus_option, bus, addr),
@@ -96,7 +96,7 @@ IST8310::IST8310()
 
 int IST8310::init()
 {
-	int ret = i2c_ist8310.init(IST8310_DEVICE_BASE_PATH);
+	int ret = i2c_ist8310.init(IST8310_DEVICE_BASE_PATH,iSentek_IST8310::I2C_ADDRESS_DEFAULT);
 
 	if (ret != PX4_OK) {
 		printf("i2c_ist8310.init failed (%i)", ret);

@@ -9,12 +9,11 @@
 // using namespace drv_pca9685_pwm;
 // using namespace std;
 class PCA9685 pca9685_dev;
-class i2c i2c_pca9685(PCA9685_DEVICE_ADDRESS);
-
-int PCA9685::pca9685_init(float pwmFreq, bool extClock)
+class PCA9685 pca9685_dev_aux;
+int PCA9685::pca9685_init(const char * dev_path, float pwmFreq, bool extClock)
 {
 	int ret = 0;
-	ret = i2c_pca9685.init(PCA9685_DEVICE_BASE_PATH);
+	ret = i2c_pca9685.init(dev_path, PCA9685_DEVICE_ADDRESS);
     if (OK != ret) {
         printf("i2c_pca9685.init failed (%i)", ret);
 		return ret;

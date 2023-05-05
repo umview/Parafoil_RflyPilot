@@ -83,6 +83,10 @@
 class PCA9685
 {
 public:
+
+    class i2c i2c_pca9685;
+
+
     uint8_t DEFAULT_MODE1_CFG;
     float PCA9685_CLOCK_FREQ;
     int Stop();
@@ -120,7 +124,7 @@ public:
     /* 
     * pca9685 init
     */
-    int pca9685_init(float pwmFreq, bool extClock);
+    int pca9685_init(const char * dev_path, float pwmFreq, bool extClock);
 
     /*
     * Init i2c-1 device
@@ -171,6 +175,7 @@ private:
     // int	_fd{-1};
 };
 extern class PCA9685 pca9685_dev;
+extern class PCA9685 pca9685_dev_aux;
 // }
 unsigned char _i2c_read(unsigned char device_addr, unsigned char sub_addr, unsigned char *buff, int ByteNo);
 unsigned char _i2c_write(unsigned char device_addr, unsigned char sub_addr, unsigned char *buff, int ByteNo);

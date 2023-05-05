@@ -33,7 +33,7 @@ void start_baro(void)
 
 
 /******************************************/
-class i2c i2c_ms5611(MS5611_ADDRESS_1);
+class i2c i2c_ms5611;
 
 // int MS5611::init()
 // {
@@ -69,7 +69,7 @@ int MS5611::init()
 {
 	int ret;
     /* init i2c device */
-    ret = i2c_ms5611.init(MS5611_DEVICE_BASE_PATH);
+    ret = i2c_ms5611.init(MS5611_DEVICE_BASE_PATH,MS5611_ADDRESS_1);
 	if (ret != PX4_OK) {
 		printf("i2c_ms5611.init failed (%i)", ret);
 		return ret;
