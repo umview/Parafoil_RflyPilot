@@ -5,8 +5,9 @@ class udp_recv_class offboard_udp_recv;
 void * thread_offboard(void * ptr)
 {
 
-
-	offboard_udp_recv.init("192.168.199.152",2222);
+    rflypilot_config_typedef _config_msg;
+    rflypilot_config_msg.read(&_config_msg);
+	offboard_udp_recv.init(_config_msg.station_ip,2222);
 
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
 

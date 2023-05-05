@@ -125,6 +125,7 @@ typedef struct
     bool est_scope_en;
     bool ctrl_scope_en;
     char scope_ip[20];
+    char station_ip[20];
     char log_dir[50];
     validation_mode_typedef validation_mode;
     bool sih_use_real_state;

@@ -128,6 +128,9 @@ void read_param(void)
   value=conf_value_get(conf,"scope_ip");
   strcpy(_config_msg.scope_ip, value->value[0]);
   printf("scope ip : %s\n",_config_msg.scope_ip);
+  value=conf_value_get(conf,"station_ip");
+  strcpy(_config_msg.station_ip, value->value[0]);
+  printf("scope ip : %s\n",_config_msg.station_ip);
 
   value=conf_value_get(conf,"log_dir");
   strcpy(_config_msg.log_dir, value->value[0]);
