@@ -31,6 +31,7 @@ void * thread_usrController(void * ptr)
 
     //actuator_output_typedef will be used
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
+    actuator_output_typedef _aux_actuator_output_msg;//actuator_output_msg
 
     scope_data_typedef _controller_debug;
 
@@ -82,17 +83,24 @@ void * thread_usrController(void * ptr)
       usrController_Obj.step();
       
       //publish debug
-      for(int i = 0; i < 4; i++)
-      {
-        _controller_debug.data[i] = _actuator_output_msg.actuator_output[i];
-      }
+      // for(int i = 0; i < 4; i++)
+      // {
+      //   _controller_debug.data[i] = _actuator_output_msg.actuator_output[i];
+      // }
       memcpy(&_controller_debug, &usrController_Obj.usrController_Y._s_scope_s, sizeof(scope_data_typedef));
       _controller_debug.timestamp = usrController_Obj.usrController_Y._s_scope_s.time_stamp;
       //printf("%f %f %f %f\n", _controller_debug.data[0], _controller_debug.data[1], _controller_debug.data[2],_controller_debug.data[3]);
       controller_scope_msg.publish(&_controller_debug);
       
+      //publish _actuator_output_msg for Simulink Display and SIH mode
+      memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
+      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
+      actuator_output_msg.publish(&_actuator_output_msg);
+      aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
+
       //fail safe
-      float _pwm[8] = {0};
+      float pwm_output[8] = {0};
+      float pwm_aux_output[8] = {0};
       if(((get_time_now() - _rc_input_msg.timestamp) > 8e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
       {
         // if(cont == 500)printf("remote controller signal loss\n");
@@ -100,37 +108,37 @@ void * thread_usrController(void * ptr)
         {
             if(USE_ONESHOT_125 == 1)
             {
-                _pwm[i] = 125.f;
+                pwm_output[i] = 125.f;
             }
             else
             {
-                _pwm[i] = 1000.f;
+                pwm_output[i] = 1000.f;
             }
-            usrController_Obj.usrController_Y._c_out_s.pwm[i] = 1000;
+            //usrController_Obj.usrController_Y._c_out_s.pwm[i] = 1000;
+            pwm_aux_output[i] = 1500;
         }
       }else{
         for(int i = 0; i < 8; i++)
         {
             if(USE_ONESHOT_125 == 1)
             {
-                _pwm[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
+                pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
             }else{
-                _pwm[i] = ((float)_actuator_output_msg.actuator_output[i]);
+                pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i]);
             }
+            pwm_aux_output[i] = ((float)_aux_actuator_output_msg.actuator_output[i]);
         }
       }
 
       //set pwm
       if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
       {
-          pca9685_dev.updatePWM(_pwm,8);
-          // printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
+          pca9685_dev.updatePWM(pwm_output,8);
+          if(_config_msg.validation_mode == EXP) pca9685_dev_aux.updatePWM(pwm_aux_output,8);
+          // printf("actuator : %f %f %f %f\n", pwm_output[0],pwm_output[1],pwm_output[2],pwm_output[3]);
       }
 
-      //publish _actuator_output_msg for Simulink Display and SIH mode
-      memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
-      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
-      actuator_output_msg.publish(&_actuator_output_msg);
+
   
       //print debug info 
       cont--;

@@ -31,6 +31,7 @@ void * thread_basicController(void * ptr)
 
     //at present mpc_output_typedef is used for tranfor control, but in future actuator_output_typedef will be used
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
+    actuator_output_typedef _aux_actuator_output_msg;//actuator_output_msg
 
     scope_data_typedef _controller_debug;
 
@@ -88,17 +89,19 @@ void * thread_basicController(void * ptr)
             memcpy(&_actuator_output_msg.actuator_output, &basicController_Obj.basicController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
             _actuator_output_msg.timestamp = basicController_Obj.basicController_Y._c_out_s.time_stamp;
             actuator_output_msg.publish(&_actuator_output_msg);
+            aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
 
             //printf("controller output %d %d %d %d\n", basicController_Obj.basicController_Y._c_out_s.pwm[0], basicController_Obj.basicController_Y._c_out_s.pwm[1],basicController_Obj.basicController_Y._c_out_s.pwm[2],basicController_Obj.basicController_Y._c_out_s.pwm[3]);
             //switch controller via channel[5]
-            float _pwm[4] = {0};
+            float pwm_output[8] = {0};
+            float pwm_aux_output[8] = {0};
 
         if(_rc_input_msg.channels[5] > 1250 && _rc_input_msg.channels[5] < 1700)
         {
 
     
             
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < 8; i++)
             {
                 _controller_debug.data[i] = _actuator_output_msg.actuator_output[i];
             }
@@ -109,14 +112,15 @@ void * thread_basicController(void * ptr)
             //printf("%f %f %f %f\n", _controller_debug.data[0], _controller_debug.data[1], _controller_debug.data[2],_controller_debug.data[3]);
             controller_scope_msg.publish(&_controller_debug);
 
-            for(int i = 0; i < 4; i++)
+            for(int i = 0; i < 8; i++)
             {
                 if(USE_ONESHOT_125 == 1)
                 {
-                    _pwm[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
+                    pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
                 }else{
-                    _pwm[i] = ((float)_actuator_output_msg.actuator_output[i]);
+                    pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i]);
                 }
+                pwm_aux_output[i] = ((float)_aux_actuator_output_msg.actuator_output[i]);
             }
             // printf("rc timestamp : %f \n", _rc_input_msg.timestamp/1e6);
             // printf("%d %d %d %d \n%d %d %d %d\n",_rc_input_msg.channels[0],_rc_input_msg.channels[1],_rc_input_msg.channels[2],_rc_input_msg.channels[3],
@@ -129,42 +133,44 @@ void * thread_basicController(void * ptr)
                 {
                     if(USE_ONESHOT_125 == 1)
                     {
-                        _pwm[i] = 125.f;
+                        pwm_output[i] = 125.f;
 
                     }else{
-                        _pwm[i] = 1000.f;
+                        pwm_output[i] = 1000.f;
                     }
+                    pwm_aux_output[i] = 1500;
                 }
               }
 
 
             if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
             {
-                pca9685_dev.updatePWM(_pwm,4);
-                //printf("actuator : %f %f %f %f\n", _pwm[0],_pwm[1],_pwm[2],_pwm[3]);
+                pca9685_dev.updatePWM(pwm_output,8);
+                if(_config_msg.validation_mode == EXP) pca9685_dev_aux.updatePWM(pwm_aux_output,8);
+                //printf("actuator : %f %f %f %f\n", pwm_output[0],pwm_output[1],pwm_output[2],pwm_output[3]);
 
             }
         }
-        if(_rc_input_msg.channels[5] <1200)
-        {
-                for(i = 0; i<4; i++)
-                {
-                    if(USE_ONESHOT_125 == 1)
-                    {
-                        _pwm[i] = 125.f;
+        // if(_rc_input_msg.channels[5] <1200)
+        // {
+        //         for(i = 0; i<4; i++)
+        //         {
+        //             if(USE_ONESHOT_125 == 1)
+        //             {
+        //                 pwm_output[i] = 125.f;
 
-                    }else{
-                        _pwm[i] = 1000.f;
-                    }
-                }
-                pca9685_dev.updatePWM(_pwm,4);
-        }
+        //             }else{
+        //                 pwm_output[i] = 1000.f;
+        //             }
+        //         }
+        //         pca9685_dev.updatePWM(pwm_output,4);
+        // }
             cont--;
             if (cont<1)
             {   
                 cont = 500;
                 // printf("thrust: %f %f %f %f ", _mpc_output_msg.thrust[0], _mpc_output_msg.thrust[1], _mpc_output_msg.thrust[2], _mpc_output_msg.thrust[3]);
-                // printf("pwm: %d %d %d %d ",_pwm_output_msg.pwm[0], _pwm_output_msg.pwm[1], _pwm_output_msg.pwm[2], _pwm_output_msg.pwm[3]);
+                // printf("pwm: %d %d %d %d ",pwm_output_output_msg.pwm[0], pwm_output_output_msg.pwm[1], pwm_output_output_msg.pwm[2], pwm_output_output_msg.pwm[3]);
                 // printf("gyro: %f %f %f ",basicController_Obj.basicController_U._m_gyro_s.gyro_data[0], basicController_Obj.basicController_U._m_gyro_s.gyro_data[1], basicController_Obj.basicController_U._m_gyro_s.gyro_data[2]);
                 // printf("quat: %f %f %f %f ",basicController_Obj.basicController_U._e_cf_s.quat_data[0], basicController_Obj.basicController_U._e_cf_s.quat_data[1], basicController_Obj.basicController_U._e_cf_s.quat_data[2], basicController_Obj.basicController_U._e_cf_s.quat_data[3]);
                 // printf("vel: %f %f %f ", basicController_Obj.basicController_U._e_lpe_s.vel_ned[0], basicController_Obj.basicController_U._e_lpe_s.vel_ned[1], basicController_Obj.basicController_U._e_lpe_s.vel_ned[2]);

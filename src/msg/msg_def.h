@@ -100,6 +100,7 @@ typedef struct
     uint16_t actuator_output[8];
 }actuator_output_typedef;
 extern ringbuffer_typedef<actuator_output_typedef> actuator_output_msg;//(GPS_N);
+extern ringbuffer_typedef<actuator_output_typedef> aux_actuator_output_msg;//(GPS_N);
 
 typedef struct
 {
@@ -125,6 +126,7 @@ typedef struct
     bool est_scope_en;
     bool ctrl_scope_en;
     char scope_ip[20];
+    char station_ip[20];
     char log_dir[50];
     validation_mode_typedef validation_mode;
     bool sih_use_real_state;

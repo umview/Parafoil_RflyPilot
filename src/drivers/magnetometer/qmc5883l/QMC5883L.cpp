@@ -51,7 +51,7 @@ void start_qmc5883l(void)
 }
 
 //********************************************************************//
-class i2c i2c_qmc5883l(QST_QMC5883L::I2C_ADDRESS_DEFAULT);
+class i2c i2c_qmc5883l;
 
 static constexpr int16_t combine(uint8_t msb, uint8_t lsb)
 {
@@ -75,7 +75,7 @@ static constexpr int16_t combine(uint8_t msb, uint8_t lsb)
 
 int QMC5883L::init()
 {
-	int ret = i2c_qmc5883l.init(QMC5883L_DEVICE_BASE_PATH);
+	int ret = i2c_qmc5883l.init(QMC5883L_DEVICE_BASE_PATH,QST_QMC5883L::I2C_ADDRESS_DEFAULT);
 
 	if (ret != PX4_OK) {
 		printf("i2c_qmc5883l init failed (%i)", ret);

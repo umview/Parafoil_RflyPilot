@@ -1,6 +1,6 @@
 #include "actuator_fpga.h"
 
-class i2c i2c_actuator_fpga(ACTUATOR_FPGA_DEVICE_ADDRESS);
+class i2c i2c_actuator_fpga;
 
 class actuator_fpga_typedef actuator_fpga;
 // bool actuator_fpga_typedef::actuator_fpga_init(int _num_chn, int *freq_hz, float *duty_0)
@@ -14,7 +14,7 @@ actuator_fpga_typedef::actuator_fpga_typedef(void)
 void actuator_fpga_typedef::init(void)
 {
 	int ret = 0;
-	ret = i2c_actuator_fpga.init(ACTUATOR_FPGA_DEVICE_BASE_PATH);
+	ret = i2c_actuator_fpga.init(ACTUATOR_FPGA_DEVICE_BASE_PATH,ACTUATOR_FPGA_DEVICE_ADDRESS);
     if (OK != ret) {
         printf("i2c_actuator_fpga.init failed (%i)", ret);
 	}
@@ -89,7 +89,7 @@ void actuator_fpga_typedef::demo(void)
 
 void *thread_actuator_fpga(void *ptr)
 {
-	int ret = i2c_actuator_fpga.init(ACTUATOR_FPGA_DEVICE_BASE_PATH);
+	int ret = i2c_actuator_fpga.init(ACTUATOR_FPGA_DEVICE_BASE_PATH,ACTUATOR_FPGA_DEVICE_ADDRESS);
     if (OK != ret) {
         printf("i2c_actuator_fpga.init failed (%i)", ret);
         return NULL;

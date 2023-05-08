@@ -9,6 +9,9 @@
 #define MAG_CORE 2
 #define BASIC_CTRL_CORE 2
 #define USE_RFLYPILOT 0
-#define USE_ONESHOT_125 1
+#define USE_ONESHOT_125 0
 #define OFFBOARD_DATA_N 20
 #define PWM_FREQ (USE_ONESHOT_125==1?1500:400)
+#define SERVO_PWM_FREQ 333
+#define I2C_BUS_1 "/dev/i2c-1"
+#define I2C_BUS_0 "/dev/i2c-10"
