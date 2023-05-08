@@ -98,14 +98,56 @@ bool gps_api_typedef::gps_config(char *_port)
     close(_serial_fd);
     init(_port,B115200);
 
-    ubx_payload_tx_cfg_msg_t cfg_msg;
+    ubx_payload_tx_cfg_rate_t cfg_rate;
+    cfg_rate.measRate = 0xc8 << 8 | 0x00;
+    cfg_rate.navRate = 0x01 << 8 | 0x00;
+    cfg_rate.timeRef = 0;
+    sendMessage(UBX_MSG_CFG_RATE, (uint8_t *)&cfg_rate, sizeof(cfg_rate));   
+
+
+
+
+    ubx_payload_tx_cfg_nav5_t nav5_msg;
+    nav5_msg.mask = 0x05 << 8 | 0x00;
+    nav5_msg.dynModel = 0x07;
+    nav5_msg.fixMode = 0x02;
+    nav5_msg.fixedAlt = 0;
+    nav5_msg.fixedAltVar = 0;
+    nav5_msg.minElev = 0;
+    nav5_msg.drLimit = 0;
+    nav5_msg.pDop = 0;
+    nav5_msg.tDop = 0;
+    nav5_msg.pAcc = 0;
+    nav5_msg.tAcc = 0;
+    nav5_msg.staticHoldThresh = 0;
+    nav5_msg.dgpsTimeOut = 0;
+    nav5_msg.cnoThreshNumSVs = 0;        /**< (ubx7+ only, else 0) */
+    nav5_msg.cnoThresh = 0;              /**< (ubx7+ only, else 0) */
+    nav5_msg.reserved = 0;
+    nav5_msg.staticHoldMaxDist = 0;      /**< (ubx8+ only, else 0) */
+    nav5_msg.utcStandard = 0;            /**< (ubx8+ only, else 0) */
+    nav5_msg.reserved3 = 0;
+    nav5_msg.reserved4 = 0;
+    sendMessage(UBX_MSG_CFG_NAV5, (uint8_t *)&nav5_msg, sizeof(nav5_msg));   
+    //usleep(200000);
+
+    ubx_payload_tx_cfg_msg_t cfg_msg; //0x01 0x07 
     cfg_msg.msg = UBX_MSG_NAV_DOP;
     cfg_msg.rate = 1;
     sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
     usleep(200000);
-    cfg_msg.msg = UBX_MSG_NAV_PVT;
+    cfg_msg.msg = UBX_MSG_NAV_PVT; // 0x01 0x04
     cfg_msg.rate = 1;
     sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x30
+    cfg_msg.rate = 0;
+    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    cfg_msg.msg = UBX_MSG_MON_HW; // 0x0a 0x09
+    cfg_msg.rate = 1;
+    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+
+
+
     printf("init ok\n");
     usleep(200000);
     printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
@@ -231,6 +273,8 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
             printf("ned origin %lf %lf\n", sensor_gps.lon_origin, sensor_gps.lat_origin);
             printf("NED %f %f %f\n",sensor_gps.pos_ned[0],sensor_gps.pos_ned[1],sensor_gps.pos_ned[2]);
             }
+            if(sensor_gps.fixType == 4)
+                printf("!!!!!!!! GPS FIXTYPE = 4 !!!!!!!!!!!");
         break;
 
         default:
