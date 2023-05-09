@@ -81,6 +81,7 @@ enum scheduler_mode_typedef
 #include "scope.h"
 #include "scope_thread.h"
 #include "console.h"
+#include "screen.h"
 //#include "console_thread.h"
 #include "attitudeEstimator_thread.h"
 #include "positionEstimator_thread.h"
