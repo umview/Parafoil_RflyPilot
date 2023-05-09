@@ -215,7 +215,7 @@ void gps_api_typedef::packet_decode(uint8_t *packet)
         break;
 
         default:
-            printf("ERROR : undefined class %d\n", msg_class);
+            if(gps_debug)printf("ERROR : undefined class %d\n", msg_class);
         break;
     }
 }
@@ -278,7 +278,7 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
         break;
 
         default:
-            printf("ERROR : NAV_CLASS : undefined id %d\n",msg_id);
+            if(gps_debug)printf("ERROR : NAV_CLASS : undefined id %d\n",msg_id);
         break;
     }
 }

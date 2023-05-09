@@ -88,7 +88,7 @@ void * thread_lpe(void * ptr)
             cont--;
             if (cont<1)
             {   
-                if(!gpsInitOK)printf("GPS hacc is %f, vacc is %f, sacc is %f, numSV is %d\n", _gps.hacc, _gps.vacc, _gps.sacc, _gps.numSV);
+                // if(!gpsInitOK)printf("GPS hacc is %f, vacc is %f, sacc is %f, numSV is %d\n", _gps.hacc, _gps.vacc, _gps.sacc, _gps.numSV);
                 // printf("roll: %f, pitch: %f, yaw: %f\n", _cf_msg.roll, _cf_msg.pitch, _cf_msg.yaw);
                 //  printf("px: %f, py: %f, pz: %f ", lpe_Obj.rtY._e_lpe_s.pos_ned[0], lpe_Obj.rtY._e_lpe_s.pos_ned[1], lpe_Obj.rtY._e_lpe_s.pos_ned[2]);
                 //  printf("vx: %f, vy: %f, vz: %f ", lpe_Obj.rtY._e_lpe_s.vel_ned[0], lpe_Obj.rtY._e_lpe_s.vel_ned[1], lpe_Obj.rtY._e_lpe_s.vel_ned[2]);
