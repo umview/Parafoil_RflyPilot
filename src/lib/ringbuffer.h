@@ -123,8 +123,7 @@ public:
           }
           t1_us = get_time_now();
           deltaT = (float)(t1_us - t0_us) / 1e6;
-          // if(deltaT > 1) deltaT = 1;
-          // else if(deltaT < 0.00001)deltaT = 0.00001;
+          //if(deltaT < 0.00001)deltaT = 0.00001;
           publish_rate_hz = 1 / deltaT;
           t0_us = t1_us;
     }

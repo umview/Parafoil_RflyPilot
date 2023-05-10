@@ -128,4 +128,6 @@ int screen::outputscreen(void)
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], _mag_msg.mag[2], "mag x", "mag y","mag z");
   this->printline(_gps_msg.timestamp, _gps_msg.hacc, _gps_msg.vacc, _gps_msg.sacc, "hacc", "vacc", "sacc");
   this->printline(_gps_msg.timestamp, _gps_msg.fixType, _gps_msg.numSV, _gps_msg.updated, "fixType", "numSV", "Updated");
+  this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
+
 }

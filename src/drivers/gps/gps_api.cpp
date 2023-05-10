@@ -271,7 +271,7 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
                 sensor_gps.pos_ned[2] = - sensor_gps.height;
             }
             gps_msg.publish((gps_msg_typedef*)&sensor_gps);
-            printf("gps publish rate : %f\n", gps_msg.publish_rate_hz);
+            //printf("gps publish rate : %f\n", gps_msg.publish_rate_hz);
             if(gps_debug){
             printf("gps time stamp :%f\n", sensor_gps.timestamp/1e6);
             printf("cnt %d\n",cnt++);
