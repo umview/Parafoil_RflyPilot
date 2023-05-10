@@ -1,5 +1,6 @@
 #ifndef _CONSOLE_
 #define _CONSOLE_
+// #include "screen.h"
 #include "include.h"
 #define MAX_SIZE 1024
 
@@ -15,7 +16,6 @@ public:
     pthread_t console_thread;
     void run(void);
     int exec_command(char* user_input);
-
 };
 static void print_prompt(void){
     char cwd[MAX_SIZE];
@@ -25,13 +25,22 @@ static void print_prompt(void){
 }
 
 static int read_input(char* str){
-    char buf[MAX_SIZE]; 
+    char buf[MAX_SIZE];
     char *ret;
+    memset(buf, 0, sizeof(buf));
+    // printf("buf is %s\n",buf);
     ret = fgets(buf, MAX_SIZE, stdin); 
     if (strlen(buf) != 1) { 
-        strcpy(str, buf); 
-        return 1; 
-    } else {
+        if(strlen(buf) != 0)
+        {
+            strcpy(str, buf); 
+            return 1;
+        }else{// Len buf == 0
+            // printf("vehicle > ");
+            return 0;
+        } 
+    } else {// Len buf == 1
+        printf("vehicle > ");
         return 0; 
     }
 }
