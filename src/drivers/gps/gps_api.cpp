@@ -80,31 +80,40 @@ void gps_api_typedef::init(char *_port, speed_t speed)
 bool gps_api_typedef::gps_config(char *_port)
 {
 
-    ubx_payload_tx_cfg_prt_t cfg_prt[2];
-    memset(cfg_prt, 0, 2 * sizeof(ubx_payload_tx_cfg_prt_t));
+    ubx_payload_tx_cfg_prt_t cfg_prt[1];
+    memset(cfg_prt, 0, sizeof(ubx_payload_tx_cfg_prt_t));
     cfg_prt[0].portID       = UBX_TX_CFG_PRT_PORTID;
     cfg_prt[0].mode     = UBX_TX_CFG_PRT_MODE;
     cfg_prt[0].baudRate = 115200;
     cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX;
     cfg_prt[0].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
-    cfg_prt[1].portID       = UBX_TX_CFG_PRT_PORTID_USB;
-    cfg_prt[1].mode     = UBX_TX_CFG_PRT_MODE;
-    cfg_prt[1].baudRate = 115200;
-    cfg_prt[1].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX;
-    cfg_prt[1].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
-    if (!sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t))) {
-        printf("ok\n");
-    } 
+    sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  sizeof(ubx_payload_tx_cfg_prt_t));
+
+// 注意此处波特率修改后并没有接受ACK,后面重新配置后检查ACK
+    usleep(200000);
+
+
     close(_serial_fd);
     init(_port,B115200);
+
+    sendMessageACK(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  sizeof(ubx_payload_tx_cfg_prt_t));
+    printf("check port baudrate ack ok\n");
+    //ubx_payload_tx_cfg_rate_t cfg_rate;
+    // cfg_rate.measRate = 1000;
+    // cfg_rate.navRate = 0x01 << 8 | 0x00;
+    // cfg_rate.timeRef = 0;
+    // sendMessageACK(UBX_MSG_CFG_RATE, (uint8_t *)&cfg_rate, sizeof(cfg_rate));   
+    // printf("change nav msg to 1Hz\n");
+
+
 
     ubx_payload_tx_cfg_rate_t cfg_rate;
     cfg_rate.measRate = 0xc8 << 8 | 0x00;
     cfg_rate.navRate = 0x01 << 8 | 0x00;
     cfg_rate.timeRef = 0;
-    sendMessage(UBX_MSG_CFG_RATE, (uint8_t *)&cfg_rate, sizeof(cfg_rate));   
+    sendMessageACK(UBX_MSG_CFG_RATE, (uint8_t *)&cfg_rate, sizeof(cfg_rate));   
 
-
+    printf("gps rate config ok \n");
 
 
     ubx_payload_tx_cfg_nav5_t nav5_msg;
@@ -128,28 +137,30 @@ bool gps_api_typedef::gps_config(char *_port)
     nav5_msg.utcStandard = 0;            /**< (ubx8+ only, else 0) */
     nav5_msg.reserved3 = 0;
     nav5_msg.reserved4 = 0;
-    sendMessage(UBX_MSG_CFG_NAV5, (uint8_t *)&nav5_msg, sizeof(nav5_msg));   
+    sendMessageACK(UBX_MSG_CFG_NAV5, (uint8_t *)&nav5_msg, sizeof(nav5_msg));   
     //usleep(200000);
+    printf("gps nav5 config ok \n");
 
     ubx_payload_tx_cfg_msg_t cfg_msg; //0x01 0x07 
     cfg_msg.msg = UBX_MSG_NAV_DOP;
     cfg_msg.rate = 1;
-    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
-    usleep(200000);
+    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
+    printf("gps dop config ok \n");
     cfg_msg.msg = UBX_MSG_NAV_PVT; // 0x01 0x04
     cfg_msg.rate = 1;
-    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    printf("gps pvt config ok \n");
     cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x30
     cfg_msg.rate = 0;
-    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    printf("gps sat config ok \n");
     cfg_msg.msg = UBX_MSG_MON_HW; // 0x0a 0x09
-    cfg_msg.rate = 1;
-    sendMessage(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
-
+    cfg_msg.rate = 0;
+    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+    printf("gps hw config ok \n");
 
 
     printf("init ok\n");
-    usleep(200000);
     printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
     return true;
 }
@@ -200,7 +211,7 @@ void gps_api_typedef::packet_decode(uint8_t *packet)
     uint8_t msg_class = packet[2];
     uint8_t msg_id = packet[3];
     uint8_t playload_length = packet[4] | packet[5] << 8;
-    if(gps_debug)printf("msg class %d, id %d, playload length %d\n",
+    if(gps_debug)printf("msg class %x, id %x, playload length %d\n",
         msg_class,
         msg_id,
         playload_length);    
@@ -215,7 +226,7 @@ void gps_api_typedef::packet_decode(uint8_t *packet)
         break;
 
         default:
-            printf("ERROR : undefined class %d\n", msg_class);
+            printf("ERROR : undefined class %x\n", msg_class);
         break;
     }
 }
@@ -259,6 +270,7 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
                 sensor_gps.pos_ned[2] = - sensor_gps.height;
             }
             gps_msg.publish((gps_msg_typedef*)&sensor_gps);
+            printf("gps publish rate : %f\n", gps_msg.publish_rate_hz);
             if(gps_debug){
             printf("gps time stamp :%f\n", sensor_gps.timestamp/1e6);
             printf("cnt %d\n",cnt++);
@@ -273,18 +285,41 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
             printf("ned origin %lf %lf\n", sensor_gps.lon_origin, sensor_gps.lat_origin);
             printf("NED %f %f %f\n",sensor_gps.pos_ned[0],sensor_gps.pos_ned[1],sensor_gps.pos_ned[2]);
             }
-            if(sensor_gps.fixType == 4)
-                printf("!!!!!!!! GPS FIXTYPE = 4 !!!!!!!!!!!");
         break;
 
         default:
-            printf("ERROR : NAV_CLASS : undefined id %d\n",msg_id);
+            printf("ERROR : NAV_CLASS : undefined id %x\n",msg_id);
         break;
     }
 }
 void gps_api_typedef::ACK_CLASS_decode(uint8_t *packet)
 {
+    uint8_t msg_class = packet[2];
+    uint8_t msg_id = packet[3];
+    uint8_t playload_length = packet[4] | packet[5] << 8;
+    ubx_payload_rx_ack_ack_t *ack;
+    ubx_payload_rx_ack_nak_t *nack;
+    switch(msg_id)
+    {
+        case UBX_ID_ACK_NAK:
+            nack = (ubx_payload_rx_ack_nak_t*)&packet[6];
+            ack_clsID = nack->clsID;
+            ack_msgID = nack->msgID;
+            printf("recv nack clsID %x msgID %x\n", ack_clsID, ack_msgID);
+        break;
 
+        case UBX_ID_ACK_ACK:
+            ack = (ubx_payload_rx_ack_ack_t*)&packet[6];
+            ack_clsID = ack->clsID;
+            ack_msgID = ack->msgID;
+            printf("recv ack clsID %x msgID %x\n", ack_clsID, ack_msgID);
+
+        break;
+
+        default:
+        printf("gps ack class msg id error!  clsID %d \n", msg_id);
+        break;
+    }
 }
 bool gps_api_typedef::packet_check(uint8_t *frame, int index, int length)
 {
@@ -326,8 +361,62 @@ bool gps_api_typedef::packet_check(uint8_t *frame, int index, int length)
         return false;
     }
 }
+bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload, const uint16_t length)
+{
+    uint32_t cnt = 0;
+    ubx_header_t   header = {UBX_SYNC1, UBX_SYNC2, 0, 0};
+    ubx_checksum_t checksum = {0, 0};
+
+    // Populate header
+    header.msg  = msg;
+    header.length   = length;
+
+    // Calculate checksum
+ gps_config:   calcChecksum(((uint8_t *)&header) + 2, sizeof(header) - 2, &checksum); // skip 2 sync bytes
+
+    if (payload != nullptr) {
+        calcChecksum(payload, length, &checksum);
+    }
+
+    // Send message
+    if (gps_write((uint8_t *)&header, sizeof(header)) != sizeof(header)) {
+        printf("false 1\n");
+        return false;
+    }
+
+    if (payload && gps_write((uint8_t *)payload, length) != length) {
+        printf("false 2\n");
+        return false;
+    }
+
+    if (gps_write((uint8_t *)&checksum, sizeof(checksum)) != sizeof(checksum)) {
+        printf("false 3\n");
+        return false;
+    }
+    usleep(200000);
+  for(;;)//add ACK checker
+  {
+    run();
+    usleep(20000);
+
+    if((ack_clsID| ack_msgID << 8) == msg)
+    {
+        return true;
+    }
+    cnt ++;
+    if(cnt * 0.002 > 1)//1s timeout
+    {
+        cnt = 0;
+        printf("error ! \ngps config time out : \nexpected :%x %x\nrecv : %x %x\n",(uint8_t)(msg>>8),(uint8_t)((msg <<8)>>8),ack_msgID,ack_clsID);
+        goto gps_config;
+    }
+  }
+
+    return false;
+}
 bool gps_api_typedef::sendMessage(const uint16_t msg, const uint8_t *payload, const uint16_t length)
 {
+    uint32_t cnt = 0;
     ubx_header_t   header = {UBX_SYNC1, UBX_SYNC2, 0, 0};
     ubx_checksum_t checksum = {0, 0};
 
@@ -358,6 +447,23 @@ bool gps_api_typedef::sendMessage(const uint16_t msg, const uint8_t *payload, co
         return false;
     }
 
+  // for(;;)//add ACK checker
+  // {
+  //   run();
+  //   usleep(2000);
+  //   if((ack_clsID << 8 | ack_msgID) == msg)
+  //   {
+  //       return true;
+  //   }
+  //   cnt ++;
+  //   if(cnt * 0.002 > 1)
+  //   {
+  //       cnt = 0;
+  //       printf("gps config time out : %d\n",msg);
+  //       goto gps_config;
+  //   }
+  // }
+    usleep(200000);
     return true;
 }
 int gps_api_typedef::gps_write(uint8_t *buf, int buf_length)

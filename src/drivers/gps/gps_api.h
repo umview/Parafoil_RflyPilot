@@ -52,12 +52,16 @@ public:
     int gps_debug;
     gps_pvt_msg_typedef pvt_msg;
     sensor_gps_typedef sensor_gps;
+    uint8_t ack_clsID;
+    uint8_t ack_msgID;
 	gps_api_typedef(void);
     void init(char *_port, speed_t speed);
     bool gps_config(char *_port);
 	int _serial_fd;
 	void run(void);
 	bool sendMessage(const uint16_t msg, const uint8_t *payload, const uint16_t length);
+    bool sendMessageACK(const uint16_t msg, const uint8_t *payload, const uint16_t length);
+
 	int gps_write(uint8_t *buf, int buf_length);
 	void calcChecksum(const uint8_t *buffer, const uint16_t length, ubx_checksum_t *checksum);
     bool pollOrRead(uint8_t * buff, int buf_length);
