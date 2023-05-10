@@ -37,7 +37,7 @@ SET(source_file
     src/scope/scope.cpp
     src/log/binlog.cpp
     src/console/console.cpp
-    src/screen/screen.cpp
+    src/console/screen.cpp
 )
 
 
@@ -94,7 +94,6 @@ include_directories(
                     src/parameter
                     src/scope
                     src/console
-                    src/screen
                     src/log
                     controller_codegen
                     estimator_codegen
@@ -122,7 +121,8 @@ basic_controller_codegen
 sih_codegen
 rt)
 
+
 add_custom_target(
     upload
-    COMMAND "../tools/upload.sh"
+    COMMAND ../tools/upload.sh
 )
