@@ -92,6 +92,9 @@ int main(int argc, const char *argv[])
     break;
   }
 
+  sleep(2);
+  start_screen();
+
    
 //   if(CONSOLE_ENABLE)
 //   {

@@ -18,16 +18,24 @@ void start_console(void)
 void console_class_typedef::run(void)
 {
     char input_string[MAX_SIZE];
-    for(;;){
 
-        print_prompt();
-        if(!read_input(input_string)) continue;
-        int len = strlen(input_string);
-        input_string[len-1]='\0';
-        if(exec_command(input_string)) break;
-        usleep(20000);
-
-
+    int attr = 1;/* 清除非阻塞标志 */
+    ioctl(STDIN_FILENO, FIONBIO, &attr);
+    // ioctl(STDERR_FILENO, FIONBIO, &attr);
+    
+    for(;;){    
+        usleep(20*1000);
+        if(!read_input(input_string)) {
+            continue;
+        }else{
+            // fflush(stdin);
+            int len = strlen(input_string);
+            // printf("read len is %d\n", len);
+            // printf("input string is %s\n", input_string);
+            input_string[len-1]='\0';
+            if(exec_command(input_string)) break;
+            printf("vehicle > ");
+        }
     }
 }
 int console_class_typedef::exec_command(char* user_input)
@@ -40,7 +48,7 @@ int console_class_typedef::exec_command(char* user_input)
         inputs[cnt] = token;
         cnt++;
         token = strtok(NULL, " "); 
-    }
+    } 
     if(strcmp(inputs[0], "exit")==0){
         printf("Bye.\nCtrl-C to kill\n");
         //DEV_HARDWARE_SPI_end();
@@ -84,7 +92,7 @@ int console_class_typedef::exec_command(char* user_input)
 
 
         return 0;
-    }                        
+    }                      
 
     return 0;
 }

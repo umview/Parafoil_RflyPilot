@@ -80,6 +80,7 @@ enum scheduler_mode_typedef
 #include "gps_api.h"
 #include "scope.h"
 #include "scope_thread.h"
+#include "screen.h"
 #include "console.h"
 //#include "console_thread.h"
 #include "attitudeEstimator_thread.h"
