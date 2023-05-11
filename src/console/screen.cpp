@@ -122,8 +122,8 @@ int screen::outputscreen(void)
   mag_msg.read(&_mag_msg);
   gps_msg.read(&_gps_msg);
   this->endscreen();
-  this->printline(_cf_msg.timestamp, _cf_msg.roll, _cf_msg.pitch, _cf_msg.yaw, "roll", "pitch","yaw");
-  this->printline(_gyro_msg.timestamp, _gyro_msg.gyro[0], _gyro_msg.gyro[1], _gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
+  this->printline(_cf_msg.timestamp, 57.3*_cf_msg.roll, 57.3*_cf_msg.pitch, 57.3*_cf_msg.yaw, "roll", "pitch","yaw");
+  this->printline(_gyro_msg.timestamp, 57.3*_gyro_msg.gyro[0], 57.3*_gyro_msg.gyro[1], 57.3*_gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
   this->printline(_accel_msg.timestamp, _accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2], "accel x", "accel y","accel z");
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], _mag_msg.mag[2], "mag x", "mag y","mag z");
   this->printline(_gps_msg.timestamp, _gps_msg.hacc, _gps_msg.vacc, _gps_msg.sacc, "hacc", "vacc", "sacc");

@@ -80,24 +80,30 @@ void gps_api_typedef::init(char *_port, speed_t speed)
 bool gps_api_typedef::gps_config(char *_port)
 {
 
-    ubx_payload_tx_cfg_prt_t cfg_prt[1];
-    memset(cfg_prt, 0, sizeof(ubx_payload_tx_cfg_prt_t));
+    ubx_payload_tx_cfg_prt_t cfg_prt[2];
+    memset(cfg_prt, 0, 2*sizeof(ubx_payload_tx_cfg_prt_t));
     cfg_prt[0].portID       = UBX_TX_CFG_PRT_PORTID;
     cfg_prt[0].mode     = UBX_TX_CFG_PRT_MODE;
     cfg_prt[0].baudRate = 115200;
-    cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX;
+    cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
     cfg_prt[0].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
-    sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  sizeof(ubx_payload_tx_cfg_prt_t));
-
+    cfg_prt[1].portID       = UBX_TX_CFG_PRT_PORTID_USB;
+    cfg_prt[1].mode     = UBX_TX_CFG_PRT_MODE;
+    cfg_prt[1].baudRate = 115200;
+    cfg_prt[1].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
+    cfg_prt[1].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
+    printf("info: set port baudrate ...\n");
+    sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
+    printf("info: set port baudrate ok\n");
 // 注意此处波特率修改后并没有接受ACK,后面重新配置后检查ACK
-    usleep(200000);
+    usleep(200*1000);
 
 
     close(_serial_fd);
     init(_port,B115200);
-
-    sendMessageACK(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  sizeof(ubx_payload_tx_cfg_prt_t));
-    printf("check port baudrate ack ok\n");
+    printf("info: check port baudrate ...\n");
+    sendMessageACK(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
+    printf("info: check port baudrate ack ok\n");
     //ubx_payload_tx_cfg_rate_t cfg_rate;
     // cfg_rate.measRate = 1000;
     // cfg_rate.navRate = 0x01 << 8 | 0x00;
@@ -108,17 +114,17 @@ bool gps_api_typedef::gps_config(char *_port)
 
 
     ubx_payload_tx_cfg_rate_t cfg_rate;
-    cfg_rate.measRate = 0xc8 << 8 | 0x00;
-    cfg_rate.navRate = 0x01 << 8 | 0x00;
+    cfg_rate.measRate = 0xc8;
+    cfg_rate.navRate = 0x01;
     cfg_rate.timeRef = 0;
+    printf("info: gps rate config ... \n");
     sendMessageACK(UBX_MSG_CFG_RATE, (uint8_t *)&cfg_rate, sizeof(cfg_rate));   
-
-    printf("gps rate config ok \n");
+    printf("info: gps rate config ok \n");
 
 
     ubx_payload_tx_cfg_nav5_t nav5_msg;
-    nav5_msg.mask = 0x05 << 8 | 0x00;
-    nav5_msg.dynModel = 0x07;
+    nav5_msg.mask = 0x05;
+    nav5_msg.dynModel = 0x06;//0x06 1g   0x07 2g
     nav5_msg.fixMode = 0x02;
     nav5_msg.fixedAlt = 0;
     nav5_msg.fixedAltVar = 0;
@@ -137,27 +143,35 @@ bool gps_api_typedef::gps_config(char *_port)
     nav5_msg.utcStandard = 0;            /**< (ubx8+ only, else 0) */
     nav5_msg.reserved3 = 0;
     nav5_msg.reserved4 = 0;
+    printf("info: gps nav5 config ...\n");
     sendMessageACK(UBX_MSG_CFG_NAV5, (uint8_t *)&nav5_msg, sizeof(nav5_msg));   
     //usleep(200000);
-    printf("gps nav5 config ok \n");
+    printf("info: gps nav5 config ok \n");
 
-    ubx_payload_tx_cfg_msg_t cfg_msg; //0x01 0x07 
+    ubx_payload_tx_cfg_msg_t cfg_msg; //0x01 0x04 
     cfg_msg.msg = UBX_MSG_NAV_DOP;
     cfg_msg.rate = 1;
+    printf("info: gps dop config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
-    printf("gps dop config ok \n");
-    cfg_msg.msg = UBX_MSG_NAV_PVT; // 0x01 0x04
+    printf("info: gps dop config ok \n");
+
+    cfg_msg.msg = UBX_MSG_NAV_PVT; // 0x01 0x07
     cfg_msg.rate = 1;
+    printf("info: gps pvt config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
-    printf("gps pvt config ok \n");
-    cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x30
+    printf("info: gps pvt config ok \n");
+
+    cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x35
     cfg_msg.rate = 0;
+    printf("info: gps sat config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
-    printf("gps sat config ok \n");
+    printf("info: gps sat config ok \n");
+
     cfg_msg.msg = UBX_MSG_MON_HW; // 0x0a 0x09
     cfg_msg.rate = 0;
+    printf("info: gps hw config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
-    printf("gps hw config ok \n");
+    printf("info: gps hw config ok \n");
 
 
     printf("init ok\n");
@@ -374,8 +388,12 @@ bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload,
     header.length   = length;
 
     // Calculate checksum
- gps_config:   calcChecksum(((uint8_t *)&header) + 2, sizeof(header) - 2, &checksum); // skip 2 sync bytes
-
+ gps_config:   
+    checksum.ck_a = 0;
+    checksum.ck_b = 0;
+    // calc Checksum step1
+    calcChecksum(((uint8_t *)&header) + 2, sizeof(header) - 2, &checksum); // skip 2 sync bytes
+    // calc Checksum step2
     if (payload != nullptr) {
         calcChecksum(payload, length, &checksum);
     }
@@ -395,18 +413,18 @@ bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload,
         printf("false 3\n");
         return false;
     }
-    usleep(200000);
+    usleep(200*1000);
   for(;;)//add ACK checker
   {
     run();
-    usleep(20000);
+    usleep(20*1000);
 
     if((ack_clsID| ack_msgID << 8) == msg)
     {
         return true;
     }
     cnt ++;
-    if(cnt * 0.002 > 1)//1s timeout
+    if(cnt * 0.02 > 1)//1s timeout
     {
         cnt = 0;
         printf("error ! \ngps config time out : \nexpected :%x %x\nrecv : %x %x\n",(uint8_t)(msg>>8),(uint8_t)((msg <<8)>>8),ack_msgID,ack_clsID);
@@ -485,6 +503,7 @@ void gps_api_typedef::calcChecksum(const uint8_t *buffer, const uint16_t length,
         checksum->ck_a = checksum->ck_a + buffer[i];
         checksum->ck_b = checksum->ck_b + checksum->ck_a;
     }
+    // printf("calcChecksum is: %X and %X\n", checksum->ck_a,checksum->ck_b);
 }
 bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
 {
