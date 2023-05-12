@@ -266,7 +266,14 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
             sensor_gps.updated = sensor_gps.gps_is_good && sensor_gps.ned_origin_valid;
             sensor_gps.lon = nav_pvt->lon * 1e-7;
             sensor_gps.lat = nav_pvt->lat * 1e-7;
-            sensor_gps.fixType = nav_pvt->fixType;
+            if((nav_pvt->flags & UBX_RX_NAV_PVT_FLAGS_GNSSFIXOK)==1)
+            {
+                sensor_gps.fixType = nav_pvt->fixType;
+                if (nav_pvt->flags & UBX_RX_NAV_PVT_FLAGS_DIFFSOLN)
+                {
+                    sensor_gps.fixType = 4;//DGPS
+                }
+            }
             sensor_gps.height = nav_pvt->hMSL * 1e-3;
             sensor_gps.vel_ned[0] = nav_pvt->velN * 1e-3;
             sensor_gps.vel_ned[1] = nav_pvt->velE * 1e-3;
