@@ -36,15 +36,15 @@
 #define SCREENTITLE "\033[1;30;42m"
 
 #define CAPTION "\033[1;32;40m"
-#define LIGHT_PURPLE "\033[1;35m"
-#define HIGHLIGHT_PURPLE "\033[2;35m"
+#define LIGHT_PURPLE "\033[1;31;47m"
+#define HIGHLIGHT_PURPLE "\033[2;31;47m"
 #define NONE "\033[0m"
 
 class screen Screen;
 
 void *screen_task(void *arg)
 {
-  // core_bind(0);
+  core_bind(1);
     //get_hight_Pri(1);
     //将当前光标往上移动1行
     // printf("\033[%dA",1);

@@ -49,6 +49,13 @@ const double CONSTANTS_RADIUS_OF_EARTH = 6371393;
 class gps_api_typedef
 {
 public:
+    enum class GPSRestartType {
+        None,
+        Hot,
+        Warm,
+        Cold
+    };
+    GPSRestartType _resetType;
     int gps_debug;
     gps_pvt_msg_typedef pvt_msg;
     sensor_gps_typedef sensor_gps;
@@ -78,6 +85,15 @@ public:
     bool cfgValset(uint32_t key_id, T value, int &msg_size);
     int initCfgValset(void);
 
+    int reset(GPSRestartType restart_type);
+    // int restartSurveyIn(void);
+    bool cfgValsetPort(uint32_t key_id, uint8_t value, int &msg_size);
+    int configureDevicePreV27(void);
+    int configureDevice(void);
+    // int waitForAck(const uint16_t msg, const unsigned timeout, const bool report);
+
+    bool _proto_ver_27_or_higher{false}; ///< true if protocol version 27 or higher detected
+    bool _use_nav_pvt{false};
 };
 
 void LLA2NED(double ref_lat, double ref_lon, double lat, double lon, float *x, float *y);

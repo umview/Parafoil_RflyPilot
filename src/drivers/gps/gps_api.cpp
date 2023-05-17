@@ -5,7 +5,7 @@ class gps_api_typedef gps_api;
 void *gps_thread(void *ptr)
 {
     //sbus_api.init((char *)ptr);
-  gps_api.init((char *)ptr,B38400);
+  gps_api.init((char *)ptr, B230400);
   if(gps_api.gps_config((char *)ptr))
   {
     printf("gps configure finished\n");
@@ -79,31 +79,225 @@ void gps_api_typedef::init(char *_port, speed_t speed)
 }
 bool gps_api_typedef::gps_config(char *_port)
 {
-
     ubx_payload_tx_cfg_prt_t cfg_prt[2];
-    memset(cfg_prt, 0, 2*sizeof(ubx_payload_tx_cfg_prt_t));
-    cfg_prt[0].portID       = UBX_TX_CFG_PRT_PORTID;
-    cfg_prt[0].mode     = UBX_TX_CFG_PRT_MODE;
-    cfg_prt[0].baudRate = 115200;
-    cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
-    cfg_prt[0].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
-    cfg_prt[1].portID       = UBX_TX_CFG_PRT_PORTID_USB;
-    cfg_prt[1].mode     = UBX_TX_CFG_PRT_MODE;
-    cfg_prt[1].baudRate = 115200;
-    cfg_prt[1].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
-    cfg_prt[1].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
-    printf("info: set port baudrate ...\n");
-    sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
-    printf("info: set port baudrate ok\n");
-// 注意此处波特率修改后并没有接受ACK,后面重新配置后检查ACK
-    usleep(200*1000);
 
+    // reset
+    _resetType = GPSRestartType::Cold;
+    // if(!reset(_resetType))
+    // {
+    //     printf("info: Reset complete\n");
+    //     usleep(1000*1000);
+    // }else{
+    //     printf("error: Reset complete\n");
+    // }
+    unsigned desired_baudrate = 115200;
+    const unsigned baudrates[] = {38400, 57600, 9600, 115200, 230400, 460800, 921600};
+    unsigned baud_i;
+    int cfg_valset_msg_size;
+    for (baud_i = 0; baud_i < sizeof(baudrates) / sizeof(baudrates[0]); baud_i++)
+    {
+        close(_serial_fd);
+        switch (baudrates[baud_i])
+        {
+            case 38400U:
+                init(_port,B38400);
+                break;
+
+            case 57600U:
+                init(_port,B57600);
+                break;
+
+            case 9600U:
+                init(_port,B9600);
+                break;
+                
+            case 115200U:
+                init(_port,B115200);
+                break;
+
+            case 230400U:
+                init(_port,B230400);
+                break;
+                
+            case 460800U:
+                init(_port,B460800);
+                break;
+
+            case 921600U:
+                init(_port,B921600);
+                break;
+            
+            default:
+                break;
+        }
+        usleep(40*1000);
+        
+        // Use valset protocol set boundrate
+        cfg_valset_msg_size = initCfgValset();
+        cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART1_BAUDRATE, desired_baudrate, cfg_valset_msg_size);
+
+        if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+            return false;
+        }
+
+        //use cfg protocol
+        memset(cfg_prt, 0, 2*sizeof(ubx_payload_tx_cfg_prt_t));
+        cfg_prt[0].portID       = UBX_TX_CFG_PRT_PORTID;
+        cfg_prt[0].mode     = UBX_TX_CFG_PRT_MODE;
+        cfg_prt[0].baudRate = desired_baudrate;
+        cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
+        cfg_prt[0].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
+        cfg_prt[1].portID       = UBX_TX_CFG_PRT_PORTID_USB;
+        cfg_prt[1].mode     = UBX_TX_CFG_PRT_MODE;
+        cfg_prt[1].baudRate = desired_baudrate;
+        cfg_prt[1].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
+        cfg_prt[1].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
+        
+        printf("info: set port baudrate as %d\n", desired_baudrate);
+        sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
+        
+
+        usleep(200*1000);
+    }
 
     close(_serial_fd);
-    init(_port,B115200);
-    printf("info: check port baudrate ...\n");
-    sendMessageACK(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
-    printf("info: check port baudrate ack ok\n");
+    switch (desired_baudrate)
+    {
+        case 38400U:
+            init(_port,B38400);
+            break;
+
+        case 57600U:
+            init(_port,B57600);
+            break;
+
+        case 9600U:
+            init(_port,B9600);
+            break;
+            
+        case 115200U:
+            init(_port,B115200);
+            break;
+
+        case 230400U:
+            init(_port,B230400);
+            break;
+            
+        case 460800U:
+            init(_port,B460800);
+            break;
+
+        case 921600U:
+            init(_port,B921600);
+            break;
+        
+        default:
+            break;
+    }
+    usleep(40*1000);
+
+    // try CFG-VALSET: if we get an ACK we know we can use protocol version 27+
+    cfg_valset_msg_size = initCfgValset();
+    // UART1
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1_STOPBITS, 1, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1_DATABITS, 0, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1_PARITY, 0, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_UBX, 1, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_RTCM3X, 1, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_NMEA, 0, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_UBX, 1, cfg_valset_msg_size);
+
+    // if (_output_mode != OutputMode::GPS) {
+    //     cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_RTCM3X, 1, cfg_valset_msg_size);
+    // }
+
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_NMEA, 0, cfg_valset_msg_size);
+
+    // USB
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBINPROT_UBX, 1, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBINPROT_RTCM3X, 1, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBINPROT_NMEA, 0, cfg_valset_msg_size);
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBOUTPROT_UBX, 1, cfg_valset_msg_size);
+
+    // if (_output_mode != OutputMode::GPS) {
+    //     cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBOUTPROT_RTCM3X, 1, cfg_valset_msg_size);
+    // }
+
+    cfgValset<uint8_t>(UBX_CFG_KEY_CFG_USBOUTPROT_NMEA, 0, cfg_valset_msg_size);
+    
+    bool cfg_valset_success = false;
+    if (sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+
+        // if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) == 0) {
+        cfg_valset_success = true;
+        // }
+        printf("info: protocol version 27+\n");
+    }
+
+    if (cfg_valset_success)
+    {
+        _proto_ver_27_or_higher = true;
+
+        // Now we only have to change the baudrate
+        cfg_valset_msg_size = initCfgValset();
+        uint32_t desired_baudrate = 115200;
+        cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART1_BAUDRATE, desired_baudrate, cfg_valset_msg_size);
+
+        printf("info: check port baudrate ...\n");
+        if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+            // continue;
+            return false;
+        }
+        printf("info: check port baudrate ack ok\n");
+
+        // /* no ACK is expected here, but read the buffer anyway in case we actually get an ACK */
+        // waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, false);
+
+        // close(_serial_fd);
+        // init(_port,B115200);
+
+    }else{
+        _proto_ver_27_or_higher = false;
+
+        // memset(cfg_prt, 0, 2*sizeof(ubx_payload_tx_cfg_prt_t));
+        // cfg_prt[0].portID       = UBX_TX_CFG_PRT_PORTID;
+        // cfg_prt[0].mode     = UBX_TX_CFG_PRT_MODE;
+        // cfg_prt[0].baudRate = 115200;
+        // cfg_prt[0].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
+        // cfg_prt[0].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
+        // cfg_prt[1].portID       = UBX_TX_CFG_PRT_PORTID_USB;
+        // cfg_prt[1].mode     = UBX_TX_CFG_PRT_MODE;
+        // cfg_prt[1].baudRate = 115200;
+        // cfg_prt[1].inProtoMask  = UBX_TX_CFG_PRT_PROTO_UBX | UBX_TX_CFG_PRT_PROTO_RTCM;
+        // cfg_prt[1].outProtoMask = UBX_TX_CFG_PRT_PROTO_UBX;
+        
+        // printf("info: set port baudrate ...\n");
+        // sendMessage(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
+        // printf("info: set port baudrate ok\n");
+        
+        // // 注意此处波特率修改后并没有接受ACK,后面重新配置后检查ACK
+        // usleep(200*1000);
+
+        // close(_serial_fd);
+        // init(_port,B115200);
+        
+        printf("info: check port baudrate ...\n");
+        sendMessageACK(UBX_MSG_CFG_PRT, (uint8_t *)cfg_prt,  2*sizeof(ubx_payload_tx_cfg_prt_t));
+        printf("info: check port baudrate ack ok\n");
+    }
+
+    int ret;
+
+	if (_proto_ver_27_or_higher) {
+		ret = configureDevice();
+
+	} else {
+		ret = configureDevicePreV27();
+	}
+
+	if (ret != 0) {
+		return false;
+	}
     //ubx_payload_tx_cfg_rate_t cfg_rate;
     // cfg_rate.measRate = 1000;
     // cfg_rate.navRate = 0x01 << 8 | 0x00;
@@ -113,6 +307,13 @@ bool gps_api_typedef::gps_config(char *_port)
 
 
 
+    printf("init ok\n");
+    printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
+    return true;
+}
+
+int gps_api_typedef::configureDevicePreV27()
+{
     ubx_payload_tx_cfg_rate_t cfg_rate;
     cfg_rate.measRate = 0xc8;
     cfg_rate.navRate = 0x01;
@@ -172,12 +373,8 @@ bool gps_api_typedef::gps_config(char *_port)
     printf("info: gps hw config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps hw config ok \n");
-
-
-    printf("init ok\n");
-    printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
-    return true;
 }
+
 void gps_api_typedef::run(void)
 {
     //static bool initd = false;
@@ -225,7 +422,7 @@ void gps_api_typedef::packet_decode(uint8_t *packet)
     uint8_t msg_class = packet[2];
     uint8_t msg_id = packet[3];
     uint8_t playload_length = packet[4] | packet[5] << 8;
-    if(gps_debug)printf("msg class %x, id %x, playload length %d\n",
+    if(gps_debug)printf("info: msg class %x, id %x, playload length %d\n",
         msg_class,
         msg_id,
         playload_length);    
@@ -384,6 +581,37 @@ bool gps_api_typedef::packet_check(uint8_t *frame, int index, int length)
         return false;
     }
 }
+
+// -1 = NAK, error or timeout, 0 = ACK
+// int	gps_api_typedef::waitForAck(const uint16_t msg, const unsigned timeout, const bool report)
+// {
+// 	int ret = -1;
+
+// 	_ack_state = UBX_ACK_WAITING;
+// 	_ack_waiting_msg = msg;	// memorize sent msg class&ID for ACK check
+
+// 	gps_abstime time_started = gps_absolute_time();
+
+// 	while ((_ack_state == UBX_ACK_WAITING) && (gps_absolute_time() < time_started + timeout * 1000)) {
+// 		receive(timeout);
+// 	}
+
+// 	if (_ack_state == UBX_ACK_GOT_ACK) {
+// 		ret = 0;	// ACK received ok
+
+// 	} else if (report) {
+// 		if (_ack_state == UBX_ACK_GOT_NAK) {
+// 			// UBX_DEBUG("ubx msg 0x%04x NAK", SWAP16((unsigned)msg));
+
+// 		} else {
+// 			// UBX_DEBUG("ubx msg 0x%04x ACK timeout", SWAP16((unsigned)msg));
+// 		}
+// 	}
+
+// 	_ack_state = UBX_ACK_IDLE;
+// 	return ret;
+// }
+
 bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload, const uint16_t length)
 {
     uint32_t cnt = 0;
@@ -423,10 +651,12 @@ bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload,
     usleep(200*1000);
   for(;;)//add ACK checker
   {
+    ack_clsID = 0;
+    ack_msgID = 0;
     run();
     usleep(20*1000);
 
-    if((ack_clsID| ack_msgID << 8) == msg)
+    if((ack_clsID | ack_msgID << 8) == msg)
     {
         return true;
     }
@@ -495,10 +725,10 @@ bool gps_api_typedef::sendMessage(const uint16_t msg, const uint8_t *payload, co
 }
 int gps_api_typedef::gps_write(uint8_t *buf, int buf_length)
 {
+    printf("info: the data write to gps:");
     for(int i = 0; i < buf_length; i++)
     {
         printf("%x ",buf[i]);
-
     }
     printf("\n");
     return write(_serial_fd, buf, buf_length);
@@ -520,14 +750,22 @@ bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
     err = ::ioctl(_serial_fd, FIONREAD, (unsigned long)&bytes_available);
     //printf("data remain : %d\n", bytes_available);
     if (err != 0 || bytes_available < (int)buf_length) {
+        // printf("info: bytes_available is %d\n", bytes_available);
         return false;
     }else{
         ret = ::read(_serial_fd, buff, buf_length);
         if (ret != buf_length) {
             printf("ret != buf_length %d\n", ret);
             return false;
-        }else
-        return true;
+        }else{
+            // printf("info: data received is:");
+            // for (int i = 0; i < buf_length; i++)
+            // {
+            //     printf("%x ",buff[i]);
+            // }
+            // printf("\n");
+            return true;
+        }
     }
 
 }
@@ -619,6 +857,399 @@ int gps_api_typedef::initCfgValset(void)
     return sizeof(_buf.payload_tx_cfg_valset) - sizeof(_buf.payload_tx_cfg_valset.cfgData);
 }
 
+int gps_api_typedef::reset(GPSRestartType restart_type)
+{
+    memset(&_buf.payload_tx_cfg_rst, 0, sizeof(_buf.payload_tx_cfg_rst));
+	// _buf.payload_tx_cfg_rst.resetMode = UBX_TX_CFG_RST_MODE_SOFTWARE;
+    _buf.payload_tx_cfg_rst.resetMode = UBX_TX_CFG_RST_MODE_HARDWARE;
+
+	switch (restart_type) {
+	case GPSRestartType::Hot:
+		_buf.payload_tx_cfg_rst.navBbrMask = UBX_TX_CFG_RST_BBR_MODE_HOT_START;
+		break;
+
+	case GPSRestartType::Warm:
+		_buf.payload_tx_cfg_rst.navBbrMask = UBX_TX_CFG_RST_BBR_MODE_WARM_START;
+		break;
+
+	case GPSRestartType::Cold:
+		_buf.payload_tx_cfg_rst.navBbrMask = UBX_TX_CFG_RST_BBR_MODE_COLD_START;
+		break;
+
+	default:
+		return -2;
+	}
+
+	if (sendMessage(UBX_MSG_CFG_RST, (uint8_t *)&_buf, sizeof(_buf.payload_tx_cfg_rst))) {
+		return 0;
+	}
+
+	return -2;
+}
+
+int gps_api_typedef::configureDevice()
+{
+    uint8_t _dyn_model = 6;//7: <2g; 6: <1g
+	/* set configuration parameters */
+	int cfg_valset_msg_size = initCfgValset();
+	cfgValset<uint8_t>(UBX_CFG_KEY_NAVSPG_FIXMODE, 3 /* Auto 2d/3d */, cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_NAVSPG_UTCSTANDARD, 3 /* USNO (U.S. Naval Observatory derived from GPS) */,
+			   cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_NAVSPG_DYNMODEL, _dyn_model, cfg_valset_msg_size);
+
+	// disable odometer & filtering
+	cfgValset<uint8_t>(UBX_CFG_KEY_ODO_USE_ODO, 0, cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_ODO_USE_COG, 0, cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_ODO_OUTLPVEL, 0, cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_ODO_OUTLPCOG, 0, cfg_valset_msg_size);
+
+	// enable jamming monitor
+	cfgValset<uint8_t>(UBX_CFG_KEY_ITFM_ENABLE, 1, cfg_valset_msg_size);
+
+	// measurement rate
+	// In case of F9P not in moving base mode we use 10Hz, otherwise 8Hz (receivers such as M9N can go higher as well, but
+	// the number of used satellites will be restricted to 16. Not mentioned in datasheet)
+	int rate_meas;
+    rate_meas = 125;
+	// if (_mode != UBXMode::Normal) {
+	// 	rate_meas = 125; //8Hz for heading.
+
+	// } else {
+	// 	rate_meas = (_board == Board::u_blox9_F9P) ? 100 : 125;
+	// }
+
+	cfgValset<uint16_t>(UBX_CFG_KEY_RATE_MEAS, rate_meas, cfg_valset_msg_size);
+	cfgValset<uint16_t>(UBX_CFG_KEY_RATE_NAV, 1, cfg_valset_msg_size);
+	cfgValset<uint8_t>(UBX_CFG_KEY_RATE_TIMEREF, 0, cfg_valset_msg_size);
+
+	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+		return -1;
+	}
+    printf("info: Rate config ok\n");
+
+	// if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 	return -1;
+	// }
+
+	// // RTK (optional, as only RTK devices like F9P support it)
+	// cfg_valset_msg_size = initCfgValset();
+	// cfgValset<uint8_t>(UBX_CFG_KEY_NAVHPG_DGNSSMODE, 3 /* RTK Fixed */, cfg_valset_msg_size);
+
+	// if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 	return -1;
+	// }
+
+	// waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, false);
+
+	// // configure active GNSS systems (leave signal bands as is)
+	// if (static_cast<int32_t>(gnssSystems) != 0) {
+	// 	cfg_valset_msg_size = initCfgValset();
+
+	// 	// GPS and QZSS should always be enabled and disabled together, according to uBlox
+	// 	if (gnssSystems & GNSSSystemsMask::ENABLE_GPS) {
+	// 		UBX_DEBUG("GNSS Systems: Use GPS + QZSS");
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GPS_ENA, 1, cfg_valset_msg_size);
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_QZSS_ENA, 1, cfg_valset_msg_size);
+
+	// 	} else {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GPS_ENA, 0, cfg_valset_msg_size);
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_QZSS_ENA, 0, cfg_valset_msg_size);
+	// 	}
+
+	// 	if (gnssSystems & GNSSSystemsMask::ENABLE_GALILEO) {
+	// 		UBX_DEBUG("GNSS Systems: Use Galileo");
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GAL_ENA, 1, cfg_valset_msg_size);
+
+	// 	} else {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GAL_ENA, 0, cfg_valset_msg_size);
+	// 	}
+
+
+	// 	if (gnssSystems & GNSSSystemsMask::ENABLE_BEIDOU) {
+	// 		UBX_DEBUG("GNSS Systems: Use BeiDou");
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_BDS_ENA, 1, cfg_valset_msg_size);
+
+	// 	} else {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_BDS_ENA, 0, cfg_valset_msg_size);
+	// 	}
+
+	// 	if (gnssSystems & GNSSSystemsMask::ENABLE_GLONASS) {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GLO_ENA, 1, cfg_valset_msg_size);
+
+	// 	} else {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_GLO_ENA, 0, cfg_valset_msg_size);
+	// 	}
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		GPS_ERR("UBX GNSS config send failed");
+	// 		return -1;
+	// 	}
+
+	// 	if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 		return -1;
+	// 	}
+
+	// 	// send SBAS config separately, because it seems to be buggy (with u-center, too)
+	// 	cfg_valset_msg_size = initCfgValset();
+
+	// 	if (gnssSystems & GNSSSystemsMask::ENABLE_SBAS) {
+	// 		UBX_DEBUG("GNSS Systems: Use SBAS");
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_SBAS_ENA, 1, cfg_valset_msg_size);
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_SBAS_L1CA_ENA, 1, cfg_valset_msg_size);
+
+	// 	} else {
+	// 		cfgValset<uint8_t>(UBX_CFG_KEY_SIGNAL_SBAS_ENA, 0, cfg_valset_msg_size);
+	// 	}
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		return -1;
+	// 	}
+
+	// 	waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true);
+	// }
+
+	// Configure message rates
+	// Send a new CFG-VALSET message to make sure it does not get too large
+	cfg_valset_msg_size = initCfgValset();
+	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_NAV_PVT_I2C, 1, cfg_valset_msg_size);
+	_use_nav_pvt = true;
+	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_NAV_DOP_I2C, 1, cfg_valset_msg_size);
+	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_NAV_SAT_I2C, 0, cfg_valset_msg_size);
+	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_MON_RF_I2C, 1, cfg_valset_msg_size);
+
+	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+		return -1;
+	}
+
+	// if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 	return -1;
+	// }
+
+	// if (_interface == Interface::UART) {
+		// Disable GPS protocols at I2C
+		cfg_valset_msg_size = initCfgValset();
+		cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2CINPROT_UBX, 0, cfg_valset_msg_size);
+		cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2CINPROT_NMEA, 0, cfg_valset_msg_size);
+		cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2CINPROT_RTCM3X, 0, cfg_valset_msg_size);
+		cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2COUTPROT_UBX, 0, cfg_valset_msg_size);
+		cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2COUTPROT_NMEA, 0, cfg_valset_msg_size);
+
+		// if (_board == Board::u_blox9_F9P) {
+		// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2COUTPROT_RTCM3X, 0, cfg_valset_msg_size);
+		// }
+
+		if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+			return -1;
+		}
+
+		// if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+		// 	return -1;
+		// }
+	// }
+
+	// int uart2_baudrate = 230400;
+
+	// if (_mode == UBXMode::RoverWithMovingBase) {
+	// 	UBX_DEBUG("Configuring UART2 for rover");
+	// 	cfg_valset_msg_size = initCfgValset();
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_UBX, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_RTCM3X, 0, cfg_valset_msg_size);
+	// 	// heading output period 1 second
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_UBX_NAV_RELPOSNED_UART1, 1, cfg_valset_msg_size);
+	// 	// enable RTCM input on uart2 + set baudrate
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_STOPBITS, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_DATABITS, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_PARITY, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_UBX, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_RTCM3X, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_NMEA, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2OUTPROT_UBX, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2OUTPROT_RTCM3X, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART2_BAUDRATE, uart2_baudrate, cfg_valset_msg_size);
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		return -1;
+	// 	}
+
+	// 	if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 		return -1;
+	// 	}
+
+	// } else if (_mode == UBXMode::MovingBase) {
+	// 	UBX_DEBUG("Configuring UART2 for moving base");
+	// 	// enable RTCM output on uart2 + set baudrate
+	// 	cfg_valset_msg_size = initCfgValset();
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_STOPBITS, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_DATABITS, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2_PARITY, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_UBX, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_RTCM3X, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2INPROT_NMEA, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2OUTPROT_UBX, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART2OUTPROT_RTCM3X, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART2_BAUDRATE, uart2_baudrate, cfg_valset_msg_size);
+
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE4072_0_UART2, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1230_UART2, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1074_UART2, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1084_UART2, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1094_UART2, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1124_UART2, 1, cfg_valset_msg_size);
+
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		return -1;
+	// 	}
+
+	// 	if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 		return -1;
+	// 	}
+
+	// } else if (_mode == UBXMode::RoverWithMovingBaseUART1) {
+	// 	UBX_DEBUG("Configuring UART1 for rover");
+	// 	// heading output period 1 second
+	// 	cfg_valset_msg_size = initCfgValset();
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_UBX, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_RTCM3X, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_NMEA, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_UBX, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_RTCM3X, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_UBX_NAV_RELPOSNED_UART1, 1, cfg_valset_msg_size);
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		return -1;
+	// 	}
+
+	// 	if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 		return -1;
+	// 	}
+
+	// } else if (_mode == UBXMode::MovingBaseUART1) {
+	// 	UBX_DEBUG("Configuring UART1 for moving base");
+	// 	// enable RTCM output on uart1
+	// 	cfg_valset_msg_size = initCfgValset();
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_UBX, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_RTCM3X, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1INPROT_NMEA, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_UBX, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_UART1OUTPROT_RTCM3X, 1, cfg_valset_msg_size);
+
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_UBX_NAV_RELPOSNED_UART1, 0, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_UBX_NAV_RELPOSNED_UART2, 0, cfg_valset_msg_size);
+
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE4072_0_UART1, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1230_UART1, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1074_UART1, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1084_UART1, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1094_UART1, 1, cfg_valset_msg_size);
+	// 	cfgValset<uint8_t>(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1124_UART1, 1, cfg_valset_msg_size);
+
+	// 	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	// 		return -1;
+	// 	}
+
+	// 	if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+	// 		return -1;
+	// 	}
+
+	// }
+
+	return 0;
+}
+
+bool gps_api_typedef::cfgValsetPort(uint32_t key_id, uint8_t value, int &msg_size)
+{
+	// if (_interface == Interface::SPI) {
+	// 	if (!cfgValset<uint8_t>(key_id + 4, value, msg_size)) {
+	// 		return false;
+	// 	}
+
+	// } else {
+		// enable on UART1 & USB (TODO: should we enable UART2 too? -> better would be to detect the port)
+		if (!cfgValset<uint8_t>(key_id + 1, value, msg_size)) {
+			return false;
+		}
+
+		if (!cfgValset<uint8_t>(key_id + 3, value, msg_size)) {
+			return false;
+		}
+	// }
+
+	return true;
+}
+
+// int gps_api_typedef::restartSurveyIn()
+// {
+// 	// if (_output_mode != OutputMode::RTCM) {
+// 	// 	return -1;
+// 	// }
+
+// 	if (!_proto_ver_27_or_higher) {
+// 		return restartSurveyInPreV27();
+// 	}
+
+// 	//disable RTCM output
+// 	int cfg_valset_msg_size = initCfgValset();
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1005_I2C, 0, cfg_valset_msg_size);
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1077_I2C, 0, cfg_valset_msg_size);
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1087_I2C, 0, cfg_valset_msg_size);
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1230_I2C, 0, cfg_valset_msg_size);
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1097_I2C, 0, cfg_valset_msg_size);
+// 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_RTCM_3X_TYPE1127_I2C, 0, cfg_valset_msg_size);
+// 	sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size);
+// 	waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, false);
+
+// 	if (_base_settings.type == BaseSettingsType::survey_in) {
+// 		UBX_DEBUG("Starting Survey-in");
+
+// 		cfg_valset_msg_size = initCfgValset();
+// 		cfgValset<uint8_t>(UBX_CFG_KEY_TMODE_MODE, 1 /* Survey-in */, cfg_valset_msg_size);
+// 		cfgValset<uint32_t>(UBX_CFG_KEY_TMODE_SVIN_MIN_DUR, _base_settings.settings.survey_in.min_dur, cfg_valset_msg_size);
+// 		cfgValset<uint32_t>(UBX_CFG_KEY_TMODE_SVIN_ACC_LIMIT, _base_settings.settings.survey_in.acc_limit, cfg_valset_msg_size);
+// 		cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_NAV_SVIN_I2C, 5, cfg_valset_msg_size);
+
+// 		if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+// 			return -1;
+// 		}
+
+// 		if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+// 			return -1;
+// 		}
+
+// 	} else {
+// 		// UBX_DEBUG("Setting fixed base position");
+
+// 		const FixedPositionSettings &settings = _base_settings.settings.fixed_position;
+// 		cfg_valset_msg_size = initCfgValset();
+// 		cfgValset<uint8_t>(UBX_CFG_KEY_TMODE_MODE, 2 /* Fixed Mode */, cfg_valset_msg_size);
+// 		cfgValset<uint8_t>(UBX_CFG_KEY_TMODE_POS_TYPE, 1 /* Lat/Lon/Height */, cfg_valset_msg_size);
+// 		int64_t lat64 = (int64_t)(settings.latitude * 1e9);
+// 		cfgValset<int32_t>(UBX_CFG_KEY_TMODE_LAT, (int32_t)(lat64 / 100), cfg_valset_msg_size);
+// 		cfgValset<int8_t>(UBX_CFG_KEY_TMODE_LAT_HP, lat64 % 100 /* range [-99, 99] */, cfg_valset_msg_size);
+// 		int64_t lon64 = (int64_t)(settings.longitude * 1e9);
+// 		cfgValset<int32_t>(UBX_CFG_KEY_TMODE_LON, (int32_t)(lon64 / 100), cfg_valset_msg_size);
+// 		cfgValset<int8_t>(UBX_CFG_KEY_TMODE_LON_HP, lon64 % 100 /* range [-99, 99] */, cfg_valset_msg_size);
+// 		int64_t alt64 = (int64_t)((double)settings.altitude * 1e4);
+// 		cfgValset<int32_t>(UBX_CFG_KEY_TMODE_HEIGHT, (int32_t)(alt64 / 100) /* cm */, cfg_valset_msg_size);
+// 		cfgValset<int8_t>(UBX_CFG_KEY_TMODE_HEIGHT_HP, alt64 % 100 /* 0.1mm */, cfg_valset_msg_size);
+// 		cfgValset<uint32_t>(UBX_CFG_KEY_TMODE_FIXED_POS_ACC, (uint32_t)(settings.position_accuracy * 10.f),
+// 				    cfg_valset_msg_size);
+
+// 		if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+// 			return -1;
+// 		}
+
+// 		if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) < 0) {
+// 			return -1;
+// 		}
+
+// 		// directly enable RTCM3 output
+// 		return activateRTCMOutput(true);
+
+// 	}
+
+// 	return 0;
+// }
 
 void LLA2NED(double ref_lat, double ref_lon, double lat, double lon, float *x, float *y)
 {
