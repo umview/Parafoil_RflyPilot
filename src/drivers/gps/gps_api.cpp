@@ -8,9 +8,9 @@ void *gps_thread(void *ptr)
   gps_api.init((char *)ptr, B230400);
   if(gps_api.gps_config((char *)ptr))
   {
-    printf("gps configure finished\n");
+    printf("info: gps configure success\n");
   }else{
-    printf("gps configure error !!!!!!!!!!\n");
+    printf("warning: gps configure fail !\n");
   }
   for(;;)
   {
@@ -227,11 +227,18 @@ bool gps_api_typedef::gps_config(char *_port)
     
     bool cfg_valset_success = false;
     if (sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
-
-        // if (waitForAck(UBX_MSG_CFG_VALSET, UBX_CONFIG_TIMEOUT, true) == 0) {
-        cfg_valset_success = true;
-        // }
-        printf("info: protocol version 27+\n");
+        if (_ack_state == UBX_ACK_GOT_ACK)
+        {
+            cfg_valset_success = true;
+            printf("info: protocol version 27+ (new)\n");
+            _ack_state = UBX_ACK_IDLE;
+        }
+        if (_ack_state == UBX_ACK_GOT_NAK)
+        {
+            cfg_valset_success = false;
+            printf("info: protocol version pre27 (old)\n");
+            _ack_state = UBX_ACK_IDLE;
+        }
     }
 
     if (cfg_valset_success)
@@ -240,7 +247,6 @@ bool gps_api_typedef::gps_config(char *_port)
 
         // Now we only have to change the baudrate
         cfg_valset_msg_size = initCfgValset();
-        uint32_t desired_baudrate = 115200;
         cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART1_BAUDRATE, desired_baudrate, cfg_valset_msg_size);
 
         printf("info: check port baudrate ...\n");
@@ -307,7 +313,7 @@ bool gps_api_typedef::gps_config(char *_port)
 
 
 
-    printf("init ok\n");
+    printf("info: gps init ok\n");
     printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
     return true;
 }
@@ -373,6 +379,8 @@ int gps_api_typedef::configureDevicePreV27()
     printf("info: gps hw config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps hw config ok \n");
+
+    return 0;
 }
 
 void gps_api_typedef::run(void)
@@ -382,6 +390,8 @@ void gps_api_typedef::run(void)
     static uint8_t *p_frame_old = pvt_msg.frame.frame_old;
     if(pollOrRead(p_frame_new, GPS_BUFFER_LENGTH))
     {
+        //if read success, update read time
+        last_time_read = get_time_now();
 
         if(gps_debug)printf(" data acquired\n");
         if(gps_msg_decode(pvt_msg.buffer, GPS_BUFFER_LENGTH))
@@ -525,6 +535,7 @@ void gps_api_typedef::ACK_CLASS_decode(uint8_t *packet)
             nack = (ubx_payload_rx_ack_nak_t*)&packet[6];
             ack_clsID = nack->clsID;
             ack_msgID = nack->msgID;
+            _ack_state = UBX_ACK_GOT_NAK;
             printf("recv nack clsID %x msgID %x\n", ack_clsID, ack_msgID);
         break;
 
@@ -532,6 +543,7 @@ void gps_api_typedef::ACK_CLASS_decode(uint8_t *packet)
             ack = (ubx_payload_rx_ack_ack_t*)&packet[6];
             ack_clsID = ack->clsID;
             ack_msgID = ack->msgID;
+            _ack_state = UBX_ACK_GOT_ACK;
             printf("recv ack clsID %x msgID %x\n", ack_clsID, ack_msgID);
 
         break;
@@ -649,25 +661,27 @@ bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload,
         return false;
     }
     usleep(200*1000);
-  for(;;)//add ACK checker
-  {
-    ack_clsID = 0;
-    ack_msgID = 0;
-    run();
-    usleep(20*1000);
 
-    if((ack_clsID | ack_msgID << 8) == msg)
+    for(;;)//add ACK checker
     {
-        return true;
+        ack_clsID = 0;
+        ack_msgID = 0;
+        _ack_state = UBX_ACK_WAITING;
+        run();
+        usleep(20*1000);
+
+        if((ack_clsID | ack_msgID << 8) == msg)
+        {
+            return true;
+        }
+        cnt ++;
+        if(cnt * 0.02 > 1)//1s timeout
+        {
+            cnt = 0;
+            printf("warning ! gps config time out:\nexpected: %x %x\nrecv: %x %x\n",(uint8_t)(msg>>8),(uint8_t)((msg <<8)>>8),ack_msgID,ack_clsID);
+            goto gps_config;
+        }
     }
-    cnt ++;
-    if(cnt * 0.02 > 1)//1s timeout
-    {
-        cnt = 0;
-        printf("error ! \ngps config time out : \nexpected :%x %x\nrecv : %x %x\n",(uint8_t)(msg>>8),(uint8_t)((msg <<8)>>8),ack_msgID,ack_clsID);
-        goto gps_config;
-    }
-  }
 
     return false;
 }
@@ -751,7 +765,12 @@ bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
     //printf("data remain : %d\n", bytes_available);
     if (err != 0 || bytes_available < (int)buf_length) {
         // printf("info: bytes_available is %d\n", bytes_available);
-        return false;
+        // if (err == 0 && bytes_available > 0 && get_time_now() - last_time_read> 500000000U)//500ms
+        // {
+            
+        // }else{
+            return false;
+        // }
     }else{
         ret = ::read(_serial_fd, buff, buf_length);
         if (ret != buf_length) {
