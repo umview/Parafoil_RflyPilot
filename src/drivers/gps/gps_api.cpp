@@ -371,19 +371,19 @@ int gps_api_typedef::configureDevicePreV27()
 
     
     cfg_msg.msg = UBX_MSG_NAV_DOP; //0x01 0x04 
-    cfg_msg.rate = 5;
+    cfg_msg.rate = 1;
     printf("info: gps dop config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
     printf("info: gps dop config ok \n");
 
-    cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x35
+    cfg_msg.msg = UBX_MSG_NAV_SVINFO; // 0x01 0x30
     cfg_msg.rate = 0;
     printf("info: gps sat config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps sat config ok \n");
 
     cfg_msg.msg = UBX_MSG_MON_HW; // 0x0a 0x09
-    cfg_msg.rate = 5;
+    cfg_msg.rate = 1;
     printf("info: gps hw config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps hw config ok \n");
