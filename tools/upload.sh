@@ -15,3 +15,4 @@ echo "password: ${password}"
 
 sshpass -p "${password}" ssh -o StrictHostKeyChecking=no pi@"${hostname}" 'mkdir -p RflyPilot_Project/RflyPilot/'
 sshpass -p "${password}" scp -r ./rflypilot ../config/rflypilot.txt ../config/parameter.txt pi@"${hostname}":/home/pi/RflyPilot_Project/RflyPilot/
+# sshpass -p "${password}" scp -r ./rflypilot ../config/rflypilot.txt ../config/calibration.txt ../config/parameter.txt pi@"${hostname}":/home/pi/RflyPilot_Project/RflyPilot/
