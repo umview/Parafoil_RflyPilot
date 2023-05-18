@@ -79,6 +79,7 @@ void gps_api_typedef::init(char *_port, speed_t speed)
 }
 bool gps_api_typedef::gps_config(char *_port)
 {
+    _configured = false;
     ubx_payload_tx_cfg_prt_t cfg_prt[2];
 
     // reset
@@ -319,6 +320,7 @@ bool gps_api_typedef::gps_config(char *_port)
 
     printf("info: gps init ok\n");
     printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
+    _configured = true;
     return true;
 }
 
@@ -359,18 +361,20 @@ int gps_api_typedef::configureDevicePreV27()
     //usleep(200000);
     printf("info: gps nav5 config ok \n");
 
-    ubx_payload_tx_cfg_msg_t cfg_msg; //0x01 0x04 
-    cfg_msg.msg = UBX_MSG_NAV_DOP;
-    cfg_msg.rate = 1;
-    printf("info: gps dop config ... \n");
-    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
-    printf("info: gps dop config ok \n");
-
+    ubx_payload_tx_cfg_msg_t cfg_msg; 
+    
     cfg_msg.msg = UBX_MSG_NAV_PVT; // 0x01 0x07
     cfg_msg.rate = 1;
     printf("info: gps pvt config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps pvt config ok \n");
+
+    
+    cfg_msg.msg = UBX_MSG_NAV_DOP; //0x01 0x04 
+    cfg_msg.rate = 5;
+    printf("info: gps dop config ... \n");
+    sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));   
+    printf("info: gps dop config ok \n");
 
     cfg_msg.msg = UBX_MSG_NAV_SAT; // 0x01 0x35
     cfg_msg.rate = 0;
@@ -379,7 +383,7 @@ int gps_api_typedef::configureDevicePreV27()
     printf("info: gps sat config ok \n");
 
     cfg_msg.msg = UBX_MSG_MON_HW; // 0x0a 0x09
-    cfg_msg.rate = 0;
+    cfg_msg.rate = 5;
     printf("info: gps hw config ... \n");
     sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
     printf("info: gps hw config ok \n");
@@ -431,6 +435,51 @@ bool gps_api_typedef::gps_msg_decode(uint8_t *frame, int MSG_LENGHT)
     return true;
 
 }
+int gps_api_typedef::disableMsg(uint8_t msg_class, uint8_t msg_id)
+{
+    if(_configured)
+    {
+        printf("ERROR : undefined class 0x%02x, id 0x%02x\n", msg_class, msg_id);
+        if(_proto_ver_27_or_higher){//NEW
+            uint32_t key_id = 0;
+            if(msg_class == 0x01 && msg_id == 0x20)
+            {   
+                key_id = 0x20910047; //CFG-MSGOUT-UBX_NAV_TIMEGPS_I2C
+                int cfg_valset_msg_size = initCfgValset();
+                cfgValsetPort(key_id, 0, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages \n");
+                sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages ok, msg class: 0x%02x, msg id: 0x%02x \n",msg_class, msg_id);
+            }
+            if(msg_class == 0x0A && msg_id == 0x38)
+            {   
+                key_id = 0x20910359; //CFG-MSGOUT-UBX_MON_RF_I2C
+                int cfg_valset_msg_size = initCfgValset();
+                cfgValsetPort(key_id, 0, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages \n");
+                sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages ok, msg class: 0x%02x, msg id: 0x%02x \n",msg_class, msg_id);
+            }
+            if(msg_class == 0x0A && msg_id == 0x0B)
+            {   
+                key_id = 0x209101b9;//CFG-MSGOUT-UBX_MON_HW2_I2C 
+                int cfg_valset_msg_size = initCfgValset();
+                cfgValsetPort(key_id, 0, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages \n");
+                sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size);
+                printf("warning: disable unexpected messages ok, msg class: 0x%02x, msg id: 0x%02x \n",msg_class, msg_id);
+            }
+        }else{//OLD
+            ubx_payload_tx_cfg_msg_t cfg_msg; 
+            cfg_msg.msg = (((uint16_t)msg_class) | ((uint16_t)msg_id)<<8);
+            cfg_msg.rate = 0;
+            printf("warning: disable unexpected messages \n");
+            sendMessageACK(UBX_MSG_CFG_MSG, (uint8_t *)&cfg_msg, sizeof(cfg_msg));
+            printf("warning: disable unexpected messages ok, msg class: 0x%02x, msg id: 0x%02x \n",msg_class, msg_id);
+        }
+    }
+    
+}
 void gps_api_typedef::packet_decode(uint8_t *packet)
 {
     uint8_t msg_class = packet[2];
@@ -443,16 +492,26 @@ void gps_api_typedef::packet_decode(uint8_t *packet)
     switch(msg_class)
     {
         case UBX_CLASS_NAV:
-            NAV_CLASS_decode(packet);
+            if(msg_id == 0x07 || msg_id == 0x04){
+                NAV_CLASS_decode(packet);
+            }else{
+                disableMsg(msg_class, msg_id);
+            }
+            
         break;
 
         case UBX_CLASS_ACK:
             ACK_CLASS_decode(packet);
         break;
 
-        default:
+        case UBX_CLASS_MON:
+            if(msg_id != 0x09){
+                disableMsg(msg_class, msg_id);
+            }
+        break;
 
-            if(gps_debug)printf("ERROR : undefined class %x\n", msg_class);
+        default:
+            disableMsg(msg_class, msg_id);
         break;
     }
 }
@@ -593,7 +652,15 @@ bool gps_api_typedef::packet_check(uint8_t *frame, int index, int length)
     {
         return true;
     }else{
-        printf("checksum failed\n");
+        printf("checksum failed, msg class 0x%02x, msg id: 0x%02x; sum a: 0x%02x and 0x%02X, sum b: 0x%02x and 0x%02X\n", frame[index+2],frame[index+3], checksum.ck_a,frame[index + 5 + playload_length + 1], checksum.ck_b, frame[index + 5 + playload_length + 2]);
+        printf("fail frame is: ");
+        for (int i = 0; i < playload_length + 8; i++)
+        {
+            /* code */
+            printf("0x%02x ",frame[index + i]);
+        }
+        printf("\n");
+        
         return false;
     }
 }

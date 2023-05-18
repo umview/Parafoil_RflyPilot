@@ -90,12 +90,14 @@ public:
     bool cfgValsetPort(uint32_t key_id, uint8_t value, int &msg_size);
     int configureDevicePreV27(void);
     int configureDevice(void);
+    int disableMsg(uint8_t msg_class, uint8_t msg_id);
     // int waitForAck(const uint16_t msg, const unsigned timeout, const bool report);
 
     bool _proto_ver_27_or_higher{false}; ///< true if protocol version 27 or higher detected
     bool _use_nav_pvt{false};
     uint64_t last_time_read{0};
     ubx_ack_state_t  _ack_state{UBX_ACK_IDLE};
+    bool _configured{false};
 };
 
 void LLA2NED(double ref_lat, double ref_lon, double lat, double lon, float *x, float *y);
