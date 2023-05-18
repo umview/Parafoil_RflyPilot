@@ -92,7 +92,7 @@ int main(int argc, const char *argv[])
     break;
   }
 
-  sleep(2);
+  sleep(4);
   start_screen();
 
    
