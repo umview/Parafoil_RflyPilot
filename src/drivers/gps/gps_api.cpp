@@ -829,10 +829,12 @@ void gps_api_typedef::calcChecksum(const uint8_t *buffer, const uint16_t length,
 }
 bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
 {
-
+    static uint32_t time_last = get_time_now();
+    uint32_t time_now = 0;
     int err = 0, ret = 0;
     int bytes_available = 0;
     err = ::ioctl(_serial_fd, FIONREAD, (unsigned long)&bytes_available);
+
     //printf("data remain : %d\n", bytes_available);
     if (err != 0 || bytes_available < (int)buf_length) {
         // printf("info: bytes_available is %d\n", bytes_available);
@@ -840,6 +842,23 @@ bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
         // {
             
         // }else{
+        time_now = get_time_now();
+        if((time_now - time_last) > 10 * 1000)// timeout checker
+        {
+            time_last = time_now;
+
+            //printf("uart buffer timeout , only %d bytes available\n",bytes_available);
+            memset(buff,0xff,buf_length);//reset buffer while timeout
+            ret = ::read(_serial_fd, buff, bytes_available);// read bytes_available bytes
+            if (ret != bytes_available) {
+                printf("ret != bytes_available %d\n", ret);
+                return false;
+            }else{// if success return ok ( buf_length - bytes_available bytes are 0)
+                return true;
+            }
+        }else{
+            time_last = time_now;
+        }
             return false;
         // }
     }else{
