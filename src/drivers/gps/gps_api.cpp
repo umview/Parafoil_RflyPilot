@@ -94,6 +94,8 @@ bool gps_api_typedef::gps_config(char *_port)
     const unsigned baudrates[] = {38400, 57600, 9600, 115200, 230400, 460800, 921600};
     unsigned baud_i;
     int cfg_valset_msg_size;
+
+    // 无论波特率是多少， 逐次发送波特率设置消息， 目标波特率是desired_baudrate
     for (baud_i = 0; baud_i < sizeof(baudrates) / sizeof(baudrates[0]); baud_i++)
     {
         close(_serial_fd);
@@ -160,6 +162,8 @@ bool gps_api_typedef::gps_config(char *_port)
         usleep(200*1000);
     }
 
+    // 正式开始配置GPS
+    // set CM4 UART bandrate as "desired_baudrate"
     close(_serial_fd);
     switch (desired_baudrate)
     {
@@ -250,7 +254,7 @@ bool gps_api_typedef::gps_config(char *_port)
         cfgValset<uint32_t>(UBX_CFG_KEY_CFG_UART1_BAUDRATE, desired_baudrate, cfg_valset_msg_size);
 
         printf("info: check port baudrate ...\n");
-        if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+        if (!sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
             // continue;
             return false;
         }
@@ -941,7 +945,7 @@ int gps_api_typedef::configureDevice()
 	cfgValset<uint16_t>(UBX_CFG_KEY_RATE_NAV, 1, cfg_valset_msg_size);
 	cfgValset<uint8_t>(UBX_CFG_KEY_RATE_TIMEREF, 0, cfg_valset_msg_size);
 
-	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	if (!sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
 		return -1;
 	}
     printf("info: Rate config ok\n");
@@ -1036,7 +1040,7 @@ int gps_api_typedef::configureDevice()
 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_NAV_SAT_I2C, 0, cfg_valset_msg_size);
 	cfgValsetPort(UBX_CFG_KEY_MSGOUT_UBX_MON_RF_I2C, 1, cfg_valset_msg_size);
 
-	if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+	if (!sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
 		return -1;
 	}
 
@@ -1057,7 +1061,7 @@ int gps_api_typedef::configureDevice()
 		// 	cfgValset<uint8_t>(UBX_CFG_KEY_CFG_I2COUTPROT_RTCM3X, 0, cfg_valset_msg_size);
 		// }
 
-		if (!sendMessage(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
+		if (!sendMessageACK(UBX_MSG_CFG_VALSET, (uint8_t *)&_buf, cfg_valset_msg_size)) {
 			return -1;
 		}
 
