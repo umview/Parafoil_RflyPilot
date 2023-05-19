@@ -71,6 +71,7 @@ public:
     uint16_t _rx_msg{};
     ubx_buf_t   _buf{};
     int payloadRxAdd(const uint8_t b);
+
     /**********************************/
 	gps_api_typedef(void);
     void init(char *_port, speed_t speed);
@@ -80,6 +81,8 @@ public:
     void run2(void);
 	bool sendMessage(const uint16_t msg, const uint8_t *payload, const uint16_t length);
     bool sendMessageACK(const uint16_t msg, const uint8_t *payload, const uint16_t length);
+    void pvt_decode(ubx_payload_rx_nav_pvt_t* nav_pvt);
+    void realtime_decode_msg(uint16_t _msg, uint8_t *payload);
 
 	int gps_write(uint8_t *buf, int buf_length);
 	void calcChecksum(const uint8_t *buffer, const uint16_t length, ubx_checksum_t *checksum);
