@@ -31,6 +31,7 @@ gps_api_typedef::gps_api_typedef(void)
 {
     _serial_fd = -1;
     gps_debug = 0;
+    pvt_msg_available = false;
 }
 void gps_api_typedef::init(char *_port, speed_t speed)
 {
@@ -409,6 +410,10 @@ void gps_api_typedef::run(void)
         memcpy((void*)p_frame_old, (void*)p_frame_new, GPS_BUFFER_LENGTH);
     }
 }
+// void gps_api_typedef::read_available_bytes(void)
+// {
+    
+// }
 bool gps_api_typedef::gps_msg_decode(uint8_t *frame, int MSG_LENGHT)
 {
     int i = 0;
@@ -422,6 +427,13 @@ bool gps_api_typedef::gps_msg_decode(uint8_t *frame, int MSG_LENGHT)
             {
                 frame_start_index = i;
                 packet_decode((uint8_t*)(frame + frame_start_index));
+                // if(frame[i+2] == 0x01 && frame[i+3] == 0x07)// pvt msg
+                //     break;
+                if(pvt_msg_available)
+                {
+                    pvt_msg_available = false;
+                    break;
+                }
             }
         }
     }
@@ -528,6 +540,7 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
         break;
 
         case UBX_ID_NAV_PVT:
+            pvt_msg_available = true;
             nav_pvt = (ubx_payload_rx_nav_pvt_t*)&packet[6];
             sensor_gps.timestamp = get_time_now();
             sensor_gps.gps_is_good = gps_pvt_check(nav_pvt);

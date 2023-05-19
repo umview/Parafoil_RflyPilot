@@ -61,6 +61,7 @@ public:
     sensor_gps_typedef sensor_gps;
     uint8_t ack_clsID;
     uint8_t ack_msgID;
+    bool pvt_msg_available;
 	gps_api_typedef(void);
     void init(char *_port, speed_t speed);
     bool gps_config(char *_port);
