@@ -5,17 +5,18 @@ class gps_api_typedef gps_api;
 void *gps_thread(void *ptr)
 {
     //sbus_api.init((char *)ptr);
-  gps_api.init((char *)ptr, B230400);
+  gps_api.init((char *)ptr, B38400);
   if(gps_api.gps_config((char *)ptr))
   {
     printf("info: gps configure success\n");
   }else{
     printf("warning: gps configure fail !\n");
   }
+
   for(;;)
   {
-    gps_api.run();
-    usleep(2000);
+    gps_api.run2();
+    usleep(5000);
   }
 }
 void start_gps(const char *gps_serial)
@@ -32,6 +33,7 @@ gps_api_typedef::gps_api_typedef(void)
     _serial_fd = -1;
     gps_debug = 0;
     pvt_msg_available = false;
+    decodeInit();
 }
 void gps_api_typedef::init(char *_port, speed_t speed)
 {
@@ -318,7 +320,10 @@ bool gps_api_typedef::gps_config(char *_port)
     // printf("change nav msg to 1Hz\n");
 
 
-
+    tcflush(_serial_fd,TCIOFLUSH);//数据太多，清空串口缓冲区
+    close(_serial_fd);
+    usleep(100000);
+    init(_port,B115200);
     printf("info: gps init ok\n");
     printf("size of ubx_payload_rx_nav_pvt_t %d\n",sizeof(ubx_payload_rx_nav_pvt_t));
     _configured = true;
@@ -410,10 +415,227 @@ void gps_api_typedef::run(void)
         memcpy((void*)p_frame_old, (void*)p_frame_new, GPS_BUFFER_LENGTH);
     }
 }
-// void gps_api_typedef::read_available_bytes(void)
-// {
-    
-// }
+void gps_api_typedef::run2(void)
+{
+    uint32_t available_bytes = 0;
+    available_bytes = read_available_bytes(pvt_msg.buffer, 2 * GPS_BUFFER_LENGTH);
+    //printf("available bytes %d\n", available_bytes);
+
+    if(available_bytes > 0)
+    {
+
+        for(int i = 0; i < available_bytes; i++)
+        {
+            realtime_decode(pvt_msg.buffer[i]);
+        }
+    }
+}
+void gps_api_typedef::decodeInit(void)
+{
+    _decode_state = UBX_DECODE_SYNC1;
+    _rx_ck_a = 0;
+    _rx_ck_b = 0;
+    _rx_payload_length = 0;
+    _rx_payload_index = 0;
+}
+
+int gps_api_typedef::realtime_decode(uint8_t b)
+{
+    int ret = 0;
+
+    switch (_decode_state) {
+
+    /* Expecting Sync1 */
+    case UBX_DECODE_SYNC1:
+        if (b == UBX_SYNC1) {   // Sync1 found --> expecting Sync2
+            //UBX_TRACE_PARSER("A");
+            _decode_state = UBX_DECODE_SYNC2;
+
+        } 
+        // else if (b == RTCM3_PREAMBLE && _rtcm_parsing) {
+        //     UBX_TRACE_PARSER("RTCM");
+        //     _decode_state = UBX_DECODE_RTCM3;
+        //     _rtcm_parsing->addByte(b);
+        // }
+
+        break;
+
+    /* Expecting Sync2 */
+    case UBX_DECODE_SYNC2:
+        if (b == UBX_SYNC2) {   // Sync2 found --> expecting Class
+            //UBX_TRACE_PARSER("B");
+            _decode_state = UBX_DECODE_CLASS;
+
+        } else {        // Sync1 not followed by Sync2: reset parser
+            decodeInit();
+        }
+
+        break;
+
+    /* Expecting Class */
+    case UBX_DECODE_CLASS:
+        //UBX_TRACE_PARSER("C");
+        addByteToChecksum(b);  // checksum is calculated for everything except Sync and Checksum bytes
+        _rx_msg = b;
+        _decode_state = UBX_DECODE_ID;
+        break;
+
+    /* Expecting ID */
+    case UBX_DECODE_ID:
+        //UBX_TRACE_PARSER("D");
+        addByteToChecksum(b);
+        _rx_msg |= b << 8;
+        _decode_state = UBX_DECODE_LENGTH1;
+        break;
+
+    /* Expecting first length byte */
+    case UBX_DECODE_LENGTH1:
+        //UBX_TRACE_PARSER("E");
+        addByteToChecksum(b);
+        _rx_payload_length = b;
+        _decode_state = UBX_DECODE_LENGTH2;
+        break;
+
+    /* Expecting second length byte */
+    case UBX_DECODE_LENGTH2:
+        //UBX_TRACE_PARSER("F");
+        addByteToChecksum(b);
+        _rx_payload_length |= b << 8;   // calculate payload size
+        printf("payload length %d\n",_rx_payload_length);
+        // if (payloadRxInit() != 0) { // start payload reception
+        //     // payload will not be handled, discard message
+        //     decodeInit();
+
+        // } else {
+            _decode_state = (_rx_payload_length > 0) ? UBX_DECODE_PAYLOAD : UBX_DECODE_CHKSUM1;
+        // }
+
+        break;
+
+    /* Expecting payload */
+    case UBX_DECODE_PAYLOAD:
+        //UBX_TRACE_PARSER(".");
+        addByteToChecksum(b);
+        ret = payloadRxAdd(b);    // add a NAV-SAT payload byte
+        // switch (_rx_msg) {
+        // case UBX_MSG_NAV_SAT:
+        //     ret = payloadRxAdd(b);    // add a NAV-SAT payload byte
+        //     break;
+
+        // case UBX_MSG_NAV_SVINFO:
+        //     ret = -1;//payloadRxAddNavSvinfo(b); // add a NAV-SVINFO payload byte
+        //     break;
+
+        // case UBX_MSG_MON_VER:
+        //     ret = -1;//payloadRxAddMonVer(b);    // add a MON-VER payload byte
+        //     break;
+
+        // default:
+        //     ret = -1;//payloadRxAdd(b);      // add a payload byte
+        //     break;
+        // }
+
+        if (ret < 0) {
+            // payload not handled, discard message
+            decodeInit();
+
+        } else if (ret > 0) {
+            // payload complete, expecting checksum
+            _decode_state = UBX_DECODE_CHKSUM1;
+
+        } else {
+            // expecting more payload, stay in state UBX_DECODE_PAYLOAD
+        }
+
+        ret = 0;
+        break;
+
+    /* Expecting first checksum byte */
+    case UBX_DECODE_CHKSUM1:
+        if (_rx_ck_a != b) {
+            printf("ubx checksum 1 err\n");
+            decodeInit();
+
+        } else {
+            _decode_state = UBX_DECODE_CHKSUM2;
+        }
+
+        break;
+
+    /* Expecting second checksum byte */
+    case UBX_DECODE_CHKSUM2:
+        if (_rx_ck_b != b) {
+            printf("ubx checksum 2 err\n");
+
+        } else {
+            ret = 1;
+            printf("complete frame received\n");
+            //ret = payloadRxDone();  // finish payload processing
+        }
+
+        decodeInit();
+        break;
+
+    // case UBX_DECODE_RTCM3:
+    //     if (_rtcm_parsing->addByte(b)) {
+    //         UBX_DEBUG("got RTCM message with length %i", static_cast<int>(_rtcm_parsing->messageLength()));
+    //         gotRTCMMessage(_rtcm_parsing->message(), _rtcm_parsing->messageLength());
+    //         decodeInit();
+    //     }
+
+    //     break;
+
+    default:
+        break;
+    }
+
+    return ret;
+}
+int gps_api_typedef::payloadRxAdd(const uint8_t b)
+{
+    int ret = 0;
+    uint8_t *p_buf = (uint8_t *)&_buf;
+    p_buf[_rx_payload_index] = b;
+
+    if (++_rx_payload_index >= _rx_payload_length) {
+        ret = 1;    // payload received completely
+    }else{
+        ret = 0;
+    }
+}
+uint32_t gps_api_typedef::read_available_bytes(uint8_t *frame, int MAX_MSG_LENGHT)
+{
+    int err = 0, ret = 0;
+    uint32_t bytes_available = 0;
+    err = ::ioctl(_serial_fd, FIONREAD, (unsigned long)&bytes_available);
+    //printf("err status : %d \n", err);
+    if(bytes_available > 0)printf("bytes_available %d\n", bytes_available);
+    if(bytes_available == 0)
+    {
+        printf("return 0\n");
+        return 0u;
+    }
+    if(bytes_available > MAX_MSG_LENGHT)
+    {
+        printf("too many bytes in serial buffer : %d\n",bytes_available);
+        tcflush(_serial_fd,TCIOFLUSH);//数据太多，清空串口缓冲区
+        return 0u;
+    }
+    ret = ::read(_serial_fd, frame, bytes_available);// read bytes_available bytes
+    if (ret != bytes_available) {
+        tcflush(_serial_fd,TCIOFLUSH);//数据太多，清空串口缓冲区
+        printf("ret != bytes_available %d\n", ret);
+        return 0u;
+    }else{
+        printf("data acquired\n");
+        for(int i =0; i < bytes_available;i ++)
+        {
+            printf("%x ", frame[i]);
+        }
+        printf("\n");
+        return bytes_available;
+    }
+}
 bool gps_api_typedef::gps_msg_decode(uint8_t *frame, int MSG_LENGHT)
 {
     int i = 0;
@@ -840,6 +1062,11 @@ void gps_api_typedef::calcChecksum(const uint8_t *buffer, const uint16_t length,
     }
     // printf("calcChecksum is: %X and %X\n", checksum->ck_a,checksum->ck_b);
 }
+void gps_api_typedef::addByteToChecksum(const uint8_t b)
+{
+    _rx_ck_a = _rx_ck_a + b;
+    _rx_ck_b = _rx_ck_b + _rx_ck_a;
+}
 bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
 {
     static uint32_t time_last = get_time_now();
@@ -847,13 +1074,13 @@ bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
     int err = 0, ret = 0;
     int bytes_available = 0;
     err = ::ioctl(_serial_fd, FIONREAD, (unsigned long)&bytes_available);
-
+    //printf("err : %d\n",err);
     //printf("data remain : %d\n", bytes_available);
-    if (err != 0 || bytes_available < (int)buf_length) {
+    if (bytes_available < (int)buf_length) {
         // printf("info: bytes_available is %d\n", bytes_available);
         // if (err == 0 && bytes_available > 0 && get_time_now() - last_time_read> 500000000U)//500ms
         // {
-            
+        //printf("read %d bytes \n", bytes_available);
         // }else{
         time_now = get_time_now();
         if((time_now - time_last) > 10 * 1000)// timeout checker
@@ -870,11 +1097,12 @@ bool gps_api_typedef::pollOrRead(uint8_t * buff, int buf_length)
                 return true;
             }
         }else{
-            time_last = time_now;
-        }
+            // time_last = time_now;
             return false;
+        }
         // }
     }else{
+        time_last = get_time_now();
         ret = ::read(_serial_fd, buff, buf_length);
         if (ret != buf_length) {
             printf("ret != buf_length %d\n", ret);
