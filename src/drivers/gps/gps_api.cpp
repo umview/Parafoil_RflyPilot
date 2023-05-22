@@ -764,7 +764,7 @@ void gps_api_typedef::realtime_decode_msg(uint16_t _msg, uint8_t *payload)
     switch(_msg)
     {
         case UBX_MSG_NAV_PVT:
-            pvt_decode((ubx_payload_rx_nav_pvt_t*)payload);
+            pvt_decode(payload);
         break;
 
         case UBX_MSG_NAV_DOP:
@@ -772,21 +772,37 @@ void gps_api_typedef::realtime_decode_msg(uint16_t _msg, uint8_t *payload)
         break;
 
         case UBX_MSG_ACK_ACK:
-
+            msg_ack_decode(payload);
         break;
 
         case UBX_MSG_ACK_NAK:
-
+            msg_nak_decode(payload);
         break;
 
         default:
         break;
     }
 }
-void gps_api_typedef::pvt_decode(ubx_payload_rx_nav_pvt_t* nav_pvt)
+void gps_api_typedef::msg_ack_decode(uint8_t *buff)
+{
+    ubx_payload_rx_ack_ack_t *ack = (ubx_payload_rx_ack_ack_t *)buff;
+    ack_clsID = ack->clsID;
+    ack_msgID = ack->msgID;
+    _ack_state = UBX_ACK_GOT_ACK;
+    printf("recv ack clsID %x msgID %x\n", ack_clsID, ack_msgID);
+}
+void gps_api_typedef::msg_nak_decode(uint8_t *buff)
+{
+    ubx_payload_rx_ack_nak_t *nack = (ubx_payload_rx_ack_nak_t *)buff;
+    ack_clsID = nack->clsID;
+    ack_msgID = nack->msgID;
+    _ack_state = UBX_ACK_GOT_NAK;
+    printf("recv nack clsID %x msgID %x\n", ack_clsID, ack_msgID);
+}
+void gps_api_typedef::pvt_decode(uint8_t *buff)
 {
             static int cnt = 0;
-
+            ubx_payload_rx_nav_pvt_t *nav_pvt = (ubx_payload_rx_nav_pvt_t *)buff;
             sensor_gps.timestamp = get_time_now();
             sensor_gps.gps_is_good = gps_pvt_check(nav_pvt);
             sensor_gps.ned_origin_valid = get_ned_origin(sensor_gps.ned_origin_valid, sensor_gps.gps_is_good, nav_pvt,
@@ -849,8 +865,8 @@ void gps_api_typedef::NAV_CLASS_decode(uint8_t *packet)
 
         case UBX_ID_NAV_PVT:
             pvt_msg_available = true;
-            nav_pvt = (ubx_payload_rx_nav_pvt_t*)&packet[6];
-            pvt_decode(nav_pvt);
+            //nav_pvt = (ubx_payload_rx_nav_pvt_t*)&packet[6];
+            pvt_decode(&packet[6]);
         break;
 
         default:
@@ -1012,7 +1028,7 @@ bool gps_api_typedef::sendMessageACK(const uint16_t msg, const uint8_t *payload,
         ack_clsID = 0;
         ack_msgID = 0;
         _ack_state = UBX_ACK_WAITING;
-        run();
+        run2();
         usleep(20*1000);
 
         if((ack_clsID | ack_msgID << 8) == msg)
