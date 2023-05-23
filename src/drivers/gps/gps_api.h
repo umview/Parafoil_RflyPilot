@@ -61,13 +61,30 @@ public:
     sensor_gps_typedef sensor_gps;
     uint8_t ack_clsID;
     uint8_t ack_msgID;
+    bool pvt_msg_available;
+    /*********for realtime decoding*****/
+    ubx_decode_state_t _decode_state;
+    uint8_t _rx_ck_a{0};
+    uint8_t _rx_ck_b{0};
+    uint16_t _rx_payload_length{0};
+    uint16_t _rx_payload_index{0};
+    uint16_t _rx_msg{};
+    ubx_buf_t   _buf{};
+    int payloadRxAdd(const uint8_t b);
+
+    /**********************************/
 	gps_api_typedef(void);
     void init(char *_port, speed_t speed);
     bool gps_config(char *_port);
 	int _serial_fd;
 	void run(void);
+    void run2(void);
 	bool sendMessage(const uint16_t msg, const uint8_t *payload, const uint16_t length);
     bool sendMessageACK(const uint16_t msg, const uint8_t *payload, const uint16_t length);
+    void pvt_decode(uint8_t *buff);
+    void realtime_decode_msg(uint16_t _msg, uint8_t *payload);
+    void msg_ack_decode(uint8_t *buff);
+    void msg_nak_decode(uint8_t *buff);
 
 	int gps_write(uint8_t *buf, int buf_length);
 	void calcChecksum(const uint8_t *buffer, const uint16_t length, ubx_checksum_t *checksum);
@@ -80,7 +97,10 @@ public:
     bool gps_pvt_check(ubx_payload_rx_nav_pvt_t *pvt);
     bool get_ned_origin(bool _ned_origin_valid, bool gps_is_good, ubx_payload_rx_nav_pvt_t *pvt,
                                     double *_lat_origin, double *_lon_origin);
-    ubx_buf_t   _buf{};
+    void decodeInit();
+    void addByteToChecksum(const uint8_t b);
+    uint32_t read_available_bytes(uint8_t *frame, int MAX_MSG_LENGHT);
+    int realtime_decode(uint8_t b);
     template<typename T>
     bool cfgValset(uint32_t key_id, T value, int &msg_size);
     int initCfgValset(void);
