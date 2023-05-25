@@ -213,22 +213,26 @@ void PX4Gyroscope::updateFIFO(sensor_gyro_fifo_s &sample)
     gyro_typedef _gyro;
 	_gyro_raw.timestamp = report.timestamp;
 
+	float _gyroLowPass[3];
 	if(USE_RFLYPILOT == 1)
 	{
 		// _gyro_raw.gyro[0] = gyro_lpf[0].apply(-report.y);
 		// _gyro_raw.gyro[1] = gyro_lpf[1].apply(report.x);
 		// _gyro_raw.gyro[2] = gyro_lpf[2].apply(report.z);
-		_gyro_raw.gyro[0] = rotation[0][0]*gyro_lpf[0].apply(-report.y) + rotation[0][1]*gyro_lpf[1].apply(report.x) + rotation[0][2]*gyro_lpf[2].apply(report.z);
-  		_gyro_raw.gyro[1] = rotation[1][0]*gyro_lpf[0].apply(-report.y) + rotation[1][1]*gyro_lpf[1].apply(report.x) + rotation[1][2]*gyro_lpf[2].apply(report.z);
-  		_gyro_raw.gyro[2] = rotation[2][0]*gyro_lpf[0].apply(-report.y) + rotation[2][1]*gyro_lpf[1].apply(report.x) + rotation[2][2]*gyro_lpf[2].apply(report.z);
+		_gyroLowPass[0] = gyro_lpf[0].apply(-report.y);
+		_gyroLowPass[1] = gyro_lpf[1].apply(report.x);
+		_gyroLowPass[2] = gyro_lpf[2].apply(report.z);
 	}else{
 		// _gyro_raw.gyro[0] = gyro_lpf[0].apply(-report.x);
 		// _gyro_raw.gyro[1] = gyro_lpf[1].apply(-report.y);
 		// _gyro_raw.gyro[2] = gyro_lpf[2].apply(report.z);
-		_gyro_raw.gyro[0] = rotation[0][0]*gyro_lpf[0].apply(-report.x) + rotation[0][1]*gyro_lpf[1].apply(-report.y) + rotation[0][2]*gyro_lpf[2].apply(report.z);
-  		_gyro_raw.gyro[1] = rotation[1][0]*gyro_lpf[0].apply(-report.x) + rotation[1][1]*gyro_lpf[1].apply(-report.y) + rotation[1][2]*gyro_lpf[2].apply(report.z);
-  		_gyro_raw.gyro[2] = rotation[2][0]*gyro_lpf[0].apply(-report.x) + rotation[2][1]*gyro_lpf[1].apply(-report.y) + rotation[2][2]*gyro_lpf[2].apply(report.z);
+		_gyroLowPass[0] = gyro_lpf[0].apply(-report.x);
+		_gyroLowPass[1] = gyro_lpf[1].apply(-report.y);
+		_gyroLowPass[2] = gyro_lpf[2].apply(report.z);
 	}
+	_gyro_raw.gyro[0] = rotation[0][0]*_gyroLowPass[0] + rotation[0][1]*_gyroLowPass[1] + rotation[0][2]*_gyroLowPass[2];
+  	_gyro_raw.gyro[1] = rotation[1][0]*_gyroLowPass[0] + rotation[1][1]*_gyroLowPass[1] + rotation[1][2]*_gyroLowPass[2];
+  	_gyro_raw.gyro[2] = rotation[2][0]*_gyroLowPass[0] + rotation[2][1]*_gyroLowPass[1] + rotation[2][2]*_gyroLowPass[2];
 
 	// calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
 	calibration.apply_gyro_calibration(_gyro_raw.gyro, _gyro.gyro);

@@ -235,22 +235,27 @@ void PX4Accelerometer::updateFIFO(sensor_accel_fifo_s &sample)
     accel_typedef _accel;
 	_accel_raw.timestamp = report.timestamp;
 
+	float _accelLowPass[3];
 	if(USE_RFLYPILOT == 1)
 	{
 		// _accel_raw.accel[0] = accel_lpf[0].apply(-report.y);
 		// _accel_raw.accel[1] = accel_lpf[1].apply(report.x);
 		// _accel_raw.accel[2] = accel_lpf[2].apply(report.z);
-		_accel_raw.accel[0] = rotation[0][0]*accel_lpf[0].apply(-report.y) + rotation[0][1]*accel_lpf[1].apply(report.x) + rotation[0][2]*accel_lpf[2].apply(report.z);
-  		_accel_raw.accel[1] = rotation[1][0]*accel_lpf[0].apply(-report.y) + rotation[1][1]*accel_lpf[1].apply(report.x) + rotation[1][2]*accel_lpf[2].apply(report.z);
-  		_accel_raw.accel[2] = rotation[2][0]*accel_lpf[0].apply(-report.y) + rotation[2][1]*accel_lpf[1].apply(report.x) + rotation[2][2]*accel_lpf[2].apply(report.z);
+		_accelLowPass[0] = accel_lpf[0].apply(-report.y);
+		_accelLowPass[1] = accel_lpf[1].apply(report.x);
+		_accelLowPass[2] = accel_lpf[2].apply(report.z);
+
 	}else{
 		// _accel_raw.accel[0] = accel_lpf[0].apply(-report.x);
 		// _accel_raw.accel[1] = accel_lpf[1].apply(-report.y);
 		// _accel_raw.accel[2] = accel_lpf[2].apply(report.z);
-		_accel_raw.accel[0] = rotation[0][0]*accel_lpf[0].apply(-report.x) + rotation[0][1]*accel_lpf[1].apply(-report.y) + rotation[0][2]*accel_lpf[2].apply(report.z);
-		_accel_raw.accel[1] = rotation[1][0]*accel_lpf[0].apply(-report.x) + rotation[1][1]*accel_lpf[1].apply(-report.y) + rotation[1][2]*accel_lpf[2].apply(report.z);
-		_accel_raw.accel[2] = rotation[2][0]*accel_lpf[0].apply(-report.x) + rotation[2][1]*accel_lpf[1].apply(-report.y) + rotation[2][2]*accel_lpf[2].apply(report.z);
+		_accelLowPass[0] = accel_lpf[0].apply(-report.x);
+		_accelLowPass[1] = accel_lpf[1].apply(-report.y);
+		_accelLowPass[2] = accel_lpf[2].apply(report.z);
 	}
+	_accel_raw.accel[0] = rotation[0][0]*_accelLowPass[0] + rotation[0][1]*_accelLowPass[1] + rotation[0][2]*_accelLowPass[2];
+	_accel_raw.accel[1] = rotation[1][0]*_accelLowPass[0] + rotation[1][1]*_accelLowPass[1] + rotation[1][2]*_accelLowPass[2];
+	_accel_raw.accel[2] = rotation[2][0]*_accelLowPass[0] + rotation[2][1]*_accelLowPass[1] + rotation[2][2]*_accelLowPass[2];
 
 
 	// calibration.apply_accel_calibration(_imu_raw.accel, _imu.accel);
