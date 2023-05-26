@@ -92,6 +92,19 @@ int console_class_typedef::exec_command(char* user_input)
 
 
         return 0;
+    }
+
+    if(!strcmp(inputs[0], "setpwm"))
+    {
+        if(cnt == 2)
+        {
+            float testpwm = (float)(atof(inputs[1]));
+            printf("setpwm as %f!\n",testpwm);
+            float pwm_output[8] = {testpwm,testpwm,testpwm,testpwm,testpwm,testpwm,testpwm,testpwm};
+            pca9685_dev.updatePWM(pwm_output,8);
+        }
+        
+        return 0;
     }                      
 
     return 0;
