@@ -123,6 +123,7 @@ int screen::outputscreen(void)
   gps_msg.read(&_gps_msg);
   this->endscreen();
   this->printline(_cf_msg.timestamp, 57.3*_cf_msg.roll, 57.3*_cf_msg.pitch, 57.3*_cf_msg.yaw, "roll", "pitch","yaw");
+  this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
   this->printline(_gyro_msg.timestamp, 57.3*_gyro_msg.gyro[0], 57.3*_gyro_msg.gyro[1], 57.3*_gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
   this->printline(_accel_msg.timestamp, _accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2], "accel x", "accel y","accel z");
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], _mag_msg.mag[2], "mag x", "mag y","mag z");
