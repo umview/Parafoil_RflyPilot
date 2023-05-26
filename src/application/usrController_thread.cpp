@@ -133,7 +133,7 @@ void * thread_usrController(void * ptr)
       //set pwm
       if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
       {
-          pca9685_dev.updatePWM(pwm_output,8);
+          pca9685_dev.updatePWM(pwm_output,4);
           if(_config_msg.validation_mode == EXP) pca9685_dev_aux.updatePWM(pwm_aux_output,8);
           // printf("actuator : %f %f %f %f\n", pwm_output[0],pwm_output[1],pwm_output[2],pwm_output[3]);
       }
