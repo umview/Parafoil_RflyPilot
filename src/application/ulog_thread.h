@@ -5,11 +5,8 @@
 /*
 * https://docs.px4.io/main/en/dev_log/ulog_file_format.html
 */
-// #ifdef __cplusplus
-// extern "C"
-// {
-// #endif
 
+#pragma pack(push, 1)
 struct ulog_header_s {
     uint8_t file_magic[7];
     uint8_t version;
@@ -38,10 +35,8 @@ struct message_data_s {
   uint16_t msg_id;
   uint8_t data[255];//header.msg_size-2
 };
+#pragma pack(pop)
 
-// #ifdef __cplusplus
-// }
-// #endif
 
 void * thread_ulog(void * dir);
 void start_ulog(const char *dir);

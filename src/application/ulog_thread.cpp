@@ -97,13 +97,16 @@ void write_formats()
     /* lpe message */
     const char lpe_format[] = "lpe:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
     uint16_t lpe_format_len = strlen(lpe_format);
+
     struct message_format_s lpe_format_s;
-    lpe_format_s.header.msg_size = lpe_format_len;
+    size_t msg_size = sizeof(lpe_format_s) - sizeof(lpe_format_s.format) + lpe_format_len;
+
+    lpe_format_s.header.msg_size = msg_size - sizeof(lpe_format_s.header);
     lpe_format_s.header.msg_type = 'F';
     memcpy(lpe_format_s.format, lpe_format, lpe_format_len);
     
     const char filename[]= "ulog";
-    system_ulog.binlog_write(filename, (uint8_t *)&lpe_format_s, sizeof(lpe_format_s.header) + lpe_format_len);
+    system_ulog.binlog_write(filename, (uint8_t *)&lpe_format_s, msg_size);
 }
 
 void start_ulog(const char * dir)
