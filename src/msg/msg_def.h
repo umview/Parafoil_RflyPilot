@@ -1,6 +1,7 @@
 #ifndef _MSG_DEF_
 #define _MSG_DEF_
 #include "include.h"
+#pragma pack(push, 4) 
 
 typedef struct
 {
@@ -40,7 +41,6 @@ typedef struct
 typedef imu_raw_typedef imu_typedef;
 extern ringbuffer_typedef<imu_raw_typedef> imu_raw_msg;
 extern ringbuffer_typedef<imu_typedef> imu_msg;//(IMU_N);
-
 typedef struct
 {
 	uint64_t timestamp;
@@ -49,12 +49,12 @@ typedef struct
 typedef accel_raw_typedef accel_typedef;
 extern ringbuffer_typedef<accel_raw_typedef> accel_raw_msg;
 extern ringbuffer_typedef<accel_typedef> accel_msg;//(ACCEL_N);
-
 typedef struct
 {
 	uint64_t timestamp;
 	float gyro[3];
 }gyro_raw_typedef;
+
 typedef gyro_raw_typedef gyro_typedef;
 extern ringbuffer_typedef<gyro_raw_typedef> gyro_raw_msg;
 extern ringbuffer_typedef<gyro_typedef> gyro_msg;//(GYRO_N);
@@ -152,5 +152,6 @@ extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> system_scope_msg;//(20,"system_debug_data",true);
 extern ringbuffer_typedef<offboard_data_typedef> offboard_msg;//(20,"system_debug_data",true);
 
+#pragma pack(pop)
 
 #endif

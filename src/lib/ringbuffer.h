@@ -9,6 +9,8 @@
 // 	uint64_t timestamp;
 // 	float accel[3];
 // }sensor_struct_typedef;
+extern char time_buf[50];
+
 extern uint64_t get_time_now(void);
 
 template <typename data_type>
@@ -20,24 +22,38 @@ public:
     uint64_t t0_us;
     uint64_t t1_us;
     char const *msg_name;
-    char path[50];
-    bool log_enable;
+    char path[200];
     int fp;
     int ret;
-    ringbuffer_typedef(int _size)
-    {
-        size = _size;
-        publish_rate_hz = 1;
-        buffer = new data_type[size];
-        index = 0;
-        if(pthread_spin_init(&spinlock,PTHREAD_PROCESS_PRIVATE))
-        {
-            printf("error spin lock init failed\n");
-        }
-        log_enable = false;
-        msg_name = NULL;
-    }    
-    ringbuffer_typedef(int _size, char const *_msg_name)
+    uint32_t div;
+    uint32_t div_count;
+    // ringbuffer_typedef(int _size)
+    // {
+    //     size = _size;
+    //     publish_rate_hz = 1;
+    //     buffer = new data_type[size];
+    //     index = 0;
+    //     if(pthread_spin_init(&spinlock,PTHREAD_PROCESS_PRIVATE))
+    //     {
+    //         printf("error spin lock init failed\n");
+    //     }
+    //     log_enable = false;
+    //     msg_name = NULL;
+    // }    
+    // ringbuffer_typedef(int _size, char const *_msg_name)
+    // {
+    //     size = _size;
+    //     publish_rate_hz = 1;
+    //     buffer = new data_type[size];
+    //     index = 0;
+    //     msg_name = _msg_name;
+    //     if(pthread_spin_init(&spinlock,PTHREAD_PROCESS_PRIVATE))
+    //     {
+    //         printf("error spin lock init failed\n");
+    //     }
+    //     log_enable = false;
+    // }
+    ringbuffer_typedef(int _size, char const *_msg_name, uint32_t _div)
     {
         size = _size;
         publish_rate_hz = 1;
@@ -48,48 +64,40 @@ public:
         {
             printf("error spin lock init failed\n");
         }
-        log_enable = false;
-    }
-    ringbuffer_typedef(int _size, char const *_msg_name, bool _log_enable)
-    {
-        size = _size;
-        publish_rate_hz = 1;
-        buffer = new data_type[size];
-        index = 0;
-        msg_name = _msg_name;
-        if(pthread_spin_init(&spinlock,PTHREAD_PROCESS_PRIVATE))
-        {
-            printf("error spin lock init failed\n");
-        }
-        log_enable = _log_enable;
-        // static struct tm mytm={0};
-        // static struct tm* p_tm;
-        // static time_t time;
-        // p_tm = localtime_r(&time,&mytm);        
-        // sprintf(path, "/dev/shm/log/");//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min);            
-        // if(mkdir("/dev/shm/log/", 0777) == -1)
-        // {
-        //     printf("mkdir %s error\n",msg_name);
-        // }
-        // sprintf(path, "/dev/shm/log/%s.bin",msg_name);//, p_tm->tm_mon + 1, p_tm->tm_mday, p_tm->tm_hour, p_tm->tm_min, msg_name);
-        // fp=open(path, O_RDWR | O_CREAT,0777);
-        // if(fp == -1){
-        //         printf("open failed!\n");
-        // }else{
-        //         printf("open success!\n");
-        // }
-        // printf("size of msg : %s is %d\n",msg_name, sizeof(data_type));
+        div = _div;
+        div_count = 0;
     }    
 
     void log_write(data_type *data)
     {
+        static bool log_file_init = false;
+        if(log_file_init == false)
+        {
+            log_file_init = true;
+            create_log_file(".");//将日志文件写入到当前文件夹
 
-        //将数组a的内容写入到文件
+        }
         ret = write(fp,(uint8_t*)data,sizeof(data_type));        
     }
 
 
-
+    void create_log_file(const char * dir)
+    {
+        char syspath[100] = {0};
+        sprintf(syspath, "%s/log-%s", (char*)dir, time_buf);    
+        struct stat st = {0};  
+        if (stat(syspath, &st) == -1) {
+            mkdir(syspath, 0777);
+        }
+        sprintf(path, "%s/%s.bin",syspath,msg_name);
+        fp=open(path, O_RDWR | O_CREAT,0777);
+        if(fp == -1){
+                printf("open failed!\n");
+        }else{
+                printf("open success!\n");
+        }
+        printf("msg log created : size of msg : %s is %d\n",msg_name, sizeof(data_type));
+    }
 
     void lock(void)
     {
@@ -146,7 +154,15 @@ public:
             index += 1;
             unlock();
         }
-        //if(log_enable)log_write(data);
+        if(div > 0)
+        {
+            div_count ++;
+            if(div_count == div)//日志记录分频
+            {
+                log_write(data);
+                div_count = 0;
+            }
+        }
     }
     // bool readN(data_type *data,int length)
     // {
