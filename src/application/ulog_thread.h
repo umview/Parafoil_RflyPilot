@@ -42,6 +42,11 @@ void * thread_ulog(void * dir);
 void start_ulog(const char *dir);
 
 void write_formats(void);
-void write_add_logged_msg(void);
+void write_format(const char *filename ,const char *msg_format);
+
+void write_add_logged_msgs(void);
+void write_add_logged_msg(const char *filename, const char *msg_name, uint16_t msg_id, uint8_t multi_id);
+
+void write_msg(const char *filename, uint8_t *logged_data, size_t logged_data_len, uint16_t msg_id);
 
 #endif
