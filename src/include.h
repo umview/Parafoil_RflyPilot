@@ -96,6 +96,7 @@ enum scheduler_mode_typedef
 //#include "qmc5883l_thread.h"
 //#include "ms5611_thread.h"
 #include "log_thread.h"
+#include "ulog_thread.h"
 #include "binlog.h"
 #include "system_app.h"
 #include "offboard_thread.h"

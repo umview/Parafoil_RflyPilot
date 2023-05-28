@@ -1,7 +1,7 @@
 #ifndef _MSG_DEF_
 #define _MSG_DEF_
 #include "include.h"
-#pragma pack(push, 4) 
+// #pragma pack(push, 4) 
 
 typedef struct
 {
@@ -152,6 +152,6 @@ extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> system_scope_msg;//(20,"system_debug_data",true);
 extern ringbuffer_typedef<offboard_data_typedef> offboard_msg;//(20,"system_debug_data",true);
 
-#pragma pack(pop)
+// #pragma pack(pop)
 
 #endif
