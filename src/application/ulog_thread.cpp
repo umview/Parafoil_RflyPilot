@@ -9,31 +9,36 @@ void * thread_ulog(void * dir)
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
 
-	int i = 0;
-    scope_data_typedef  _system_debug;
+    /* Declare msg */
+    // scope_data_typedef  _system_debug;
     lpe_output_typedef _lpe_msg;
+    lpe_output_typedef _lpeLowPass_msg;
     cf_output_typedef _cf_msg;
-    gps_msg_typedef _gps_msg;
+
+    gps_msg_typedef _gps_msg;    
     gyro_typedef _gyro_msg;
     accel_typedef _accel_msg;
-    
+    baro_typedef _baro_msg;
+    mag_typedef _mag_msg;
 
+    actuator_output_typedef _actuator_output_msg;
+    actuator_output_typedef _aux_actuator_output_msg;
+
+    sbus_packet_t _rc_input_msg;
+    
+    /* Set ulog path */
     char time_buf[50]={0};
-    char system_log_buf[100] = {0};
-    char controller_log_buf[100] = {0};
-    char att_est_log_buf[100] = {0};
-    char pos_est_log_buf[100] = {0};
     char syspath[100] = {0};
     get_compact_time_string(time(NULL), time_buf);   
-
     sprintf(syspath, "%s/log-%s", (char*)dir, time_buf);        
-
     struct stat st = {0};  
     if (stat(syspath, &st) == -1) {
         mkdir(syspath, 0777);
     }
 
-    sprintf(system_log_buf, "%s/log-%s/system_ulog.ulg", (char*)dir, time_buf);
+    /* Define ulog file name */
+    char ulog_name[100] = {0};
+    sprintf(ulog_name, "%s/log-%s/ulog-%s.ulg", (char*)dir, time_buf, time_buf);
 
     /* Write header */
     struct ulog_header_s header = {
@@ -41,54 +46,102 @@ void * thread_ulog(void * dir)
         .version = 1U,
         .timestamp = get_time_now()
     };
-    system_ulog.binlog_write(system_log_buf, (uint8_t *)&header, sizeof(header));
+    system_ulog.binlog_write(ulog_name, (uint8_t *)&header, sizeof(header));
 
     /* Write flag bit */
-    write_flag_bits(system_log_buf);
+    write_flag_bits(ulog_name);
 
     /* Write Definitions */
 
         /* lpe message */
         const char lpe_format[] = "Local Position Estimator:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
-        write_format(system_log_buf, lpe_format);
+        write_format(ulog_name, lpe_format);
+
+        /* lpeLowPass message */
+        const char lpeLowPass_format[] = "Local Position Estimator LowPass:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
+        write_format(ulog_name, lpeLowPass_format);
 
         /* Q Estimator (cf) message */
         const char cf_format[] = "Q Estimator:uint64_t timestamp;double[4] quat;double roll;double pitch;double yaw;";
-        write_format(system_log_buf, cf_format);
+        write_format(ulog_name, cf_format);
 
         /* gps message */
         const char gps_format[] = "gps:bool updated;bool ned_origin_valid;bool gps_is_good;uint8_t[5] _padding0;uint64_t timestamp;double lon;double lat;double lon_origin;double lat_origin;float yaw_offset;float height;float[3] vel_ned;float[3] pos_ned;float hacc;float vacc;float sacc;float heading;float headacc;uint8_t numSV;uint8_t fixType;uint8_t[2] _padding0";//uint8_t[2] _padding0;
-        write_format(system_log_buf, gps_format);
+        write_format(ulog_name, gps_format);
 
         /* gyro message */
-        const char gyro_format[] = "gyro:uint64_t timestamp;float[3] gyro;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
-        write_format(system_log_buf, gyro_format);
+        const char gyro_format[] = "sensor gyro:uint64_t timestamp;float[3] gyro;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
+        write_format(ulog_name, gyro_format);
 
-        /* gyro message */
-        const char accel_format[] = "accel:uint64_t timestamp;float[3] accel;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
-        write_format(system_log_buf, accel_format);
+        /* accel message */
+        const char accel_format[] = "sensor accel:uint64_t timestamp;float[3] accel;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
+        write_format(ulog_name, accel_format);
+
+        /* mag message */
+        const char mag_format[] = "sensor mag:uint64_t timestamp;float[3] mag;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
+        write_format(ulog_name, mag_format);
+
+        /* baro message */
+        const char baro_format[] = "sensor baro:uint64_t timestamp;double mag;double temperature;";
+        write_format(ulog_name, baro_format);
+
+        /* actuator message format */
+        const char actuator_format[] = "actuator rotor:uint64_t timestamp;uint16_t[8] actuator_output;";
+        write_format(ulog_name, actuator_format);
+
+        /* Servo actuator message format */
+        const char servo_actuator_format[] = "actuator servo:uint64_t timestamp;uint16_t[8] actuator_output;";
+        write_format(ulog_name, servo_actuator_format);
+
+        /* rc input message format */
+        const char rc_format[] = "rc input:uint64_t timestamp;uint16_t[16] channels;bool ch17;bool ch18;bool failsafe;bool frameLost;uint8_t[5] _padding0";// last padding = 5
+        write_format(ulog_name, rc_format);
 
     /* Write Subscription Message */
 
         /* lpe logged msg */
         const char lpe_msg_name[]="Local Position Estimator";
-        write_add_logged_msg(system_log_buf, lpe_msg_name, 0U, 0U);
+        write_add_logged_msg(ulog_name, lpe_msg_name, 0U, 0U);
 
         /* Q Estimator(cf) logged msg */
         const char cf_msg_name[]="Q Estimator";
-        write_add_logged_msg(system_log_buf, cf_msg_name, 1U, 0U);
+        write_add_logged_msg(ulog_name, cf_msg_name, 1U, 0U);
 
         /* gps logged msg */
         const char gps_msg_name[]="gps";
-        write_add_logged_msg(system_log_buf, gps_msg_name, 2U, 0U);
+        write_add_logged_msg(ulog_name, gps_msg_name, 2U, 0U);
 
         /* gyro logged msg */
-        const char gyro_msg_name[]="gyro";
-        write_add_logged_msg(system_log_buf, gyro_msg_name, 3U, 0U);
+        const char gyro_msg_name[]="sensor gyro";
+        write_add_logged_msg(ulog_name, gyro_msg_name, 3U, 0U);
 
         /* accel logged msg */
-        const char accel_msg_name[]="accel";
-        write_add_logged_msg(system_log_buf, accel_msg_name, 4U, 0U);
+        const char accel_msg_name[]="sensor accel";
+        write_add_logged_msg(ulog_name, accel_msg_name, 4U, 0U);
+
+        /* mag logged msg */
+        const char mag_msg_name[]="sensor mag";
+        write_add_logged_msg(ulog_name, mag_msg_name, 5U, 0U);
+
+        /* baro logged msg */
+        const char baro_msg_name[]="sensor baro";
+        write_add_logged_msg(ulog_name, baro_msg_name, 6U, 0U);
+
+        /* lpeLowPass logged msg */
+        const char lpeLowPass_msg_name[]="Local Position Estimator LowPass";
+        write_add_logged_msg(ulog_name, lpeLowPass_msg_name, 7U, 0U);
+
+        /* actuator logged msg */
+        const char actuator_msg_name[]="actuator rotor";
+        write_add_logged_msg(ulog_name, actuator_msg_name, 8U, 0U);
+
+        /* servo logged msg */
+        const char servo_msg_name[]="actuator servo";
+        write_add_logged_msg(ulog_name, servo_msg_name, 9U, 0U);
+
+        /* lpeLowPass logged msg */
+        const char rc_msg_name[]="rc input";
+        write_add_logged_msg(ulog_name, rc_msg_name, 10U, 0U);
 
 	while(1)
 	{
@@ -99,30 +152,64 @@ void * thread_ulog(void * dir)
             if(lpe_output_msg.read(&_lpe_msg))
             {
                 size_t msg_data_len = sizeof(_lpe_msg);
-                write_msg(system_log_buf, (uint8_t *)&_lpe_msg, msg_data_len, 0U);
+                write_msg(ulog_name, (uint8_t *)&_lpe_msg, msg_data_len, 0U);
             }
 
             /* cf */
             if(cf_output_msg.read(&_cf_msg)){
                 size_t cf_msg_data_len = sizeof(_cf_msg);
-                write_msg(system_log_buf, (uint8_t *)&_cf_msg, cf_msg_data_len, 1U);
+                write_msg(ulog_name, (uint8_t *)&_cf_msg, cf_msg_data_len, 1U);
             }
 
             /* gps */
             if(gps_msg.read(&_gps_msg)){
-                size_t gps_msg_data_len = sizeof(_gps_msg)-2;
-                write_msg(system_log_buf, (uint8_t *)&_gps_msg, gps_msg_data_len, 2U);
+                size_t gps_msg_data_len = sizeof(_gps_msg)-2;//subtract the last padding length
+                write_msg(ulog_name, (uint8_t *)&_gps_msg, gps_msg_data_len, 2U);
             }
 
+            /* gyro */
             if(gyro_msg.read(&_gyro_msg)){
-                size_t gyro_msg_data_len = sizeof(_gyro_msg)-4;
-                write_msg(system_log_buf, (uint8_t *)&_gyro_msg, gyro_msg_data_len, 3U);
+                size_t gyro_msg_data_len = sizeof(_gyro_msg)-4;//subtract the last padding length
+                write_msg(ulog_name, (uint8_t *)&_gyro_msg, gyro_msg_data_len, 3U);
             }
 
+            /* accel */
             if(accel_msg.read(&_accel_msg)){
                 size_t accel_msg_data_len = sizeof(_accel_msg)-4;//subtract the last padding length
-                write_msg(system_log_buf, (uint8_t *)&_accel_msg, accel_msg_data_len, 4U);
+                write_msg(ulog_name, (uint8_t *)&_accel_msg, accel_msg_data_len, 4U);
             }
+
+            if(mag_msg.read(&_mag_msg)){
+                size_t mag_msg_data_len = sizeof(_mag_msg)-4;//subtract the last padding length
+                write_msg(ulog_name, (uint8_t *)&_mag_msg, mag_msg_data_len, 5U);
+            }
+
+            if(baro_msg.read(&_baro_msg)){
+                size_t baro_msg_data_len = sizeof(_baro_msg);
+                write_msg(ulog_name, (uint8_t *)&_baro_msg, baro_msg_data_len, 6U);
+            }
+
+            if(lpeLowPass_output_msg.read(&_lpeLowPass_msg))
+            {
+                size_t lpeLowPass_data_len = sizeof(_lpeLowPass_msg);
+                write_msg(ulog_name, (uint8_t *)&_lpeLowPass_msg, lpeLowPass_data_len, 7U);
+            }
+
+            if(actuator_output_msg.read(&_actuator_output_msg)){
+                size_t actuator_msg_data_len = sizeof(_actuator_output_msg);
+                write_msg(ulog_name, (uint8_t *)&_actuator_output_msg, actuator_msg_data_len, 8U);
+            }
+
+            if(aux_actuator_output_msg.read(&_aux_actuator_output_msg)){
+                size_t aux_actuator_msg_data_len = sizeof(_aux_actuator_output_msg);
+                write_msg(ulog_name, (uint8_t *)&_aux_actuator_output_msg, aux_actuator_msg_data_len, 9U);
+            }
+
+            if(rc_input_msg.read(&_rc_input_msg)){
+                size_t rc_input_msg_data_len = sizeof(_rc_input_msg)-5;
+                write_msg(ulog_name, (uint8_t *)&_rc_input_msg, rc_input_msg_data_len, 10U);
+            }
+
         }
 
        nanosleep(&thread_log_sleep, NULL);
