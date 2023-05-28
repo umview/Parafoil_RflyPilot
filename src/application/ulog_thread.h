@@ -20,7 +20,7 @@ struct message_header_s {
 
 struct message_format_s {
   struct message_header_s header; // msg_type = 'F'
-  char format[255];//header.msg_size
+  char format[1500];//header.msg_size
 };
 
 struct message_add_logged_s {
@@ -35,18 +35,49 @@ struct message_data_s {
   uint16_t msg_id;
   uint8_t data[255];//header.msg_size-2
 };
+
+struct ulog_message_flag_bits_s {
+  struct message_header_s header; // msg_type = 'B'
+  uint8_t compat_flags[8];
+  uint8_t incompat_flags[8];
+  uint64_t appended_offsets[3]; // file offset(s) for appended data if appending bit is set
+};
+
+
 #pragma pack(pop)
 
+// // #pragma pack(push, 8)
+// typedef struct struct_test1
+// {
+//     bool g1;
+//     bool g2;
+//     bool g3;
+//     bool g4;
+//     bool g5;
+//     bool g6;
+//     bool g7;
+//     bool g8;
+//     // bool g9;
+//     // bool g10;
+//     // bool g11;
+//     // bool g12;
+//     double b;
+//     bool c;
+// }ST1;
+// // #pragma pack(pop)
+// size_t size = sizeof(ST1);
 
 void * thread_ulog(void * dir);
 void start_ulog(const char *dir);
 
-void write_formats(void);
+// void write_formats(void);
 void write_format(const char *filename ,const char *msg_format);
 
-void write_add_logged_msgs(void);
+// void write_add_logged_msgs(void);
 void write_add_logged_msg(const char *filename, const char *msg_name, uint16_t msg_id, uint8_t multi_id);
 
 void write_msg(const char *filename, uint8_t *logged_data, size_t logged_data_len, uint16_t msg_id);
+
+void write_flag_bits(const char *filename);
 
 #endif

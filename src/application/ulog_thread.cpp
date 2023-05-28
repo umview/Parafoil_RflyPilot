@@ -13,6 +13,9 @@ void * thread_ulog(void * dir)
     scope_data_typedef  _system_debug;
     lpe_output_typedef _lpe_msg;
     cf_output_typedef _cf_msg;
+    gps_msg_typedef _gps_msg;
+    gyro_typedef _gyro_msg;
+    accel_typedef _accel_msg;
     
 
     char time_buf[50]={0};
@@ -40,11 +43,52 @@ void * thread_ulog(void * dir)
     };
     system_ulog.binlog_write(system_log_buf, (uint8_t *)&header, sizeof(header));
 
+    /* Write flag bit */
+    write_flag_bits(system_log_buf);
+
     /* Write Definitions */
-    write_formats();
+
+        /* lpe message */
+        const char lpe_format[] = "Local Position Estimator:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
+        write_format(system_log_buf, lpe_format);
+
+        /* Q Estimator (cf) message */
+        const char cf_format[] = "Q Estimator:uint64_t timestamp;double[4] quat;double roll;double pitch;double yaw;";
+        write_format(system_log_buf, cf_format);
+
+        /* gps message */
+        const char gps_format[] = "gps:bool updated;bool ned_origin_valid;bool gps_is_good;uint8_t[5] _padding0;uint64_t timestamp;double lon;double lat;double lon_origin;double lat_origin;float yaw_offset;float height;float[3] vel_ned;float[3] pos_ned;float hacc;float vacc;float sacc;float heading;float headacc;uint8_t numSV;uint8_t fixType;uint8_t[2] _padding0";//uint8_t[2] _padding0;
+        write_format(system_log_buf, gps_format);
+
+        /* gyro message */
+        const char gyro_format[] = "gyro:uint64_t timestamp;float[3] gyro;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
+        write_format(system_log_buf, gyro_format);
+
+        /* gyro message */
+        const char accel_format[] = "accel:uint64_t timestamp;float[3] accel;uint8_t[4] _padding0;";//uint8_t[4] _padding0;
+        write_format(system_log_buf, accel_format);
 
     /* Write Subscription Message */
-    write_add_logged_msgs();
+
+        /* lpe logged msg */
+        const char lpe_msg_name[]="Local Position Estimator";
+        write_add_logged_msg(system_log_buf, lpe_msg_name, 0U, 0U);
+
+        /* Q Estimator(cf) logged msg */
+        const char cf_msg_name[]="Q Estimator";
+        write_add_logged_msg(system_log_buf, cf_msg_name, 1U, 0U);
+
+        /* gps logged msg */
+        const char gps_msg_name[]="gps";
+        write_add_logged_msg(system_log_buf, gps_msg_name, 2U, 0U);
+
+        /* gyro logged msg */
+        const char gyro_msg_name[]="gyro";
+        write_add_logged_msg(system_log_buf, gyro_msg_name, 3U, 0U);
+
+        /* accel logged msg */
+        const char accel_msg_name[]="accel";
+        write_add_logged_msg(system_log_buf, accel_msg_name, 4U, 0U);
 
 	while(1)
 	{
@@ -52,22 +96,53 @@ void * thread_ulog(void * dir)
         if(config.sys_log_en)
         {
             /* lpe */
-            /* read the data would be logged */
-            lpe_output_msg.read(&_lpe_msg);
-            size_t msg_data_len = sizeof(_lpe_msg);
-            write_msg(system_log_buf, (uint8_t *)&_lpe_msg, msg_data_len, 0U);
+            if(lpe_output_msg.read(&_lpe_msg))
+            {
+                size_t msg_data_len = sizeof(_lpe_msg);
+                write_msg(system_log_buf, (uint8_t *)&_lpe_msg, msg_data_len, 0U);
+            }
 
             /* cf */
-            /* read the data would be logged */
-            cf_output_msg.read(&_cf_msg);
-            size_t cf_msg_data_len = sizeof(_cf_msg);
-            write_msg(system_log_buf, (uint8_t *)&_cf_msg, cf_msg_data_len, 1U);
+            if(cf_output_msg.read(&_cf_msg)){
+                size_t cf_msg_data_len = sizeof(_cf_msg);
+                write_msg(system_log_buf, (uint8_t *)&_cf_msg, cf_msg_data_len, 1U);
+            }
+
+            /* gps */
+            if(gps_msg.read(&_gps_msg)){
+                size_t gps_msg_data_len = sizeof(_gps_msg)-2;
+                write_msg(system_log_buf, (uint8_t *)&_gps_msg, gps_msg_data_len, 2U);
+            }
+
+            if(gyro_msg.read(&_gyro_msg)){
+                size_t gyro_msg_data_len = sizeof(_gyro_msg)-4;
+                write_msg(system_log_buf, (uint8_t *)&_gyro_msg, gyro_msg_data_len, 3U);
+            }
+
+            if(accel_msg.read(&_accel_msg)){
+                size_t accel_msg_data_len = sizeof(_accel_msg)-4;//subtract the last padding length
+                write_msg(system_log_buf, (uint8_t *)&_accel_msg, accel_msg_data_len, 4U);
+            }
         }
 
        nanosleep(&thread_log_sleep, NULL);
 
 	}
 
+}
+void write_flag_bits(const char *filename)
+{   
+    ulog_message_flag_bits_s msg = {
+        .header = {
+            .msg_size = 40U,
+            .msg_type = 'B'
+        },
+        .compat_flags = {0U,},
+        .incompat_flags = {0U,},
+        .appended_offsets = {0U,}
+    };
+    size_t msg_size = sizeof(msg);
+    system_ulog.binlog_write(filename, (uint8_t *)&msg, msg_size);
 }
 
 void write_msg(const char *filename, uint8_t *logged_data, size_t logged_data_len, uint16_t msg_id)
@@ -86,18 +161,18 @@ void write_msg(const char *filename, uint8_t *logged_data, size_t logged_data_le
     system_ulog.binlog_write(filename, (uint8_t *)&msg, msg_data_size);
 }
 
-void write_add_logged_msgs()
-{
-    const char filename[]= "ulog";
+// void write_add_logged_msgs()
+// {
+//     const char filename[]= "ulog";
 
-    /* lpe logged msg */
-    const char lpe_msg_name[]="lpe";
-    write_add_logged_msg(filename, lpe_msg_name, 0, 0);
+//     /* lpe logged msg */
+//     const char lpe_msg_name[]="lpe";
+//     write_add_logged_msg(filename, lpe_msg_name, 0, 0);
 
-    /* Q Estimator(cf) logged msg */
-    const char cf_msg_name[]="Q Estimator";
-    write_add_logged_msg(filename, cf_msg_name, 1, 0);
-}
+//     /* Q Estimator(cf) logged msg */
+//     const char cf_msg_name[]="Q Estimator";
+//     write_add_logged_msg(filename, cf_msg_name, 1, 0);
+// }
 
 void write_add_logged_msg(const char *filename, const char *msg_name, uint16_t msg_id, uint8_t multi_id)
 {
@@ -119,18 +194,18 @@ void write_add_logged_msg(const char *filename, const char *msg_name, uint16_t m
     system_ulog.binlog_write(filename, (uint8_t *)&msg, msg_size);
 }
 
-void write_formats()
-{
-    const char filename[]= "ulog";
+// void write_formats()
+// {
+//     const char filename[]= "ulog";
 
-    /* lpe message */
-    const char lpe_format[] = "lpe:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
-    write_format(filename, lpe_format);
+//     /* lpe message */
+//     const char lpe_format[] = "lpe:uint64_t timestamp;double[3] pos_ned;double[3] vel_ned;double[3] pos_accel_body;double[3] accel_bias;";
+//     write_format(filename, lpe_format);
 
-    /* Q Estimator (cf) message */
-    const char cf_format[] = "Q Estimator:uint64_t timestamp;double[4] quat;double roll;double pitch;double yaw;";
-    write_format(filename, cf_format);
-}
+//     /* Q Estimator (cf) message */
+//     const char cf_format[] = "Q Estimator:uint64_t timestamp;double[4] quat;double roll;double pitch;double yaw;";
+//     write_format(filename, cf_format);
+// }
 
 void write_format(const char *filename ,const char *msg_format)
 {
