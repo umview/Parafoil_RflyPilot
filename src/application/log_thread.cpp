@@ -16,13 +16,12 @@ void * thread_log(void * dir)
     scope_data_typedef _controller_debug;
     scope_data_typedef _pos_est_debug;
     scope_data_typedef _att_est_debug;
-    char time_buf[50]={0};
     char system_log_buf[100] = {0};
     char controller_log_buf[100] = {0};
     char att_est_log_buf[100] = {0};
     char pos_est_log_buf[100] = {0};
     char syspath[100] = {0};
-    get_compact_time_string(time(NULL), time_buf);   
+
 
     sprintf(syspath, "%s/log-%s", (char*)dir, time_buf);        
 

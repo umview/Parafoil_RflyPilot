@@ -1,11 +1,13 @@
 #include "include.h"
 
+char time_buf[50]={0};
 
 int main(int argc, const char *argv[])
 {
   (void)(argc);
   (void)(argv);
   get_time_now();// reset time counter begin from zero
+  get_compact_time_string(time(NULL), time_buf);   
 
 
 
