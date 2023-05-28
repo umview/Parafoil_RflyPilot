@@ -12,6 +12,7 @@ void * thread_ulog(void * dir)
 	int i = 0;
     scope_data_typedef  _system_debug;
     lpe_output_typedef _lpe_msg;
+    cf_output_typedef _cf_msg;
     
 
     char time_buf[50]={0};
@@ -50,6 +51,8 @@ void * thread_ulog(void * dir)
 
         if(config.sys_log_en)
         {
+            /* lpe */
+
             /* read the data would be logged */
             lpe_output_msg.read(&_lpe_msg);
             size_t msg_data_len = sizeof(_lpe_msg);
@@ -61,11 +64,32 @@ void * thread_ulog(void * dir)
             /* set msg data content */
             msg_data.header.msg_size = msg_data_size - sizeof(msg_data.header);
             msg_data.header.msg_type = 'D';
-            msg_data.msg_id = 0U;
+            msg_data.msg_id = 0U;//unique ID
             memcpy(msg_data.data, &_lpe_msg, msg_data_len);
 
             /* write to file */
             system_ulog.binlog_write(system_log_buf, (uint8_t *)&msg_data, msg_data_size);
+
+
+            /* cf */
+            
+            /* read the data would be logged */
+            cf_output_msg.read(&_cf_msg);
+            size_t cf_msg_data_len = sizeof(_cf_msg);
+            // printf("quat date: %f, %f, %f, %f \n",_cf_msg.quat[0],_cf_msg.quat[1],_cf_msg.quat[2],_cf_msg.quat[3]);
+
+            /* create msg data and cal the size of msg_data */
+            struct message_data_s cf_msg_data;
+            size_t cf_msg_data_size = sizeof(cf_msg_data) - sizeof(cf_msg_data.data) + cf_msg_data_len;
+
+            /* set msg data content */
+            cf_msg_data.header.msg_size = cf_msg_data_size - sizeof(cf_msg_data.header);
+            cf_msg_data.header.msg_type = 'D';
+            cf_msg_data.msg_id = 1U;//unique ID
+            memcpy(cf_msg_data.data, &_cf_msg, cf_msg_data_len);
+
+            /* write to file */
+            system_ulog.binlog_write(system_log_buf, (uint8_t *)&cf_msg_data, cf_msg_data_size);
         }
 
        nanosleep(&thread_log_sleep, NULL);
@@ -75,6 +99,7 @@ void * thread_ulog(void * dir)
 }
 void write_add_logged_msg()
 {
+    /* lpe logged msg */
     const char lpe_msg_name[]="lpe";
     uint16_t lpe_msg_name_len = strlen(lpe_msg_name);
 
@@ -83,12 +108,28 @@ void write_add_logged_msg()
 
     msg.header.msg_size = msg_size - sizeof(msg.header);
     msg.header.msg_type = 'A';
-    msg.msg_id = 0U;
+    msg.msg_id = 0U;//unique ID
     msg.multi_id = 0U;
     memcpy(msg.message_name, lpe_msg_name, lpe_msg_name_len);
 
     const char filename[]= "ulog";
     system_ulog.binlog_write(filename, (uint8_t *)&msg, msg_size);
+
+    /* Q Estimator(cf) logged msg */
+    const char cf_msg_name[]="Q Estimator";
+    uint16_t cf_msg_name_len = strlen(cf_msg_name);
+
+    struct message_add_logged_s cf_msg;
+    size_t cf_msg_size = sizeof(cf_msg) - sizeof(cf_msg.message_name) + cf_msg_name_len;
+
+    cf_msg.header.msg_size = cf_msg_size - sizeof(cf_msg.header);
+    cf_msg.header.msg_type = 'A';
+    cf_msg.msg_id = 1U; //unique ID
+    cf_msg.multi_id = 0U; //
+    memcpy(cf_msg.message_name, cf_msg_name, cf_msg_name_len);
+
+    // const char filename[]= "ulog";
+    system_ulog.binlog_write(filename, (uint8_t *)&cf_msg, cf_msg_size);
 
 }
 
@@ -107,6 +148,20 @@ void write_formats()
     
     const char filename[]= "ulog";
     system_ulog.binlog_write(filename, (uint8_t *)&lpe_format_s, msg_size);
+
+    /* Q Estimator (cf) message */
+    const char cf_format[] = "Q Estimator:uint64_t timestamp;double[4] quat;double roll;double pitch;double yaw;";
+    uint16_t cf_format_len = strlen(cf_format);
+
+    struct message_format_s cf_format_s;
+    size_t cf_msg_size = sizeof(cf_format_s) - sizeof(cf_format_s.format) + cf_format_len;
+
+    cf_format_s.header.msg_size = cf_msg_size - sizeof(cf_format_s.header);
+    cf_format_s.header.msg_type = 'F';
+    memcpy(cf_format_s.format, cf_format, cf_format_len);
+    
+    // const char filename[]= "ulog";
+    system_ulog.binlog_write(filename, (uint8_t *)&cf_format_s, cf_msg_size);
 }
 
 void start_ulog(const char * dir)
