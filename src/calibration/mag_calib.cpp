@@ -2,7 +2,9 @@
 bool calibration_typedef::calib_mag(float mag_norm)
 {
     mag_raw_typedef _mag_raw;
-    imu_raw_typedef _imu_raw;
+    // imu_raw_typedef _imu_raw;
+    gyro_raw_typedef _gyro_raw;
+    accel_raw_typedef _accel_raw;
     /** @aciton ¿ªÊ¼Ð£×¼Á÷³Ì */
     double x_scale;
     double y_scale;
@@ -29,11 +31,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel,_imu_raw.gyro,  NZ_UP));//¼ì²âµ½»úÉíÕý·Å
+    while (!orientation_check(_accel_raw.accel,_gyro_raw.gyro,  NZ_UP));//¼ì²âµ½»úÉíÕý·Å
     printf("NZ_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);  
@@ -44,7 +48,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s
     usleep(mag_calibration_delay_us);
@@ -58,11 +62,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel, _imu_raw.gyro, PX_UP));//¼ì²âµ½»úÉí¶Ç³¯Ìì
+    while (!orientation_check(_accel_raw.accel, _gyro_raw.gyro, PX_UP));//¼ì²âµ½»úÉí¶Ç³¯Ìì
     printf("PX_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);    
@@ -74,7 +80,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s
@@ -88,11 +94,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel,_imu_raw.gyro,  NX_UP));//¼ì²âµ½»úÉíroll=90deg
+    while (!orientation_check(_accel_raw.accel,_gyro_raw.gyro,  NX_UP));//¼ì²âµ½»úÉíroll=90deg
     printf("NX_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);    
@@ -104,7 +112,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s
@@ -118,11 +126,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel,_imu_raw.gyro,  NY_UP));//¼ì²âµ½»úÉíroll=-90deg
+    while (!orientation_check(_accel_raw.accel,_gyro_raw.gyro,  NY_UP));//¼ì²âµ½»úÉíroll=-90deg
     printf("NY_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);    
@@ -134,7 +144,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s
@@ -148,11 +158,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel,_imu_raw.gyro, PY_UP));//¼ì²âµ½»úÉípitch = -90deg
+    while (!orientation_check(_accel_raw.accel,_gyro_raw.gyro, PY_UP));//¼ì²âµ½»úÉípitch = -90deg
     printf("PY_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);
@@ -164,7 +176,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s
@@ -178,11 +190,13 @@ bool calibration_typedef::calib_mag(float mag_norm)
     do
     {
         usleep(mag_calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        accel_raw_msg.read(&_accel_raw);
     }
-    while (!orientation_check(_imu_raw.accel,_imu_raw.gyro,  PZ_UP));//¼ì²âµ½»úÉípitch = 90deg
+    while (!orientation_check(_accel_raw.accel,_gyro_raw.gyro,  PZ_UP));//¼ì²âµ½»úÉípitch = 90deg
     printf("PZ_UP is detected!\n");
-    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _imu_raw.accel[0], _imu_raw.accel[1],_imu_raw.accel[2]);
+    printf("accel data: accel x = %1.4f, y = %1.4f, z = %1.4f\n", _accel_raw.accel[0], _accel_raw.accel[1],_accel_raw.accel[2]);
     usleep(mag_calibration_delay_us);
     mag_raw_msg.read(&_mag_raw);  
     printf("mag data: mag x = %f, y = %f, z = %f\n", _mag_raw.mag[0], _mag_raw.mag[1], _mag_raw.mag[2]);    
@@ -194,7 +208,7 @@ bool calibration_typedef::calib_mag(float mag_norm)
         usleep(mag_calibration_delay_us);
         mag_raw_msg.read(&_mag_raw);
         ellipsoid_method_step1( _mag_raw.mag[0], _mag_raw.mag[1],_mag_raw.mag[2], A);
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.accel[0],_imu_raw.accel[1],_imu_raw.accel[2]);   
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _accel_raw.accel[0],_accel_raw.accel[1],_accel_raw.accel[2]);   
     
     }
     while (get_time_now()/1e6 - holding_time < 7); //¼ì²âµ½ÒÑ¾­¹ýÈ¥7000Ê±ÖÓtick 7s

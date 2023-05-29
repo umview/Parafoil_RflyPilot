@@ -5,7 +5,7 @@ void * thread_ulog(void * dir)
 {
     timespec thread_log_sleep;
     thread_log_sleep.tv_sec = 0;
-    thread_log_sleep.tv_nsec = 10*1000*1000;//2ms	
+    thread_log_sleep.tv_nsec = 20*1000*1000;//2ms	
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
 
@@ -94,7 +94,7 @@ void * thread_ulog(void * dir)
         write_format(ulog_name, servo_actuator_format);
 
         /* rc input message format */
-        const char rc_format[] = "rc input:uint64_t timestamp;uint16_t[16] channels;bool ch17;bool ch18;bool failsafe;bool frameLost;uint8_t[5] _padding0";// last padding = 5
+        const char rc_format[] = "rc input:uint64_t timestamp;uint16_t[16] channels;bool ch17;bool ch18;bool failsafe;bool frameLost;uint8_t[4] _padding0";// last padding = 4
         write_format(ulog_name, rc_format);
 
     /* Write Subscription Message */
@@ -206,7 +206,7 @@ void * thread_ulog(void * dir)
             }
 
             if(rc_input_msg.read(&_rc_input_msg)){
-                size_t rc_input_msg_data_len = sizeof(_rc_input_msg)-5;
+                size_t rc_input_msg_data_len = sizeof(_rc_input_msg)-4;
                 write_msg(ulog_name, (uint8_t *)&_rc_input_msg, rc_input_msg_data_len, 10U);
             }
 
