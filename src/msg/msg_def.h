@@ -32,15 +32,15 @@ typedef struct
 }baro_typedef;
 extern ringbuffer_typedef<baro_typedef> baro_msg;
 
-typedef struct
-{
-	uint64_t timestamp;
-	float accel[3];
-	float gyro[3];
-}imu_raw_typedef;
-typedef imu_raw_typedef imu_typedef;
-extern ringbuffer_typedef<imu_raw_typedef> imu_raw_msg;
-extern ringbuffer_typedef<imu_typedef> imu_msg;//(IMU_N);
+// typedef struct
+// {
+// 	uint64_t timestamp;
+// 	float accel[3];
+// 	float gyro[3];
+// }imu_raw_typedef;
+// typedef imu_raw_typedef imu_typedef;
+// extern ringbuffer_typedef<imu_raw_typedef> imu_raw_msg;
+// extern ringbuffer_typedef<imu_typedef> imu_msg;//(IMU_N);
 typedef struct
 {
 	uint64_t timestamp;
