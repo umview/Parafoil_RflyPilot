@@ -15,3 +15,5 @@
 #define SERVO_PWM_FREQ 333
 #define I2C_BUS_1 "/dev/i2c-1"
 #define I2C_BUS_0 "/dev/i2c-10"
+
+#define TASK_SCHEDULE_DEBUG 0

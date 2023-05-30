@@ -35,6 +35,10 @@ extern "C" {
     #include <linux/spi/spidev.h>
     #include <fcntl.h>
     #include <dirent.h>
+
+    //#include<wiringPi.h>
+
+
 #ifdef __cplusplus
 }
 #endif

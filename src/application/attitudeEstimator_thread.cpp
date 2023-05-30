@@ -32,11 +32,17 @@ void * thread_attitudeEstimator(void * ptr)
     scope_data_typedef _att_est_debug;
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
-
+    thread_msg_typedef _attest;
     while (1)
     {   
 
                 if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
+                    // if(TASK_SCHEDULE_DEBUG)
+                    // {
+                    //     _attest.timestamp = get_time_now();
+                    //     _attest.data_timestamp = _gyro.timestamp;
+                    //     attest_thread_msg.publish(&_attest); 
+                    // }
                     //printf("gyro : %f %f %f\n accel : %f %f %f\n",_gyro.gyro[0],_gyro.gyro[1],_gyro.gyro[2],_accel.accel[0],_accel.accel[1],_accel.accel[2]);
                     memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
                     memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
@@ -90,6 +96,7 @@ void * thread_attitudeEstimator(void * ptr)
 
             memcpy(&_cf_msg,&AttitudeEstimator_Obj.rtY._e_cf_s,sizeof(_cf_msg));
             cf_output_msg.publish(&_cf_msg);
+            
 
             for(int i = 0; i < 3; i++)
             {

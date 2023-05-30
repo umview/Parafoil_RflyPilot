@@ -26,8 +26,14 @@ void * thread_icm42688p(void * ptr)
     core_bind(IMU_CORE);
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
+    thread_msg_typedef _imu_thread;
     while (1)
     {
+     //  if(TASK_SCHEDULE_DEBUG)
+     //  {
+    	// _imu_thread.timestamp = get_time_now();
+    	// imu_thread_msg.publish(&_imu_thread);
+     //  }
 
         	my_icm42688p.RunImpl();
         //nanosleep(&thread_icm42688p_sleep,NULL);
