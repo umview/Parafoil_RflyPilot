@@ -51,6 +51,8 @@ void * thread_sih(void * ptr)
       // SIH_Model_Y._e_lpe_s;
       memcpy(&_lpe_msg, &SIH_Model_Y._e_lpe_s, sizeof(_lpe_msg));
       lpe_output_msg.publish(&_lpe_msg);
+
+      lpeLowPass_output_msg.publish(&_lpe_msg);
     }
 
     // SIH_Model_Y._m_accel_s;
