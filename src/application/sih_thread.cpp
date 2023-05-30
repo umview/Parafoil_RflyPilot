@@ -10,7 +10,7 @@ void * thread_sih(void * ptr)
 
   sbus_packet_t _rc_input_msg;//rc_input_msg
   //use imu or, gyro and accel according to fc mode 
-  imu_typedef _imu_msg;//imu_msg
+  // imu_typedef _imu_msg;//imu_msg
   gyro_typedef _gyro_msg;//gyro_msg
   accel_typedef _accel_msg;//accel_msg
 

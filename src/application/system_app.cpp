@@ -4,7 +4,7 @@ void * thread_system_app(void * ptr)
 
 	cf_output_typedef _att;
 	lpe_output_typedef _lpe;
-	imu_typedef _imu;
+	// imu_typedef _imu;
 	gps_msg_typedef _gps;
 	mag_typedef _mag;
 	baro_typedef _baro;

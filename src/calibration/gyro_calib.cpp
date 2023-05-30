@@ -1,7 +1,9 @@
 #include "sensor_calibration.h"
 bool calibration_typedef::calib_gyro(void)
 {
-	imu_raw_typedef _imu_raw;
+	// imu_raw_typedef _imu_raw;
+    gyro_raw_typedef _gyro_raw;
+    accel_raw_typedef _accel_raw;
     double x_offset = 0;
     double y_offset = 0;
     double z_offset = 0;
@@ -16,13 +18,13 @@ bool calibration_typedef::calib_gyro(void)
     for (int readcount = 0; readcount < 1400; readcount++)
     {
         usleep(calibration_delay_us);
-        imu_raw_msg.read(&_imu_raw);
-
-        x_offset += _imu_raw.gyro[0];
-        y_offset += _imu_raw.gyro[1];
-        z_offset += _imu_raw.gyro[2];
-        if(calibration_debug)fprintf(fp,"%f %f %f\n", _imu_raw.gyro[0],_imu_raw.gyro[1],_imu_raw.gyro[2]);   
-        //printf("%f %f %f\n", _imu_raw.gyro[0],_imu_raw.gyro[1],_imu_raw.gyro[2]);
+        // imu_raw_msg.read(&_imu_raw);
+        gyro_raw_msg.read(&_gyro_raw);
+        x_offset += _gyro_raw.gyro[0];
+        y_offset += _gyro_raw.gyro[1];
+        z_offset += _gyro_raw.gyro[2];
+        if(calibration_debug)fprintf(fp,"%f %f %f\n", _gyro_raw.gyro[0],_gyro_raw.gyro[1],_gyro_raw.gyro[2]);   
+        //printf("%f %f %f\n", _gyro_raw.gyro[0],_gyro_raw.gyro[1],_gyro_raw.gyro[2]);
     }
 
     calib_data.gyro_offset[0] = x_offset / 1400;

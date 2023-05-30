@@ -18,7 +18,7 @@ void * thread_lpe(void * ptr)
     //read gps data
     gps_msg_typedef _gps;
     //read accel sensor data message
-    imu_typedef _imu;
+    // imu_typedef _imu;
     gyro_typedef _gyro;
     accel_typedef _accel;
     // read barometer data 

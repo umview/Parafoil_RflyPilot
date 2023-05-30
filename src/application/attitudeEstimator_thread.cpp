@@ -16,12 +16,12 @@ void * thread_attitudeEstimator(void * ptr)
     AttitudeEstimator_Obj.initialize();
     int cont = 500;
     //read accel and gyro
-    imu_typedef _imu;
-    imu_raw_typedef _imu_raw;
+    // imu_typedef _imu;
+    // imu_raw_typedef _imu_raw;
     gyro_typedef _gyro;
     accel_typedef _accel;
-    gyro_raw_typedef _gyro_raw;
-    accel_raw_typedef _accel_raw;
+    // gyro_raw_typedef _gyro_raw;
+    // accel_raw_typedef _accel_raw;
     //push cf data
     cf_output_typedef _cf_msg;
     //read mag data from ringbuffer memcpy
@@ -35,35 +35,34 @@ void * thread_attitudeEstimator(void * ptr)
     thread_msg_typedef _attest;
     while (1)
     {   
+                // if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
+                //     // if(TASK_SCHEDULE_DEBUG)
+                //     // {
+                //     //     _attest.timestamp = get_time_now();
+                //     //     _attest.data_timestamp = _gyro.timestamp;
+                //     //     attest_thread_msg.publish(&_attest); 
+                //     // }
+                //     //printf("gyro : %f %f %f\n accel : %f %f %f\n",_gyro.gyro[0],_gyro.gyro[1],_gyro.gyro[2],_accel.accel[0],_accel.accel[1],_accel.accel[2]);
+                //     memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
+                //     memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
+                //     _imu.timestamp = _gyro.timestamp;
+                //     for(int i = 0; i < 3; i++)
+                //     {
+                //         _imu.accel[i] = _accel.accel[i];
+                //         _imu.gyro[i] = _gyro.gyro[i];
+                //     }
+                //     imu_msg.publish(&_imu);
+                //     gyro_raw_msg.read(&_gyro_raw);
+                //     accel_raw_msg.read(&_accel_raw);
+                //     _imu_raw.timestamp = _gyro_raw.timestamp;
+                //     for(int i = 0; i < 3; i++)
+                //     {
+                //         _imu_raw.accel[i] = _accel_raw.accel[i];
+                //         _imu_raw.gyro[i] = _gyro_raw.gyro[i];
+                //     }
+                //     imu_raw_msg.publish(&_imu_raw);
 
-                if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
-                    // if(TASK_SCHEDULE_DEBUG)
-                    // {
-                    //     _attest.timestamp = get_time_now();
-                    //     _attest.data_timestamp = _gyro.timestamp;
-                    //     attest_thread_msg.publish(&_attest); 
-                    // }
-                    //printf("gyro : %f %f %f\n accel : %f %f %f\n",_gyro.gyro[0],_gyro.gyro[1],_gyro.gyro[2],_accel.accel[0],_accel.accel[1],_accel.accel[2]);
-                    memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
-                    memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
-                    _imu.timestamp = _gyro.timestamp;
-                    for(int i = 0; i < 3; i++)
-                    {
-                        _imu.accel[i] = _accel.accel[i];
-                        _imu.gyro[i] = _gyro.gyro[i];
-                    }
-                    imu_msg.publish(&_imu);
-                    gyro_raw_msg.read(&_gyro_raw);
-                    accel_raw_msg.read(&_accel_raw);
-                    _imu_raw.timestamp = _gyro_raw.timestamp;
-                    for(int i = 0; i < 3; i++)
-                    {
-                        _imu_raw.accel[i] = _accel_raw.accel[i];
-                        _imu_raw.gyro[i] = _gyro_raw.gyro[i];
-                    }
-                    imu_raw_msg.publish(&_imu_raw);
-
-                }
+                // }
             // }else{
             //     if(imu_msg.read(&_imu)){
             //         for(int i= 0;i<3;i++)
@@ -74,7 +73,28 @@ void * thread_attitudeEstimator(void * ptr)
             //         AttitudeEstimator_Obj.rtU._m_accel_s.time_stamp = _imu.timestamp;
             //         AttitudeEstimator_Obj.rtU._m_gyro_s.time_stamp = _imu.timestamp;
             //     }
+            // if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
+                // _imu.timestamp = _gyro.timestamp;
+                // for(int i = 0; i < 3; i++)
+                // {
+                //     _imu.accel[i] = _accel.accel[i];
+                //     _imu.gyro[i] = _gyro.gyro[i];
+                // }
+                // imu_msg.publish(&_imu);
+                // gyro_raw_msg.read(&_gyro_raw);
+                // accel_raw_msg.read(&_accel_raw);
+                // _imu_raw.timestamp = _gyro_raw.timestamp;
+                // for(int i = 0; i < 3; i++)
+                // {
+                //     _imu_raw.accel[i] = _accel_raw.accel[i];
+                //     _imu_raw.gyro[i] = _gyro_raw.gyro[i];
+                // }
+                // imu_raw_msg.publish(&_imu_raw);
             // }
+
+            if(gyro_msg.read(&_gyro))memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
+
+            if(accel_msg.read(&_accel))memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
 
             if(mag_msg.read(&_mag))memcpy(&AttitudeEstimator_Obj.rtU._m_mag_s,&_mag,sizeof(AttitudeEstimator_Obj.rtU._m_mag_s));
 
