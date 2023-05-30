@@ -4,7 +4,7 @@ void * thread_sih(void * ptr)
 {
   timespec thread_sih_sleep;
   thread_sih_sleep.tv_sec = 0;
-  thread_sih_sleep.tv_nsec = 0.88*1000*1000;//0.5ms
+  thread_sih_sleep.tv_nsec = 900*1000;
 
   core_bind(SIH_CORE);
 
@@ -62,16 +62,19 @@ void * thread_sih(void * ptr)
     gyro_msg.publish(&_gyro_msg);
 
     // SIH_Model_Y._m_mag_s;
+    uint64_t mag_timestamp_old = _mag_msg.timestamp;
     memcpy(&_mag_msg, &SIH_Model_Y._m_mag_s, sizeof(_mag_msg));
-    mag_msg.publish(&_mag_msg);
+    if(_mag_msg.timestamp > mag_timestamp_old)mag_msg.publish(&_mag_msg);
 
     // SIH_Model_Y._m_baro_s;
+    uint64_t baro_timestamp_old = _baro_msg.timestamp;
     memcpy(&_baro_msg, &SIH_Model_Y._m_baro_s, sizeof(_baro_msg));
-    baro_msg.publish(&_baro_msg);
+    if(_baro_msg.timestamp > baro_timestamp_old)baro_msg.publish(&_baro_msg);
 
     // SIH_Model_Y._m_gps_s;
+    uint64_t gps_timestamp_old = _gps_msg.timestamp;
     memcpy(&_gps_msg, &SIH_Model_Y._m_gps_s, sizeof(_gps_msg));
-    gps_msg.publish(&_gps_msg);
+    if(_gps_msg.timestamp>gps_timestamp_old)gps_msg.publish(&_gps_msg);
 
     //SIH_Model_Y.UnRealData;
     memcpy(_rflysim3d_output_msg.unrealdata, SIH_Model_Y.UnRealData, sizeof(_rflysim3d_output_msg.unrealdata));
