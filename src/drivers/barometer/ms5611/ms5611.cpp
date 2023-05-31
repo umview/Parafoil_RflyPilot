@@ -18,7 +18,7 @@ void * thread_baro(void * ptr)
     while (1)
     {
         c_ms5611.RunImpl();
-        // nanosleep(&thread_baro_sleep,NULL);
+	    // nanosleep(&thread_baro_sleep,NULL);
         // usleep(500*1000);
     }
     return NULL;
@@ -284,6 +284,7 @@ int MS5611::collect()
         _timestamp_sample = timestamp_sample;
         _pressure = pressure;
 
+	}
 		#ifndef TESTMODE
 		// publish baro data
 		baro_typedef _baro;
@@ -292,7 +293,6 @@ int MS5611::collect()
 		_baro.temperature = _temperature;
 		baro_msg.publish(&_baro);
 		#endif
-	}
 
 	/* update the measurement state machine */
 	INCREMENT(_measure_phase, MS5611_MEASUREMENT_RATIO + 1);

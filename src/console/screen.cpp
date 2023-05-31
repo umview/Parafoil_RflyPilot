@@ -121,14 +121,16 @@ int screen::outputscreen(void)
   accel_msg.read(&_accel_msg);
   mag_msg.read(&_mag_msg);
   gps_msg.read(&_gps_msg);
+  lpe_output_msg.read(&_lpe_msg);
   this->endscreen();
+  this->printline(_lpe_msg.timestamp, _lpe_msg.vel_ned[0],_lpe_msg.vel_ned[1],_lpe_msg.vel_ned[2],"lpe vx","lpe vy","lpe vz");
   this->printline(_cf_msg.timestamp, 57.3*_cf_msg.roll, 57.3*_cf_msg.pitch, 57.3*_cf_msg.yaw, "roll", "pitch","yaw");
-  this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
   this->printline(_gyro_msg.timestamp, 57.3*_gyro_msg.gyro[0], 57.3*_gyro_msg.gyro[1], 57.3*_gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
   this->printline(_accel_msg.timestamp, _accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2], "accel x", "accel y","accel z");
-  this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], _mag_msg.mag[2], "mag x", "mag y","mag z");
+  this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], mag_msg.publish_rate_hz, "mag x", "mag y","magHz");
   this->printline(_gps_msg.timestamp, _gps_msg.hacc, _gps_msg.vacc, _gps_msg.sacc, "hacc", "vacc", "sacc");
   this->printline(_gps_msg.timestamp, _gps_msg.fixType, _gps_msg.numSV, _gps_msg.updated, "fixType", "numSV", "Updated");
   this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
+  this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
 
 }
