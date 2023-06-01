@@ -94,7 +94,7 @@ void * thread_attitudeEstimator(void * ptr)
                 // printf("mag x: %f, mag y: %f, mag z: %f \n", _mag.mag[0], _mag.mag[1], _mag.mag[2]);
                 // printf("Accel Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[2]);
                 // printf("Mag Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[2]);
-                printf("info: LPE time interval from published to used: %lld\n", time_interval_lpe);
+                // printf("info: LPE time interval from published to used: %lld us\n", time_interval_lpe);
                 cont = 3200;
             }
 

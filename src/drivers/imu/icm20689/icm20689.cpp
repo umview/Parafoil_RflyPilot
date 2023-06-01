@@ -213,9 +213,11 @@ void *thread_icm20689(void *ptr)
 
     core_bind(IMU_CORE);
     icm20689_spi_init();
+    #if USING_THREAD_SYNC
+	char count_for_lpe = 0;
+	#endif
     while (1)
     {
-
           if(icm20689_recv_spi(&icm20689_data))
           {
             time_us = get_time_now();
@@ -263,6 +265,16 @@ void *thread_icm20689(void *ptr)
           }
         //}
         //nanosleep(&thread_icm20689_sleep,NULL);
+        #if USING_THREAD_SYNC
+		if(count_for_lpe == IMU_LPE)
+		{
+		pthread_mutex_lock(&mutex_imu2lpe);  
+		pthread_cond_signal(&cond_imu2lpe);   
+		pthread_mutex_unlock(&mutex_imu2lpe);
+		count_for_lpe = 0;
+		}
+		count_for_lpe++;
+		#endif
         delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm20689_delay);
 
     }

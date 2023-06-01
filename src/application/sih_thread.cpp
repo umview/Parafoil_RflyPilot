@@ -31,6 +31,9 @@ void * thread_sih(void * ptr)
 
   /* Initialize model */
   SIH_Model_initialize();
+  #if USING_THREAD_SYNC
+	char count_for_lpe = 0;
+	#endif
   while(1){
     /* Set model inputs here */
     // SIH_Model_U._c_out_s;
@@ -40,6 +43,10 @@ void * thread_sih(void * ptr)
     
     /* Step the model */
     SIH_Model_step();
+
+    //SIH_Model_Y.UnRealData;
+    memcpy(_rflysim3d_output_msg.unrealdata, SIH_Model_Y.UnRealData, sizeof(_rflysim3d_output_msg.unrealdata));
+    rflysim3d_output_msg.publish(&_rflysim3d_output_msg);
 
     /* Get model outputs here */
     if(_config.sih_use_real_state)
@@ -55,6 +62,21 @@ void * thread_sih(void * ptr)
       lpeLowPass_output_msg.publish(&_lpe_msg);
     }
 
+    // SIH_Model_Y._m_gps_s;
+    uint64_t gps_timestamp_old = _gps_msg.timestamp;
+    memcpy(&_gps_msg, &SIH_Model_Y._m_gps_s, sizeof(_gps_msg));
+    if(_gps_msg.timestamp>gps_timestamp_old)gps_msg.publish(&_gps_msg);
+
+    // SIH_Model_Y._m_baro_s;
+    uint64_t baro_timestamp_old = _baro_msg.timestamp;
+    memcpy(&_baro_msg, &SIH_Model_Y._m_baro_s, sizeof(_baro_msg));
+    if(_baro_msg.timestamp > baro_timestamp_old)baro_msg.publish(&_baro_msg);
+
+    // SIH_Model_Y._m_mag_s;
+    uint64_t mag_timestamp_old = _mag_msg.timestamp;
+    memcpy(&_mag_msg, &SIH_Model_Y._m_mag_s, sizeof(_mag_msg));
+    if(_mag_msg.timestamp > mag_timestamp_old)mag_msg.publish(&_mag_msg);
+
     // SIH_Model_Y._m_accel_s;
     memcpy(&_accel_msg, &SIH_Model_Y._m_accel_s, sizeof(_accel_msg));
     accel_msg.publish(&_accel_msg);
@@ -63,24 +85,16 @@ void * thread_sih(void * ptr)
     memcpy(&_gyro_msg, &SIH_Model_Y._m_gyro_s, sizeof(_gyro_msg));
     gyro_msg.publish(&_gyro_msg);
 
-    // SIH_Model_Y._m_mag_s;
-    uint64_t mag_timestamp_old = _mag_msg.timestamp;
-    memcpy(&_mag_msg, &SIH_Model_Y._m_mag_s, sizeof(_mag_msg));
-    if(_mag_msg.timestamp > mag_timestamp_old)mag_msg.publish(&_mag_msg);
-
-    // SIH_Model_Y._m_baro_s;
-    uint64_t baro_timestamp_old = _baro_msg.timestamp;
-    memcpy(&_baro_msg, &SIH_Model_Y._m_baro_s, sizeof(_baro_msg));
-    if(_baro_msg.timestamp > baro_timestamp_old)baro_msg.publish(&_baro_msg);
-
-    // SIH_Model_Y._m_gps_s;
-    uint64_t gps_timestamp_old = _gps_msg.timestamp;
-    memcpy(&_gps_msg, &SIH_Model_Y._m_gps_s, sizeof(_gps_msg));
-    if(_gps_msg.timestamp>gps_timestamp_old)gps_msg.publish(&_gps_msg);
-
-    //SIH_Model_Y.UnRealData;
-    memcpy(_rflysim3d_output_msg.unrealdata, SIH_Model_Y.UnRealData, sizeof(_rflysim3d_output_msg.unrealdata));
-    rflysim3d_output_msg.publish(&_rflysim3d_output_msg);
+    #if USING_THREAD_SYNC
+		if(count_for_lpe == IMU_LPE)
+		{
+		pthread_mutex_lock(&mutex_imu2lpe);  
+		pthread_cond_signal(&cond_imu2lpe);   
+		pthread_mutex_unlock(&mutex_imu2lpe);
+		count_for_lpe = 0;
+		}
+		count_for_lpe++;
+		#endif
 
     nanosleep(&thread_sih_sleep,NULL);
   }
