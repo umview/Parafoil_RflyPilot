@@ -14,6 +14,7 @@ public:
 	bool att_est_flag;
 	bool lpe_flag;
 	bool mag_flag;
+	bool sih_flag;
 	int lpe_flag_cnt;
 	int att_est_flag_cnt;
 	int mag_flag_cnt;
