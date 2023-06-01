@@ -44,7 +44,7 @@ class screen Screen;
 
 void *screen_task(void *arg)
 {
-  core_bind(1);
+  core_bind(SCREEN_CORE);
     //get_hight_Pri(1);
     //将当前光标往上移动1行
     // printf("\033[%dA",1);
@@ -130,7 +130,9 @@ int screen::outputscreen(void)
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], mag_msg.publish_rate_hz, "mag x", "mag y","magHz");
   this->printline(_gps_msg.timestamp, _gps_msg.hacc, _gps_msg.vacc, _gps_msg.sacc, "hacc", "vacc", "sacc");
   this->printline(_gps_msg.timestamp, _gps_msg.fixType, _gps_msg.numSV, _gps_msg.updated, "fixType", "numSV", "Updated");
-  this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
+  // this->printline(get_time_now(), accel_msg.publish_rate_hz,cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, "imuRate", "attRate", "lpeRate");
+  // this->printline(get_time_now(), actuator_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, gps_msg.publish_rate_hz, "ctrlRate", "baroRate","gpsRate");
+    this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
   this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
 
 }

@@ -16,6 +16,7 @@ struct sbus_packet_t rc_input_msg_struct;
 class sbus_api_typedef sbus_api;
 void *sbus_thread(void *ptr)
 {
+    core_bind(SUBS_CORE);
     sbus_api.init((char *)ptr);
     rc_input_typedef rc_input;
 

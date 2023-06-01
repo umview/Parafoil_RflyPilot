@@ -11,6 +11,7 @@
 class MS5611 c_ms5611;
 void * thread_baro(void * ptr)
 {
+	core_bind(BARO_CORE);
     timespec thread_baro_sleep;
     thread_baro_sleep.tv_sec = 0;
     thread_baro_sleep.tv_nsec = 10*1000*1000;//10ms

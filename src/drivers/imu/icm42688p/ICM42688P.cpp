@@ -22,11 +22,14 @@ void * thread_icm42688p(void * ptr)
 {
     timespec thread_icm42688p_sleep;
     thread_icm42688p_sleep.tv_sec = 0;
-    thread_icm42688p_sleep.tv_nsec = 2*1000*1000;//1250us
+    thread_icm42688p_sleep.tv_nsec = 1*1000*1000;//1250us
     core_bind(IMU_CORE);
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
     thread_msg_typedef _imu_thread;
+	#if USING_THREAD_SYNC
+	char count_for_att = 0;
+	#endif
     while (1)
     {
      //  if(TASK_SCHEDULE_DEBUG)
@@ -35,8 +38,18 @@ void * thread_icm42688p(void * ptr)
     	// imu_thread_msg.publish(&_imu_thread);
      //  }
 
-        	my_icm42688p.RunImpl();
-        //nanosleep(&thread_icm42688p_sleep,NULL);
+		my_icm42688p.RunImpl();
+		#if USING_THREAD_SYNC
+		if(count_for_att == IMU_ATT)
+		{
+			pthread_mutex_lock(&mutex);  
+			pthread_cond_signal(&cond);   
+			pthread_mutex_unlock(&mutex);
+			count_for_att = 0;
+		}
+		count_for_att++;
+		#endif
+        // nanosleep(&thread_icm42688p_sleep,NULL);
         delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm42688p_delay);
 
     }

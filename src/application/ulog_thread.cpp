@@ -3,6 +3,7 @@ class binlog_typedef system_ulog;
 
 void * thread_ulog(void * dir)
 {
+    core_bind(ULOG_CORE);
     timespec thread_log_sleep;
     thread_log_sleep.tv_sec = 0;
     thread_log_sleep.tv_nsec = 20*1000*1000;//2ms	

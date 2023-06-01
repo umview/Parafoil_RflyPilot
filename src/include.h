@@ -25,6 +25,7 @@ extern "C" {
 
     #include <stdlib.h>
     #include <pthread.h>
+    #include <semaphore.h>
     #include <sched.h>
     #include <sys/types.h>
     #include <unistd.h>

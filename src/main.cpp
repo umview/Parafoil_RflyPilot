@@ -63,8 +63,8 @@ int main(int argc, const char *argv[])
       usleep(500000);
       start_usrController();
       //start_basicController();
-      start_log(NULL);
-      // start_ulog(NULL);
+      // start_log(NULL);
+      start_ulog(NULL);
     break;
 
     case SIH:

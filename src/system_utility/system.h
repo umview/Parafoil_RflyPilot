@@ -73,4 +73,16 @@ class io_typedef
 	void toggle_io(void);
 };
 extern class io_typedef debug_io;
+
+#if USING_THREAD_SYNC
+extern pthread_cond_t cond;
+extern pthread_mutex_t mutex;
+
+extern pthread_cond_t cond_mag2imu;
+extern pthread_mutex_t mutex_mag2imu;
+
+extern pthread_cond_t cond_att2ctrl;
+extern pthread_mutex_t mutex_att2ctrl;
+#endif
+
 #endif

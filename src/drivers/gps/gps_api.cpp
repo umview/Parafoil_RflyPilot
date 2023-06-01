@@ -5,6 +5,7 @@ class gps_api_typedef gps_api;
 void *gps_thread(void *ptr)
 {
     //sbus_api.init((char *)ptr);
+    core_bind(GPS_CORE);
   gps_api.init((char *)ptr, B38400);
   if(gps_api.gps_config((char *)ptr))
   {

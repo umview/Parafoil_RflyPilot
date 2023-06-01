@@ -28,6 +28,7 @@ void * thread_usrController(void * ptr)
 
     cf_output_typedef _cf_msg;//cf_output_msg     
     lpe_output_typedef _lpe_msg;//lpe_output_msg
+    lpe_output_typedef _lpeLowPass_msg;//lpeLowPass_output_msg
 
     //actuator_output_typedef will be used
     actuator_output_typedef _actuator_output_msg;//actuator_output_msg
@@ -44,7 +45,12 @@ void * thread_usrController(void * ptr)
 
 
     while (1)
-    {   
+    { 
+      #if USING_THREAD_SYNC
+      pthread_mutex_lock(&mutex_att2ctrl);  
+      pthread_cond_wait(&cond_att2ctrl, &mutex_att2ctrl);  
+      pthread_mutex_unlock(&mutex_att2ctrl);  
+      #endif
       //time_stamp
       usrController_Obj.usrController_U.time_stamp = get_time_now();
       //rc
@@ -59,6 +65,7 @@ void * thread_usrController(void * ptr)
       // if(fc_api.valid_mode == EXP2 || fc_api.valid_mode == SIH){
           gyro_msg.read(&_gyro_msg);
           accel_msg.read(&_accel_msg);
+        //   printf("info read   : timestamp: %lld, accel x: %f, accel y: %f, accel z: %f\n\n", _accel_msg.timestamp,_accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2]);
           memcpy(&usrController_Obj.usrController_U._m_gyro_s,&_gyro_msg,sizeof(usrController_Obj.usrController_U._m_gyro_s));
           memcpy(&usrController_Obj.usrController_U._m_accel_s,&_accel_msg,sizeof(usrController_Obj.usrController_U._m_accel_s));
       // }else{
@@ -79,6 +86,7 @@ void * thread_usrController(void * ptr)
       memcpy(&usrController_Obj.usrController_U._m_gps_s, &_gps_msg, sizeof(usrController_Obj.usrController_U._m_gps_s));
       // cf check pass
       cf_output_msg.read(&_cf_msg);
+      uint64_t att_time_use = get_time_now() - _cf_msg.timestamp;
       // if(TASK_SCHEDULE_DEBUG)
       // {
       //   _ctrl.timestamp = get_time_now();
@@ -88,8 +96,14 @@ void * thread_usrController(void * ptr)
 
       memcpy(&usrController_Obj.usrController_U._e_cf_s, &_cf_msg, sizeof(usrController_Obj.usrController_U._e_cf_s));
       //lpe check pass
-      lpe_output_msg.read(&_lpe_msg);
-      memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpe_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+      lpeLowPass_output_msg.read(&_lpeLowPass_msg);
+      memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpeLowPass_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+    //   printf("info: poslp ned %f, %f, %f\n", _lpeLowPass_msg.pos_ned[0], _lpeLowPass_msg.pos_ned[1], _lpeLowPass_msg.pos_ned[2]);
+    //   printf("info: vellp ned %f, %f, %f\n\n", _lpeLowPass_msg.vel_ned[0], _lpeLowPass_msg.vel_ned[1], _lpeLowPass_msg.vel_ned[2]);
+    //   lpe_output_msg.read(&_lpe_msg);
+    //   memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpe_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+    //     printf("info: pos ned %f, %f, %f\n", _lpe_msg.pos_ned[0], _lpe_msg.pos_ned[1], _lpe_msg.pos_ned[2]);
+    //     printf("info: vel ned %f, %f, %f\n\n", _lpe_msg.vel_ned[0], _lpe_msg.vel_ned[1], _lpe_msg.vel_ned[2]);
       //run step
       usrController_Obj.step();
       
@@ -108,7 +122,7 @@ void * thread_usrController(void * ptr)
       _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
       actuator_output_msg.publish(&_actuator_output_msg);
       aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
-
+    // printf("pwm out is: %d %d %d %d\n",usrController_Obj.usrController_Y._c_out_s.pwm[0],usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
       //fail safe
       float pwm_output[8] = {0};
       float pwm_aux_output[8] = {0};
@@ -166,17 +180,21 @@ void * thread_usrController(void * ptr)
       cont--;
       if (cont<1)
       {   
-          cont = 500;
+          cont = 400;
           // printf("thrust: %f %f %f %f ", _mpc_output_msg.thrust[0], _mpc_output_msg.thrust[1], _mpc_output_msg.thrust[2], _mpc_output_msg.thrust[3]);
           // printf("pwm: %d %d %d %d ",_actuator_output_msg.actuator_output[0], _actuator_output_msg.actuator_output[1], _actuator_output_msg.actuator_output[2], _actuator_output_msg.actuator_output[3]);
           // printf("gyro: %f %f %f ",usrController_Obj.usrController_U._m_gyro_s.gyro_data[0], usrController_Obj.usrController_U._m_gyro_s.gyro_data[1], usrController_Obj.usrController_U._m_gyro_s.gyro_data[2]);
           // printf("quat: %f %f %f %f ",usrController_Obj.usrController_U._e_cf_s.quat_data[0], usrController_Obj.usrController_U._e_cf_s.quat_data[1], usrController_Obj.usrController_U._e_cf_s.quat_data[2], usrController_Obj.usrController_U._e_cf_s.quat_data[3]);
           // printf("vel: %f %f %f ", usrController_Obj.usrController_U._e_lpe_s.vel_ned[0], usrController_Obj.usrController_U._e_lpe_s.vel_ned[1], usrController_Obj.usrController_U._e_lpe_s.vel_ned[2]);
           // printf("sbus: %d %d %d %d \n", usrController_Obj.usrController_U._c_subs_s.channels[0], usrController_Obj.usrController_U._c_subs_s.channels[1], usrController_Obj.usrController_U._c_subs_s.channels[2], usrController_Obj.usrController_U._c_subs_s.channels[3]);
+          printf("info: att used time interval: %lld\n",att_time_use);
       }
+      #if USING_THREAD_SYNC
 
-  //nanosleep(&thread_usrController_sleep,NULL);
-  delay_us_combined((uint64_t)(1000000.f / _config_msg.controller_rate),&scheduler.controller_flag,&controller_delay);
+      #else
+          //nanosleep(&thread_usrController_sleep,NULL);
+          delay_us_combined((uint64_t)(1000000.f / _config_msg.controller_rate),&scheduler.controller_flag,&controller_delay);
+      #endif
 
     }
 
