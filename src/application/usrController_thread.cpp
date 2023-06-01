@@ -98,6 +98,7 @@ void * thread_usrController(void * ptr)
       //lpe check pass
       lpeLowPass_output_msg.read(&_lpeLowPass_msg);
       memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpeLowPass_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+      // uint64_t lpe_time_use = get_time_now() - _lpeLowPass_msg.timestamp;
     //   printf("info: poslp ned %f, %f, %f\n", _lpeLowPass_msg.pos_ned[0], _lpeLowPass_msg.pos_ned[1], _lpeLowPass_msg.pos_ned[2]);
     //   printf("info: vellp ned %f, %f, %f\n\n", _lpeLowPass_msg.vel_ned[0], _lpeLowPass_msg.vel_ned[1], _lpeLowPass_msg.vel_ned[2]);
     //   lpe_output_msg.read(&_lpe_msg);
@@ -122,7 +123,7 @@ void * thread_usrController(void * ptr)
       _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
       actuator_output_msg.publish(&_actuator_output_msg);
       aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
-    // printf("pwm out is: %d %d %d %d\n",usrController_Obj.usrController_Y._c_out_s.pwm[0],usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
+      // printf("pwm out is: %d %d %d %d\n",usrController_Obj.usrController_Y._c_out_s.pwm[0],usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
       //fail safe
       float pwm_output[8] = {0};
       float pwm_aux_output[8] = {0};
@@ -180,14 +181,14 @@ void * thread_usrController(void * ptr)
       cont--;
       if (cont<1)
       {   
-          cont = 400;
+          cont = 1600;
           // printf("thrust: %f %f %f %f ", _mpc_output_msg.thrust[0], _mpc_output_msg.thrust[1], _mpc_output_msg.thrust[2], _mpc_output_msg.thrust[3]);
           // printf("pwm: %d %d %d %d ",_actuator_output_msg.actuator_output[0], _actuator_output_msg.actuator_output[1], _actuator_output_msg.actuator_output[2], _actuator_output_msg.actuator_output[3]);
           // printf("gyro: %f %f %f ",usrController_Obj.usrController_U._m_gyro_s.gyro_data[0], usrController_Obj.usrController_U._m_gyro_s.gyro_data[1], usrController_Obj.usrController_U._m_gyro_s.gyro_data[2]);
           // printf("quat: %f %f %f %f ",usrController_Obj.usrController_U._e_cf_s.quat_data[0], usrController_Obj.usrController_U._e_cf_s.quat_data[1], usrController_Obj.usrController_U._e_cf_s.quat_data[2], usrController_Obj.usrController_U._e_cf_s.quat_data[3]);
           // printf("vel: %f %f %f ", usrController_Obj.usrController_U._e_lpe_s.vel_ned[0], usrController_Obj.usrController_U._e_lpe_s.vel_ned[1], usrController_Obj.usrController_U._e_lpe_s.vel_ned[2]);
           // printf("sbus: %d %d %d %d \n", usrController_Obj.usrController_U._c_subs_s.channels[0], usrController_Obj.usrController_U._c_subs_s.channels[1], usrController_Obj.usrController_U._c_subs_s.channels[2], usrController_Obj.usrController_U._c_subs_s.channels[3]);
-          printf("info: att used time interval: %lld\n",att_time_use);
+          printf("info: ATT time interval from published to used: %lld\n\n", att_time_use);
       }
       #if USING_THREAD_SYNC
 

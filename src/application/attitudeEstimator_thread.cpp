@@ -40,9 +40,9 @@ void * thread_attitudeEstimator(void * ptr)
     while (1)
     {
         #if USING_THREAD_SYNC     
-        pthread_mutex_lock(&mutex);  
-        pthread_cond_wait(&cond, &mutex);  
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_lock(&mutex_lpe2att);  
+        pthread_cond_wait(&cond_lpe2att, &mutex_lpe2att);  
+        pthread_mutex_unlock(&mutex_lpe2att);
         #endif
         // if(TASK_SCHEDULE_DEBUG)
         // {
@@ -52,18 +52,20 @@ void * thread_attitudeEstimator(void * ptr)
         // }
 
             if(gyro_msg.read(&_gyro))memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
-            uint64_t time_interval_gyro = get_time_now() - _gyro.timestamp;
+            // uint64_t time_interval_gyro = get_time_now() - _gyro.timestamp;
             if(accel_msg.read(&_accel))memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
-            uint64_t time_interval_mag;
+            // uint64_t time_interval_accel = get_time_now() - _accel.timestamp;
+            // uint64_t time_interval_mag;
             if(mag_msg.read(&_mag))
             {
                 memcpy(&AttitudeEstimator_Obj.rtU._m_mag_s,&_mag,sizeof(AttitudeEstimator_Obj.rtU._m_mag_s));
-                time_interval_mag = get_time_now() - _mag.timestamp;
+                // time_interval_mag = get_time_now() - _mag.timestamp;
             }
 
             if(lpeLowPass_output_msg.read(&_lpelp_msg)){
                 memcpy(&AttitudeEstimator_Obj.rtU._e_lpe_s, &_lpelp_msg, sizeof(AttitudeEstimator_Obj.rtU._e_lpe_s));
             }
+            uint64_t time_interval_lpe = get_time_now() - _lpelp_msg.timestamp;
 
             // mag decl data in beijing
             AttitudeEstimator_Obj.rtU.mag_decl = -0.124;
@@ -92,8 +94,8 @@ void * thread_attitudeEstimator(void * ptr)
                 // printf("mag x: %f, mag y: %f, mag z: %f \n", _mag.mag[0], _mag.mag[1], _mag.mag[2]);
                 // printf("Accel Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[2]);
                 // printf("Mag Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[2]);
-                printf("info: GYRO used time interval: %lld us, MAG used time interval: %lld\n",time_interval_gyro,time_interval_mag);
-                cont = 800;
+                printf("info: LPE time interval from published to used: %lld\n", time_interval_lpe);
+                cont = 3200;
             }
 
             #if USING_THREAD_SYNC

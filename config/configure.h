@@ -26,9 +26,10 @@
 #define ULOG_CORE 1
 
 /* Rate Div */
-#define USING_THREAD_SYNC 1
+#define USING_THREAD_SYNC 0
+#define IMU_LPE 1
+#define LPE_ATT 1
 #define ATT_CTRL 2
-#define IMU_ATT 1
 
 #define USE_RFLYPILOT 1
 #define USE_ONESHOT_125 1

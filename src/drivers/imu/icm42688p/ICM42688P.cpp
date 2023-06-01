@@ -28,7 +28,7 @@ void * thread_icm42688p(void * ptr)
     rflypilot_config_msg.read(&config);
     thread_msg_typedef _imu_thread;
 	#if USING_THREAD_SYNC
-	char count_for_att = 0;
+	char count_for_lpe = 0;
 	#endif
     while (1)
     {
@@ -40,14 +40,14 @@ void * thread_icm42688p(void * ptr)
 
 		my_icm42688p.RunImpl();
 		#if USING_THREAD_SYNC
-		if(count_for_att == IMU_ATT)
+		if(count_for_lpe == IMU_LPE)
 		{
-			pthread_mutex_lock(&mutex);  
-			pthread_cond_signal(&cond);   
-			pthread_mutex_unlock(&mutex);
-			count_for_att = 0;
+		pthread_mutex_lock(&mutex_imu2lpe);  
+		pthread_cond_signal(&cond_imu2lpe);   
+		pthread_mutex_unlock(&mutex_imu2lpe);
+		count_for_lpe = 0;
 		}
-		count_for_att++;
+		count_for_lpe++;
 		#endif
         // nanosleep(&thread_icm42688p_sleep,NULL);
         delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm42688p_delay);
@@ -296,6 +296,23 @@ void ICM42688P::RunImpl()
 				}
 			}
 
+			// check configuration registers periodically or immediately following any failure
+			if (RegisterCheck(_register_bank0_cfg[_checked_register_bank0])
+			    && RegisterCheck(_register_bank1_cfg[_checked_register_bank1])
+			    && RegisterCheck(_register_bank2_cfg[_checked_register_bank2])
+			   ) {
+				_last_config_check_timestamp = now;
+				_checked_register_bank0 = (_checked_register_bank0 + 1) % size_register_bank0_cfg;
+				_checked_register_bank1 = (_checked_register_bank1 + 1) % size_register_bank1_cfg;
+				_checked_register_bank2 = (_checked_register_bank2 + 1) % size_register_bank2_cfg;
+
+			} else {
+				// register check failed, force reset
+				// perf_count(_bad_register_perf);
+				printf("register check failed, force reset\n");
+				Reset();
+			}
+
 			bool success = false;
 
 			if (samples >= 1) {
@@ -322,22 +339,7 @@ void ICM42688P::RunImpl()
 				}
 			}
 
-			// check configuration registers periodically or immediately following any failure
-			if (RegisterCheck(_register_bank0_cfg[_checked_register_bank0])
-			    && RegisterCheck(_register_bank1_cfg[_checked_register_bank1])
-			    && RegisterCheck(_register_bank2_cfg[_checked_register_bank2])
-			   ) {
-				_last_config_check_timestamp = now;
-				_checked_register_bank0 = (_checked_register_bank0 + 1) % size_register_bank0_cfg;
-				_checked_register_bank1 = (_checked_register_bank1 + 1) % size_register_bank1_cfg;
-				_checked_register_bank2 = (_checked_register_bank2 + 1) % size_register_bank2_cfg;
 
-			} else {
-				// register check failed, force reset
-				// perf_count(_bad_register_perf);
-				printf("register check failed, force reset\n");
-				Reset();
-			}
 		}
 
 		break;
