@@ -1,5 +1,17 @@
 #include "system.h"
 class io_typedef debug_io;
+
+#if USING_THREAD_SYNC
+pthread_cond_t cond_imu2lpe = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex_imu2lpe;
+
+pthread_cond_t cond_lpe2att = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex_lpe2att;
+
+pthread_cond_t cond_att2ctrl = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex_att2ctrl;
+#endif
+
 bool core_bind(int cpu_index)
 {
 	cpu_set_t mask;

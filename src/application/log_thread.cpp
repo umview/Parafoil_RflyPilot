@@ -5,6 +5,7 @@ class binlog_typedef att_est_log;
 class binlog_typedef pos_est_log;
 void * thread_log(void * dir)
 {
+    core_bind(LOG_CORE);
     timespec thread_log_sleep;
     thread_log_sleep.tv_sec = 0;
     thread_log_sleep.tv_nsec = 10*1000*1000;//2ms	

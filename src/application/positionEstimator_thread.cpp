@@ -31,9 +31,16 @@ void * thread_lpe(void * ptr)
 
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
+    #if USING_THREAD_SYNC
+    char count_for_att = 0;
+    #endif
     while (1)
     {   
-
+        #if USING_THREAD_SYNC     
+        pthread_mutex_lock(&mutex_imu2lpe);  
+        pthread_cond_wait(&cond_imu2lpe, &mutex_imu2lpe);  
+        pthread_mutex_unlock(&mutex_imu2lpe);
+        #endif
             if(gps_msg.read(&_gps))
             {//read success
                 memcpy(&lpe_Obj.rtU._m_gps_s,&_gps,sizeof(lpe_Obj.rtU._m_gps_s));
@@ -41,9 +48,10 @@ void * thread_lpe(void * ptr)
 
 
             // if(fc_api.valid_mode == EXP2 || fc_api.valid_mode == SIH){
-                if(accel_msg.read(&_accel)){
+            if(accel_msg.read(&_accel)){
                 memcpy(&lpe_Obj.rtU._m_accel_s,&_accel,sizeof(lpe_Obj.rtU._m_accel_s));
-                }
+            }
+            uint64_t time_interval_accel = get_time_now() - _accel.timestamp;
             // }else{
             //     if(imu_msg.read(&_imu)){
             //         memcpy(lpe_Obj.rtU._m_accel_s.accel_data,_imu.accel,sizeof(lpe_Obj.rtU._m_accel_s.accel_data));
@@ -98,12 +106,23 @@ void * thread_lpe(void * ptr)
                 // printf("P_p: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[0],lpe_Obj.rtY._e_lpe_status_s.p_diag[1],lpe_Obj.rtY._e_lpe_status_s.p_diag[2]);
                 // printf("P_v: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[3],lpe_Obj.rtY._e_lpe_status_s.p_diag[4],lpe_Obj.rtY._e_lpe_status_s.p_diag[5]);
                 // printf("P_b: %f, %f, %f \n", lpe_Obj.rtY._e_lpe_status_s.p_diag[6],lpe_Obj.rtY._e_lpe_status_s.p_diag[7],lpe_Obj.rtY._e_lpe_status_s.p_diag[8]);
-                cont = 1000;
+                // printf("info: ACC time interval from published to used: %lld us\n",time_interval_accel);
+                cont = 3200;
             }
         //}
         //nanosleep(&thread_lpe_sleep, NULL);
+        #if USING_THREAD_SYNC
+		if(count_for_att == LPE_ATT)
+		{
+            pthread_mutex_lock(&mutex_lpe2att);  
+            pthread_cond_signal(&cond_lpe2att);   
+            pthread_mutex_unlock(&mutex_lpe2att);
+            count_for_att = 0;
+		}
+		count_for_att++;
+        #else
         delay_us_combined((uint64_t)(1000000.f / config.lpe_rate),&scheduler.lpe_flag,&lpe_adaotive_delay);
-
+        #endif
     }
 
     return NULL;

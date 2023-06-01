@@ -67,7 +67,7 @@ enum CNTL1_BIT : uint8_t {
 	RNG_2G          = Bit5 | Bit4, // 00
 
 	// ODR[3:2]
-	ODR_50HZ        = Bit2,        // 01
+	ODR_50HZ        = Bit3 | Bit2,        // 50Hz:01; 100Hz:10; 200Hz:11;
 
 	// MODE[1:0]
 	Mode_Continuous = Bit0,        // 01

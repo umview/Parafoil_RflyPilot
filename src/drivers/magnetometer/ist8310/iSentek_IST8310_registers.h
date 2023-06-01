@@ -82,7 +82,7 @@ enum STAT1_BIT : uint8_t {
 // CNTL1
 enum CNTL1_BIT : uint8_t {
 	// 3:0 Mode: Operating mode setting
-	MODE_SINGLE_MEASUREMENT = Bit0,
+	MODE_SINGLE_MEASUREMENT =  Bit0,//px4 default Bit0
 };
 
 // CNTL2

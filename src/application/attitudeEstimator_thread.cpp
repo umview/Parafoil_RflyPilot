@@ -33,78 +33,39 @@ void * thread_attitudeEstimator(void * ptr)
     rflypilot_config_typedef config;
     rflypilot_config_msg.read(&config);
     thread_msg_typedef _attest;
+    #if USING_THREAD_SYNC
+    // char count_for_mag=0;
+    char count_for_ctrl=0;
+    #endif
     while (1)
-    {   
-                // if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
-                //     // if(TASK_SCHEDULE_DEBUG)
-                //     // {
-                //     //     _attest.timestamp = get_time_now();
-                //     //     _attest.data_timestamp = _gyro.timestamp;
-                //     //     attest_thread_msg.publish(&_attest); 
-                //     // }
-                //     //printf("gyro : %f %f %f\n accel : %f %f %f\n",_gyro.gyro[0],_gyro.gyro[1],_gyro.gyro[2],_accel.accel[0],_accel.accel[1],_accel.accel[2]);
-                //     memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
-                //     memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
-                //     _imu.timestamp = _gyro.timestamp;
-                //     for(int i = 0; i < 3; i++)
-                //     {
-                //         _imu.accel[i] = _accel.accel[i];
-                //         _imu.gyro[i] = _gyro.gyro[i];
-                //     }
-                //     imu_msg.publish(&_imu);
-                //     gyro_raw_msg.read(&_gyro_raw);
-                //     accel_raw_msg.read(&_accel_raw);
-                //     _imu_raw.timestamp = _gyro_raw.timestamp;
-                //     for(int i = 0; i < 3; i++)
-                //     {
-                //         _imu_raw.accel[i] = _accel_raw.accel[i];
-                //         _imu_raw.gyro[i] = _gyro_raw.gyro[i];
-                //     }
-                //     imu_raw_msg.publish(&_imu_raw);
-
-                // }
-            // }else{
-            //     if(imu_msg.read(&_imu)){
-            //         for(int i= 0;i<3;i++)
-            //         {
-            //             AttitudeEstimator_Obj.rtU._m_accel_s.accel_data[i] = _imu.accel[i];
-            //             AttitudeEstimator_Obj.rtU._m_gyro_s.gyro_data[i] = _imu.gyro[i];
-            //         }
-            //         AttitudeEstimator_Obj.rtU._m_accel_s.time_stamp = _imu.timestamp;
-            //         AttitudeEstimator_Obj.rtU._m_gyro_s.time_stamp = _imu.timestamp;
-            //     }
-            // if(gyro_msg.read(&_gyro) && accel_msg.read(&_accel)){
-                // _imu.timestamp = _gyro.timestamp;
-                // for(int i = 0; i < 3; i++)
-                // {
-                //     _imu.accel[i] = _accel.accel[i];
-                //     _imu.gyro[i] = _gyro.gyro[i];
-                // }
-                // imu_msg.publish(&_imu);
-                // gyro_raw_msg.read(&_gyro_raw);
-                // accel_raw_msg.read(&_accel_raw);
-                // _imu_raw.timestamp = _gyro_raw.timestamp;
-                // for(int i = 0; i < 3; i++)
-                // {
-                //     _imu_raw.accel[i] = _accel_raw.accel[i];
-                //     _imu_raw.gyro[i] = _gyro_raw.gyro[i];
-                // }
-                // imu_raw_msg.publish(&_imu_raw);
-            // }
+    {
+        #if USING_THREAD_SYNC     
+        pthread_mutex_lock(&mutex_lpe2att);  
+        pthread_cond_wait(&cond_lpe2att, &mutex_lpe2att);  
+        pthread_mutex_unlock(&mutex_lpe2att);
+        #endif
+        // if(TASK_SCHEDULE_DEBUG)
+        // {
+        //     _attest.timestamp = get_time_now();
+        //     _attest.data_timestamp = _gyro.timestamp;
+        //     attest_thread_msg.publish(&_attest); 
+        // }
 
             if(gyro_msg.read(&_gyro))memcpy(&AttitudeEstimator_Obj.rtU._m_gyro_s,&_gyro,sizeof(AttitudeEstimator_Obj.rtU._m_gyro_s));
-
+            // uint64_t time_interval_gyro = get_time_now() - _gyro.timestamp;
             if(accel_msg.read(&_accel))memcpy(&AttitudeEstimator_Obj.rtU._m_accel_s,&_accel,sizeof(AttitudeEstimator_Obj.rtU._m_accel_s));
-
-            if(mag_msg.read(&_mag))memcpy(&AttitudeEstimator_Obj.rtU._m_mag_s,&_mag,sizeof(AttitudeEstimator_Obj.rtU._m_mag_s));
-
+            // uint64_t time_interval_accel = get_time_now() - _accel.timestamp;
+            // uint64_t time_interval_mag;
+            if(mag_msg.read(&_mag))
+            {
+                memcpy(&AttitudeEstimator_Obj.rtU._m_mag_s,&_mag,sizeof(AttitudeEstimator_Obj.rtU._m_mag_s));
+                // time_interval_mag = get_time_now() - _mag.timestamp;
+            }
 
             if(lpeLowPass_output_msg.read(&_lpelp_msg)){
-                // _lpelp_msg.pos_accel_body[0] = 0;
-                // _lpelp_msg.pos_accel_body[1] = 0;
-                // _lpelp_msg.pos_accel_body[2] = 0;
                 memcpy(&AttitudeEstimator_Obj.rtU._e_lpe_s, &_lpelp_msg, sizeof(AttitudeEstimator_Obj.rtU._e_lpe_s));
             }
+            uint64_t time_interval_lpe = get_time_now() - _lpelp_msg.timestamp;
 
             // mag decl data in beijing
             AttitudeEstimator_Obj.rtU.mag_decl = -0.124;
@@ -133,11 +94,30 @@ void * thread_attitudeEstimator(void * ptr)
                 // printf("mag x: %f, mag y: %f, mag z: %f \n", _mag.mag[0], _mag.mag[1], _mag.mag[2]);
                 // printf("Accel Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_accel[2]);
                 // printf("Mag Correct: %f %f %f \n", AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[0],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[1],AttitudeEstimator_Obj.rtY._e_cf_status_s.correct_mag[2]);
-                cont = 500;
+                // printf("info: LPE time interval from published to used: %lld us\n", time_interval_lpe);
+                cont = 3200;
             }
 
-        //nanosleep(&thread_attitudeEstimator_sleep,NULL);
-        delay_us_combined((uint64_t)(1000000.f / config.attitude_est_rate),&scheduler.att_est_flag,&attitude_est_delay);
+            #if USING_THREAD_SYNC
+            if(count_for_ctrl == ATT_CTRL){
+                pthread_mutex_lock(&mutex_att2ctrl);  
+                pthread_cond_signal(&cond_att2ctrl);   
+                pthread_mutex_unlock(&mutex_att2ctrl);
+                count_for_ctrl = 0;
+            }
+            count_for_ctrl++;
+            // usleep(400);//900 is best; delay is minimal
+            // if(count_for_mag == 8){
+            //     pthread_mutex_lock(&mutex_mag2imu);  
+            //     pthread_cond_signal(&cond_mag2imu);   
+            //     pthread_mutex_unlock(&mutex_mag2imu);
+            //     count_for_mag = 0;
+            // }
+            // count_for_mag++;
+            #else
+            // nanosleep(&thread_attitudeEstimator_sleep,NULL);
+            delay_us_combined((uint64_t)(1000000.f / config.attitude_est_rate),&scheduler.att_est_flag,&attitude_est_delay);
+            #endif
     }
 
     return NULL;
