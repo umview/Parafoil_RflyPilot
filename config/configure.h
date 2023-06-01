@@ -17,7 +17,7 @@
 #define CTRL_CORE 3
 
 /* SIH Thread Core */
-#define SIH_CORE 0
+#define SIH_CORE 2
 
 /* Serve Thread Core */
 #define SCREEN_CORE 1

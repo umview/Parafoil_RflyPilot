@@ -1,5 +1,6 @@
 #include "sih_thread.h"
-
+class adaptive_delay_typedef sih_adaotive_delay(0.5,15,400);
+float sih_rate = 1000.f;
 void * thread_sih(void * ptr)
 {
   timespec thread_sih_sleep;
@@ -65,24 +66,35 @@ void * thread_sih(void * ptr)
     // SIH_Model_Y._m_gps_s;
     uint64_t gps_timestamp_old = _gps_msg.timestamp;
     memcpy(&_gps_msg, &SIH_Model_Y._m_gps_s, sizeof(_gps_msg));
-    if(_gps_msg.timestamp>gps_timestamp_old)gps_msg.publish(&_gps_msg);
+    if(_gps_msg.timestamp>gps_timestamp_old){
+      _gps_msg.timestamp = get_time_now();
+      gps_msg.publish(&_gps_msg);
+    }
 
     // SIH_Model_Y._m_baro_s;
     uint64_t baro_timestamp_old = _baro_msg.timestamp;
     memcpy(&_baro_msg, &SIH_Model_Y._m_baro_s, sizeof(_baro_msg));
-    if(_baro_msg.timestamp > baro_timestamp_old)baro_msg.publish(&_baro_msg);
+    if(_baro_msg.timestamp > baro_timestamp_old){
+      _baro_msg.timestamp = get_time_now();
+      baro_msg.publish(&_baro_msg);
+    }
 
     // SIH_Model_Y._m_mag_s;
     uint64_t mag_timestamp_old = _mag_msg.timestamp;
     memcpy(&_mag_msg, &SIH_Model_Y._m_mag_s, sizeof(_mag_msg));
-    if(_mag_msg.timestamp > mag_timestamp_old)mag_msg.publish(&_mag_msg);
+    if(_mag_msg.timestamp > mag_timestamp_old){
+      _mag_msg.timestamp = get_time_now();
+      mag_msg.publish(&_mag_msg);
+    }
 
     // SIH_Model_Y._m_accel_s;
     memcpy(&_accel_msg, &SIH_Model_Y._m_accel_s, sizeof(_accel_msg));
+    _accel_msg.timestamp = get_time_now();
     accel_msg.publish(&_accel_msg);
 
     // SIH_Model_Y._m_gyro_s;
     memcpy(&_gyro_msg, &SIH_Model_Y._m_gyro_s, sizeof(_gyro_msg));
+    _gyro_msg.timestamp = get_time_now();
     gyro_msg.publish(&_gyro_msg);
 
     #if USING_THREAD_SYNC
@@ -96,7 +108,8 @@ void * thread_sih(void * ptr)
 		count_for_lpe++;
 		#endif
 
-    nanosleep(&thread_sih_sleep,NULL);
+    // nanosleep(&thread_sih_sleep,NULL);
+    delay_us_combined((uint64_t)(1000000.f / sih_rate),&scheduler.sih_flag,&sih_adaotive_delay);
   }
   
 }
