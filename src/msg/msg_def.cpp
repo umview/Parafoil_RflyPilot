@@ -56,3 +56,7 @@ ringbuffer_typedef<scope_data_typedef> att_est_scope_msg(20,"att_est_debug_data"
 ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg(20,"pos_est_debug_data",LOG_DISABLE);
 ringbuffer_typedef<scope_data_typedef> system_scope_msg(20,"system_debug_data",LOG_DISABLE);
 ringbuffer_typedef<offboard_data_typedef> offboard_msg(5,"offboard_data",LOG_DISABLE);
+
+ringbuffer_typedef<thread_msg_typedef> ctrl_thread_msg(10,"ctrl_thread",LOG_DISABLE);
+ringbuffer_typedef<thread_msg_typedef> imu_thread_msg(10,"imu_thread",LOG_DISABLE);
+ringbuffer_typedef<thread_msg_typedef> attest_thread_msg(10,"attest_thread",LOG_DISABLE);

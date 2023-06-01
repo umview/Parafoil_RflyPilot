@@ -39,6 +39,10 @@ void * thread_usrController(void * ptr)
 
     rflypilot_config_typedef _config_msg;
     rflypilot_config_msg.read(&_config_msg);
+
+    thread_msg_typedef _ctrl;
+
+
     while (1)
     {   
       //time_stamp
@@ -75,6 +79,13 @@ void * thread_usrController(void * ptr)
       memcpy(&usrController_Obj.usrController_U._m_gps_s, &_gps_msg, sizeof(usrController_Obj.usrController_U._m_gps_s));
       // cf check pass
       cf_output_msg.read(&_cf_msg);
+      // if(TASK_SCHEDULE_DEBUG)
+      // {
+      //   _ctrl.timestamp = get_time_now();
+      //   _ctrl.data_timestamp = _cf_msg.timestamp;
+      //   ctrl_thread_msg.publish(&_ctrl);
+      // }
+
       memcpy(&usrController_Obj.usrController_U._e_cf_s, &_cf_msg, sizeof(usrController_Obj.usrController_U._e_cf_s));
       //lpe check pass
       lpe_output_msg.read(&_lpe_msg);
@@ -129,15 +140,26 @@ void * thread_usrController(void * ptr)
             pwm_aux_output[i] = ((float)_aux_actuator_output_msg.actuator_output[i]);
         }
       }
-
+      static uint16_t pwm_cnt = 0;
       //set pwm
       if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
       {
+        //   debug_io.toggle_io();
+        //   if(debug_io.value == 1)pwm_cnt = 2000;
+        //   else pwm_cnt = 50;
+        // for(int i = 0; i < 8; i++)
+        // {
+        //     if(USE_ONESHOT_125 == 1)
+        //     {
+        //         pwm_output[i] = ((float)(pwm_cnt))/8;
+        //     }else{
+        //         pwm_output[i] = ((float)(pwm_cnt));
+        //     }
+        // }
           pca9685_dev.updatePWM(pwm_output,4);
           if(_config_msg.validation_mode == EXP) pca9685_dev_aux.updatePWM(pwm_aux_output,8);
           // printf("actuator : %f %f %f %f\n", pwm_output[0],pwm_output[1],pwm_output[2],pwm_output[3]);
       }
-
 
   
       //print debug info 

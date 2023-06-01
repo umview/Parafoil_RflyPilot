@@ -30,7 +30,6 @@ int main(int argc, const char *argv[])
 
    start_scope(NULL);
 
-
   switch(_config_msg.validation_mode)
   {
     case HIL:

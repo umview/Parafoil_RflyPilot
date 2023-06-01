@@ -56,4 +56,21 @@ void scheduler_timer(void);
 void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_delay_typedef *adp_delay);
 
 bool create_thread(const char *name, void* (*start_rtn)(void*),void *thread_arg);
+
+class io_typedef
+{
+	public:
+	int fd;
+	uint8_t value;
+	bool initd;
+	io_typedef(void)
+	{
+		value = 0;
+		initd = false;
+	}
+	void init(void);
+	void deinit(void);
+	void toggle_io(void);
+};
+extern class io_typedef debug_io;
 #endif

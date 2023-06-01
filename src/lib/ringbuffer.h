@@ -27,6 +27,7 @@ public:
     int ret;
     uint32_t div;
     uint32_t div_count;
+    bool log_file_init;
     // ringbuffer_typedef(int _size)
     // {
     //     size = _size;
@@ -66,15 +67,17 @@ public:
         }
         div = _div;
         div_count = 0;
+        printf("msg created %s\n", msg_name);
+        log_file_init = false;
     }    
 
     void log_write(data_type *data)
     {
-        static bool log_file_init = false;
         if(log_file_init == false)
         {
             log_file_init = true;
             create_log_file(".");//将日志文件写入到当前文件夹
+            printf("create log file msg name : %s\n",msg_name);
 
         }
         ret = write(fp,(uint8_t*)data,sizeof(data_type));        
@@ -83,6 +86,7 @@ public:
 
     void create_log_file(const char * dir)
     {
+        printf("create log file %s \n",msg_name);
         char syspath[100] = {0};
         sprintf(syspath, "%s/log-%s", (char*)dir, time_buf);    
         struct stat st = {0};  
@@ -159,6 +163,7 @@ public:
             div_count ++;
             if(div_count == div)//日志记录分频
             {
+
                 log_write(data);
                 div_count = 0;
             }

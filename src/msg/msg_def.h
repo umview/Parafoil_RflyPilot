@@ -152,6 +152,14 @@ extern ringbuffer_typedef<scope_data_typedef> pos_est_scope_msg;
 extern ringbuffer_typedef<scope_data_typedef> system_scope_msg;//(20,"system_debug_data",true);
 extern ringbuffer_typedef<offboard_data_typedef> offboard_msg;//(20,"system_debug_data",true);
 
-// #pragma pack(pop)
+
+typedef struct
+{
+    uint64_t timestamp;
+    uint64_t data_timestamp;
+}thread_msg_typedef;
+extern ringbuffer_typedef<thread_msg_typedef> imu_thread_msg;//(1,"imu_thread_msg",LOG_DIV_1);
+extern ringbuffer_typedef<thread_msg_typedef> attest_thread_msg;//(1,"attest_thread_msg",LOG_DIV_1);
+extern ringbuffer_typedef<thread_msg_typedef> ctrl_thread_msg;//(1,"ctrl_thread_msg",LOG_DIV_1);
 
 #endif

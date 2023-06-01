@@ -1,4 +1,5 @@
 #include "system.h"
+class io_typedef debug_io;
 bool core_bind(int cpu_index)
 {
 	cpu_set_t mask;
@@ -227,4 +228,90 @@ void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_dela
       printf("undifined scheduler method\n");
     break;
   }
+}
+/********************************************/
+// referance https://www.ics.com/blog/how-control-gpio-hardware-c-or-c
+void io_typedef::init(void)
+{
+    //Export the desired pin by writing to /sys/class/gpio/export
+
+    fd = open("/sys/class/gpio/export", O_WRONLY);
+    if (fd == -1) {
+        perror("Unable to open /sys/class/gpio/export");
+        exit(1);
+    }
+
+    if (write(fd, "16", 2) != 2) {
+        perror("Error writing to /sys/class/gpio/export");
+        //exit(1);
+    }
+
+    close(fd);
+
+    // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+
+    fd = open("/sys/class/gpio/gpio16/direction", O_WRONLY);
+    if (fd == -1) {
+        perror("Unable to open /sys/class/gpio/gpio16/direction");
+        exit(1);
+    }
+
+    if (write(fd, "out", 3) != 3) {
+        perror("Error writing to /sys/class/gpio/gpio16/direction");
+        exit(1);
+    }
+
+    close(fd);
+
+    fd = open("/sys/class/gpio/gpio16/value", O_WRONLY);
+    if (fd == -1) {
+        perror("Unable to open /sys/class/gpio/gpio16/value");
+        exit(1);
+    }
+    // wiringPiSetup();
+    // pinMode(29,OUTPUT)
+}
+void io_typedef::deinit(void)
+{
+    // Unexport the pin by writing to /sys/class/gpio/unexport
+
+    fd = open("/sys/class/gpio/unexport", O_WRONLY);
+    if (fd == -1) {
+        perror("Unable to open /sys/class/gpio/unexport");
+        exit(1);
+    }
+
+    if (write(fd, "16", 2) != 2) {
+        perror("Error writing to /sys/class/gpio/unexport");
+        exit(1);
+    }
+
+    close(fd);
+}
+void io_typedef::toggle_io(void)
+{
+	if(!initd)
+	{
+		init();
+		initd = true;
+	}
+    // Toggle IO
+    //printf("toggle running\n");
+	if(value)
+	{
+		value = 0u;		
+		//digitalWrite(29,LOW);
+        if (write(fd, "0", 1) != 1) {
+            perror("Error writing to /sys/class/gpio/gpio16/value");
+            exit(1);
+        }
+	}else{
+		value = 1u;
+		//digitalWrite(29,HIGH);
+
+        if (write(fd, "1", 1) != 1) {
+            perror("Error writing to /sys/class/gpio/gpio16/value");
+            exit(1);
+        }		
+	}
 }
