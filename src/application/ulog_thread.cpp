@@ -83,7 +83,7 @@ void * thread_ulog(void * dir)
         write_format(ulog_name, mag_format);
 
         /* baro message */
-        const char baro_format[] = "sensor baro:uint64_t timestamp;double mag;double temperature;";
+        const char baro_format[] = "sensor baro:uint64_t timestamp;double pressure;double temperature;";
         write_format(ulog_name, baro_format);
 
         /* actuator message format */
@@ -97,6 +97,10 @@ void * thread_ulog(void * dir)
         /* rc input message format */
         const char rc_format[] = "rc input:uint64_t timestamp;uint16_t[16] channels;bool ch17;bool ch18;bool failsafe;bool frameLost;uint8_t[4] _padding0";// last padding = 4
         write_format(ulog_name, rc_format);
+
+        /* Task Rate */
+        const char task_rate_format[] = "task_rate:uint64_t timestamp;float usr_controller;float q_estimator;float local_position_estimator;float sensor_accel;float sensor_gyro;float sensor_mag;float sensor_baro;float sensor_gps;float rc_input;uint8_t[4] _padding0";// last padding = 4
+        write_format(ulog_name, task_rate_format);
 
     /* Write Subscription Message */
 
@@ -143,6 +147,10 @@ void * thread_ulog(void * dir)
         /* lpeLowPass logged msg */
         const char rc_msg_name[]="rc input";
         write_add_logged_msg(ulog_name, rc_msg_name, 10U, 0U);
+
+        /* task_rate */
+        const char task_rate_name[] = "task_rate";
+        write_add_logged_msg(ulog_name, task_rate_name, 11U, 0U);
 
 	while(1)
 	{
@@ -210,6 +218,22 @@ void * thread_ulog(void * dir)
                 size_t rc_input_msg_data_len = sizeof(_rc_input_msg)-4;
                 write_msg(ulog_name, (uint8_t *)&_rc_input_msg, rc_input_msg_data_len, 10U);
             }
+
+            struct msg_rate task_rate_msg = {
+                .timestamp = get_time_now(),
+                .usr_controller_rate = actuator_output_msg.publish_rate_hz,
+                .q_estimator_rate = cf_output_msg.publish_rate_hz,
+                .local_position_estimator_rate = lpe_output_msg.publish_rate_hz,
+                .sensor_accel_rate = gyro_msg.publish_rate_hz,
+                .sensor_gyro_rate = accel_msg.publish_rate_hz,
+                .sensor_mag_rate = mag_msg.publish_rate_hz,
+                .sensor_baro_rate = baro_msg.publish_rate_hz,
+                .sensor_gps_rate = gps_msg.publish_rate_hz,
+                .rc_input_rate = rc_input_msg.publish_rate_hz
+            };
+            size_t task_rate_data_len = sizeof(task_rate_msg) - 4;
+            write_msg(ulog_name, (uint8_t *)&task_rate_msg, task_rate_data_len, 11U);
+
 
         }
 
