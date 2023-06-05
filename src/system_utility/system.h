@@ -32,6 +32,7 @@ public:
     bool initd; 
     double delay_us_feedback;
 	double integral;
+	double integral_2;
 	double kp_output;
 	long delay_ns_output; 
 	double ff;
@@ -49,13 +50,22 @@ public:
 	adaptive_delay_typedef(float _kp, float _ki, uint64_t _offset_us);
 	void delay_us(uint64_t us);
 	uint64_t calc_delay_us(uint64_t us);
-
+	void delay_freq(uint64_t freq);
+	/**** for timestamp sync ***********/
+	uint64_t time_sync_accumulated;
+	double time_sync_cnt;
+	bool time_sync_initd;
+	uint64_t time_sync_time0;
+	uint64_t time_sync_time;
 };
+
 void scheduler_timer(void);
 
 void delay_us_combined(uint64_t _delay_us, bool *timer_flag, class adaptive_delay_typedef *adp_delay);
 
 bool create_thread(const char *name, void* (*start_rtn)(void*),void *thread_arg);
+
+
 
 class io_typedef
 {

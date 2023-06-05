@@ -23,5 +23,7 @@ extern "C" {
 void start_sih(void);
 void * thread_sih(void * ptr);
 
-
+extern uint64_t sih_timestamp0;
+extern uint64_t sih_timestamp;
+extern uint64_t sih_model_timestamp;
 #endif
