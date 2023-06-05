@@ -29,6 +29,7 @@
 ringbuffer_typedef<cf_output_typedef> cf_output_msg(CF_OUTPUT_N, "cf_output", LOG_DISABLE);
 ringbuffer_typedef<lpe_output_typedef> lpe_output_msg(LPE_OUTPUT_N, "lpe_output", LOG_DISABLE);
 ringbuffer_typedef<lpe_output_typedef> lpeLowPass_output_msg(LPE_OUTPUT_N, "lpeLowPass_output", LOG_DISABLE);
+ringbuffer_typedef<lpe_status_typedef> lpe_status_msg(LPE_OUTPUT_N, "lpe_status", LOG_DISABLE);
 
 // ringbuffer_typedef<imu_raw_typedef> imu_raw_msg(IMU_RAW_N, "imu_raw", LOG_DISABLE);
 ringbuffer_typedef<mag_raw_typedef> mag_raw_msg(MAG_RAW_N, "mag_raw", LOG_DISABLE);

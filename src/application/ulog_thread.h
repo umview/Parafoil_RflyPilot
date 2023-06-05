@@ -46,6 +46,19 @@ struct ulog_message_flag_bits_s {
 
 #pragma pack(pop)
 
+struct msg_rate {
+  uint64_t timestamp;
+  float usr_controller_rate;
+  float q_estimator_rate;
+  float local_position_estimator_rate;
+  float sensor_accel_rate;
+  float sensor_gyro_rate;
+  float sensor_mag_rate;
+  float sensor_baro_rate;
+  float sensor_gps_rate;
+  float rc_input_rate;
+};
+
 // // #pragma pack(push, 8)
 // typedef struct struct_test1
 // {

@@ -97,12 +97,12 @@ void * thread_usrController(void * ptr)
       memcpy(&usrController_Obj.usrController_U._e_cf_s, &_cf_msg, sizeof(usrController_Obj.usrController_U._e_cf_s));
       //lpe check pass
       lpeLowPass_output_msg.read(&_lpeLowPass_msg);
-      memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpeLowPass_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+      // memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpeLowPass_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
       // uint64_t lpe_time_use = get_time_now() - _lpeLowPass_msg.timestamp;
     //   printf("info: poslp ned %f, %f, %f\n", _lpeLowPass_msg.pos_ned[0], _lpeLowPass_msg.pos_ned[1], _lpeLowPass_msg.pos_ned[2]);
     //   printf("info: vellp ned %f, %f, %f\n\n", _lpeLowPass_msg.vel_ned[0], _lpeLowPass_msg.vel_ned[1], _lpeLowPass_msg.vel_ned[2]);
-    //   lpe_output_msg.read(&_lpe_msg);
-    //   memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpe_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
+      lpe_output_msg.read(&_lpe_msg);
+      memcpy(&usrController_Obj.usrController_U._e_lpe_s, &_lpe_msg, sizeof(usrController_Obj.usrController_U._e_lpe_s));
     //     printf("info: pos ned %f, %f, %f\n", _lpe_msg.pos_ned[0], _lpe_msg.pos_ned[1], _lpe_msg.pos_ned[2]);
     //     printf("info: vel ned %f, %f, %f\n\n", _lpe_msg.vel_ned[0], _lpe_msg.vel_ned[1], _lpe_msg.vel_ned[2]);
       //run step
@@ -120,9 +120,7 @@ void * thread_usrController(void * ptr)
       
       //publish _actuator_output_msg for Simulink Display and SIH mode
       memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
-      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
-      actuator_output_msg.publish(&_actuator_output_msg);
-      aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
+      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;      
       // printf("pwm out is: %d %d %d %d\n",usrController_Obj.usrController_Y._c_out_s.pwm[0],usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
       //fail safe
       float pwm_output[8] = {0};
@@ -143,6 +141,7 @@ void * thread_usrController(void * ptr)
             //usrController_Obj.usrController_Y._c_out_s.pwm[i] = 1000;
             pwm_aux_output[i] = 1500;
         }
+        memset(_actuator_output_msg.actuator_output,0U,8);
       }else{
         for(int i = 0; i < 8; i++)
         {
@@ -155,7 +154,9 @@ void * thread_usrController(void * ptr)
             pwm_aux_output[i] = ((float)_aux_actuator_output_msg.actuator_output[i]);
         }
       }
-      static uint16_t pwm_cnt = 0;
+      actuator_output_msg.publish(&_actuator_output_msg);
+      aux_actuator_output_msg.publish(&_aux_actuator_output_msg);
+      // static uint16_t pwm_cnt = 0;
       //set pwm
       if(_config_msg.validation_mode ==  EXP || _config_msg.validation_mode ==  HIL)
       {
