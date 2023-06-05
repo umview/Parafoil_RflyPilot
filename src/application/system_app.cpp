@@ -62,6 +62,9 @@ void * thread_system_app(void * ptr)
 	    _system_debug_data.data[37] = _mag.mag[0];
 	    _system_debug_data.data[38] = _mag.mag[1];
 	    _system_debug_data.data[39] = _mag.mag[2];
+	    // _system_debug_data.data[37] = float(sih_model_timestamp);//_mag.mag[0];
+	    // _system_debug_data.data[38] = float(sih_timestamp);//_mag.mag[1];
+	    // _system_debug_data.data[39] = ((float)sih_model_timestamp - (float)sih_timestamp);//_mag.mag[2];
 
 	    system_scope_msg.publish(&_system_debug_data);  
 		//printf("%f %f %f %f\n",actuator_output_msg.publish_rate_hz, cf_output_msg.publish_rate_hz,mag_msg.publish_rate_hz,accel_msg.publish_rate_hz);
