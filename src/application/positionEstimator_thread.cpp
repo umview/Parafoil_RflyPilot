@@ -14,7 +14,7 @@ void * thread_lpe(void * ptr)
 
     /* lpe init */
     lpe_Obj.initialize();
-    int cont = 100;
+    int cont = 0;
     //read gps data
     gps_msg_typedef _gps;
     //read accel sensor data message
@@ -26,6 +26,7 @@ void * thread_lpe(void * ptr)
     //push data
     lpe_output_typedef _lpe_msg;
     lpe_output_typedef _lpeLowPass_msg;      
+    lpe_status_typedef _lpe_status_msg;//lpe_status_msg
 
     scope_data_typedef _pos_est_debug;
 
@@ -46,18 +47,9 @@ void * thread_lpe(void * ptr)
                 memcpy(&lpe_Obj.rtU._m_gps_s,&_gps,sizeof(lpe_Obj.rtU._m_gps_s));
             }//otherwise do nothing let the struct keep 
 
-
-            // if(fc_api.valid_mode == EXP2 || fc_api.valid_mode == SIH){
             if(accel_msg.read(&_accel)){
                 memcpy(&lpe_Obj.rtU._m_accel_s,&_accel,sizeof(lpe_Obj.rtU._m_accel_s));
             }
-            uint64_t time_interval_accel = get_time_now() - _accel.timestamp;
-            // }else{
-            //     if(imu_msg.read(&_imu)){
-            //         memcpy(lpe_Obj.rtU._m_accel_s.accel_data,_imu.accel,sizeof(lpe_Obj.rtU._m_accel_s.accel_data));
-            //         lpe_Obj.rtU._m_accel_s.time_stamp = _imu.timestamp;
-            //     }
-            // } 
 
             //read complementory filter output message
             cf_output_typedef _cf_msg;
@@ -66,8 +58,8 @@ void * thread_lpe(void * ptr)
 
             if(baro_msg.read(&_baro_rcv))memcpy(&lpe_Obj.rtU._m_baro_s,&_baro_rcv, sizeof(lpe_Obj.rtU._m_baro_s));
 
-            //set usec
-            lpe_Obj.rtU.usec = get_time_now();
+            //set timestamp
+            lpe_Obj.rtU.timestamp = get_time_now();
 
             //step
             lpe_Obj.step();
@@ -79,38 +71,30 @@ void * thread_lpe(void * ptr)
             memcpy(&_lpeLowPass_msg, &lpe_Obj.rtY._e_lpelp_s,sizeof(_lpeLowPass_msg));
             lpeLowPass_output_msg.publish(&_lpeLowPass_msg);
 
+            memcpy(&_lpe_status_msg, &lpe_Obj.rtY._e_lpe_status_s, sizeof(_lpe_status_msg));
+            lpe_status_msg.publish(&_lpe_status_msg);
+
             for(int i = 0; i < 3; i++)
             {
                 _pos_est_debug.data[i] = _accel.accel[i];
             }
             pos_est_scope_msg.publish(&_pos_est_debug);
 
-            static bool gpsInitOK_last = false;
-            if(gpsInitOK&&!gpsInitOK_last)printf("GPS Init status %d, GPS Alt Origin is %f \n",gpsInitOK, gpsAltOrigin);
-            gpsInitOK_last = gpsInitOK;
+            static bool gpsTimeout_last = true;
+            if(!gpsTimeout&&gpsTimeout_last)printf("[lpe] GPS Init status %d, GPS Alt Origin is %f \n", gpsTimeout, gpsAltOrigin);
+            gpsTimeout_last = gpsTimeout;
             
-            static bool baroInitOK_last = false;
-            if(baroInitOK&&!baroInitOK_last)printf("Baro Init status %d, Baro Alt Origin is %f, Baro pressure is: %f \n",baroInitOK, baroAltOrigin, _baro_rcv.pressure);
-            baroInitOK_last = baroInitOK;
+            static bool baroTimeout_last = true;
+            if(!baroTimeout&&baroTimeout_last)printf("[lpe] Baro Init status %d, Baro Alt Origin is %f, Baro pressure is: %f \n", baroTimeout, baroAltOrigin, _baro_rcv.pressure);
+            baroTimeout_last = baroTimeout;
 
-            cont--;
-            if (cont<1)
+            cont++;
+            if (cont>3200)
             {   
-                // if(!gpsInitOK)printf("GPS hacc is %f, vacc is %f, sacc is %f, numSV is %d\n", _gps.hacc, _gps.vacc, _gps.sacc, _gps.numSV);
-                // printf("roll: %f, pitch: %f, yaw: %f\n", _cf_msg.roll, _cf_msg.pitch, _cf_msg.yaw);
-                //  printf("px: %f, py: %f, pz: %f ", lpe_Obj.rtY._e_lpe_s.pos_ned[0], lpe_Obj.rtY._e_lpe_s.pos_ned[1], lpe_Obj.rtY._e_lpe_s.pos_ned[2]);
-                //  printf("vx: %f, vy: %f, vz: %f ", lpe_Obj.rtY._e_lpe_s.vel_ned[0], lpe_Obj.rtY._e_lpe_s.vel_ned[1], lpe_Obj.rtY._e_lpe_s.vel_ned[2]);
-                // printf("abx: %f, aby: %f, abz: %f\n", lpe_Obj.rtY._e_lpe_s.accel_bias[0], lpe_Obj.rtY._e_lpe_s.accel_bias[1], lpe_Obj.rtY._e_lpe_s.accel_bias[2]);
-                // printf("body_accx: %f, body_accy: %f, body_accz: %f\n", lpe_Obj.rtY._e_lpe_s.pos_accel_body[0], lpe_Obj.rtY._e_lpe_s.pos_accel_body[1], lpe_Obj.rtY._e_lpe_s.pos_accel_body[2]);
-                // printf("Baro Init status %d, Baro Alt Origin is %f, Baro pressure is: %f ",baroInitOK, baroAltOrigin, _baro_rcv.pressure);
-                // printf("P_p: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[0],lpe_Obj.rtY._e_lpe_status_s.p_diag[1],lpe_Obj.rtY._e_lpe_status_s.p_diag[2]);
-                // printf("P_v: %f, %f, %f ", lpe_Obj.rtY._e_lpe_status_s.p_diag[3],lpe_Obj.rtY._e_lpe_status_s.p_diag[4],lpe_Obj.rtY._e_lpe_status_s.p_diag[5]);
-                // printf("P_b: %f, %f, %f \n", lpe_Obj.rtY._e_lpe_status_s.p_diag[6],lpe_Obj.rtY._e_lpe_status_s.p_diag[7],lpe_Obj.rtY._e_lpe_status_s.p_diag[8]);
-                // printf("info: ACC time interval from published to used: %lld us\n",time_interval_accel);
-                cont = 3200;
+                // printf("[lpe] EST Z&XY: %d, %d, baroAltOrigin %f, gpsAltOrigin %f\n",est_zInitialized, est_xyInitialized, baroAltOrigin, gpsAltOrigin);            
+                cont = 0;
             }
-        //}
-        //nanosleep(&thread_lpe_sleep, NULL);
+        
         #if USING_THREAD_SYNC
 		if(count_for_att == LPE_ATT)
 		{
@@ -121,6 +105,7 @@ void * thread_lpe(void * ptr)
 		}
 		count_for_att++;
         #else
+        //nanosleep(&thread_lpe_sleep, NULL);
         delay_us_combined((uint64_t)(1000000.f / config.lpe_rate),&scheduler.lpe_flag,&lpe_adaotive_delay);
         #endif
     }

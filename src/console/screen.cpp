@@ -110,6 +110,7 @@ int screen::outputscreen(void)
 
   cf_output_typedef _cf_msg;//cf_output_msg     
   lpe_output_typedef _lpe_msg;//lpe_output_msg
+  lpe_status_typedef _lpe_status_msg;//lpe_status_msg
 
   //actuator_output_typedef will be used
   actuator_output_typedef _actuator_output_msg;//actuator_output_msg
@@ -122,17 +123,21 @@ int screen::outputscreen(void)
   mag_msg.read(&_mag_msg);
   gps_msg.read(&_gps_msg);
   lpe_output_msg.read(&_lpe_msg);
+  lpe_status_msg.read(&_lpe_status_msg);
   this->endscreen();
+  this->printline(_lpe_msg.timestamp, _lpe_msg.pos_ned[0],_lpe_msg.pos_ned[1],_lpe_msg.pos_ned[2],"lpe px","lpe py","lpe pz");
   this->printline(_lpe_msg.timestamp, _lpe_msg.vel_ned[0],_lpe_msg.vel_ned[1],_lpe_msg.vel_ned[2],"lpe vx","lpe vy","lpe vz");
+  this->printline(_lpe_status_msg.timestamp, _lpe_status_msg.baroBeta, _lpe_status_msg.baroInnov, _lpe_status_msg.baroAltRef, "baroBeta", "baroInnov", "baroAltRef");
+  this->printline(_lpe_status_msg.timestamp, _lpe_status_msg.gpsBeta, _lpe_status_msg.gpsInnov[2], _lpe_status_msg.gpsAltRef, "gpsBeta", "gpsInnovZ", "gpsAltRef");
   this->printline(_cf_msg.timestamp, 57.3*_cf_msg.roll, 57.3*_cf_msg.pitch, 57.3*_cf_msg.yaw, "roll", "pitch","yaw");
   this->printline(_gyro_msg.timestamp, 57.3*_gyro_msg.gyro[0], 57.3*_gyro_msg.gyro[1], 57.3*_gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
   this->printline(_accel_msg.timestamp, _accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2], "accel x", "accel y","accel z");
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], mag_msg.publish_rate_hz, "mag x", "mag y","magHz");
   this->printline(_gps_msg.timestamp, _gps_msg.hacc, _gps_msg.vacc, _gps_msg.sacc, "hacc", "vacc", "sacc");
   this->printline(_gps_msg.timestamp, _gps_msg.fixType, _gps_msg.numSV, _gps_msg.updated, "fixType", "numSV", "Updated");
-  // this->printline(get_time_now(), accel_msg.publish_rate_hz,cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, "imuRate", "attRate", "lpeRate");
-  // this->printline(get_time_now(), actuator_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, gps_msg.publish_rate_hz, "ctrlRate", "baroRate","gpsRate");
-    this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
-  this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
+  this->printline(get_time_now(), accel_msg.publish_rate_hz,cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, "imuRate", "attRate", "lpeRate");
+  this->printline(get_time_now(), actuator_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, gps_msg.publish_rate_hz, "ctrlRate", "baroRate","gpsRate");
+  // this->printline(get_time_now(), accel_msg.publish_rate_hz,actuator_output_msg.publish_rate_hz, gps_msg.publish_rate_hz, "imuHz", "ctrlHz", "GPSHz");
+  // this->printline(get_time_now(), cf_output_msg.publish_rate_hz, lpe_output_msg.publish_rate_hz, baro_msg.publish_rate_hz, "cfHz", "lpeHz","baroHz");
 
 }

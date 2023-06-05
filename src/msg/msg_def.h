@@ -26,6 +26,24 @@ extern ringbuffer_typedef<lpe_output_typedef> lpeLowPass_output_msg;//local posi
 
 typedef struct
 {
+  uint64_t timestamp;
+  float xCovariances[9];
+  float gpsBeta;
+  float baroBeta;
+  float gpsInnov[6];
+  float baroInnov;
+  float gpsDelay;
+  float gpsAltRef;
+  float baroAltRef;
+  int32_t gpsDelayIndex;
+  bool gpsDelayStatus;
+  bool gpsUpdated;
+  bool baroUpdated;
+}lpe_status_typedef;
+extern ringbuffer_typedef<lpe_status_typedef> lpe_status_msg;//local position estimator status
+
+typedef struct
+{
     uint64_t timestamp;
     double pressure;
     double temperature;
