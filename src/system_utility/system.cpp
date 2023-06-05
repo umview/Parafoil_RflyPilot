@@ -53,6 +53,7 @@ adaptive_delay_typedef::adaptive_delay_typedef(float _kp, float _ki,  uint64_t _
 	initd = false;
 	locked = false;
 	lock_cnt = 0;
+  time_sync_initd = false;
 }
 uint64_t adaptive_delay_typedef::calc_delay_us(uint64_t us)
 {
@@ -103,7 +104,42 @@ void adaptive_delay_typedef::delay_us(uint64_t us)
     _sleep.tv_nsec = delay_ns_output;
     nanosleep(&_sleep,NULL);
 }
+void adaptive_delay_typedef::delay_freq(uint64_t freq)
+{
+  if(time_sync_initd == false)
+  {
+    time_sync_initd = true;
+    time_sync_time0 = get_time_now();
+  }
+  time_sync_time = get_time_now();
+  double time_sync_cnt_actual = (double)(time_sync_time - time_sync_time0) / 1e6 / (1 / (double)freq);
+  time_sync_cnt = time_sync_cnt + 1;
+  err = -time_sync_cnt_actual + time_sync_cnt;
+    kp_output = kp * err;
+    integral += ki * err;
+    //integral_2 += integral;
+    if(integral > 15*1000) integral = 15 *1000;
+    else if(integral < -15*1000) integral = -15 * 1000;
+    delay_ns_output = (long)((kp_output + integral + integral_2 - offset_us)*1e3);
+    if(delay_ns_output > 10000 * 1e3)delay_ns_output = 10000 * 1e3;
+    if(delay_ns_output <= 0)delay_ns_output = 0;
 
+
+    _sleep.tv_sec = 0;
+    _sleep.tv_nsec = (uint64_t)delay_ns_output;
+    nanosleep(&_sleep,NULL);
+    // static int cnt = 0;
+    // if(cnt ++ == 1000)
+    // {
+    //   cnt = 0;
+    //   printf("time now : %ld\n",(long int)time_sync_time);
+    //   printf("time cnt %lf ; cnt %lf\n", time_sync_cnt_actual, time_sync_cnt);
+    //   printf("err %f\n", err);
+    //   printf("integral %f\n",integral);
+    //   printf("delay_ns_output %ld \n", delay_ns_output); 
+    // } 
+
+}
 class scheduler_typedef scheduler;
 void scheduler_timer(void)
 {

@@ -1,11 +1,17 @@
 #include "sih_thread.h"
-class adaptive_delay_typedef sih_adaotive_delay(0.5,15,400);
-float sih_rate = 1000.f;
+// class adaptive_delay_typedef sih_adaotive_delay(0.5,15,400);
+// float sih_rate = 1000.f;
+
+class adaptive_delay_typedef sih_adp_delay(1800,100,1);//kp ki feedforward feedforward 为模型运算自身所消耗的时间 us
+//适合的feedforward 可以保证系统时间戳与仿真模型时间戳完全同步，否则会出现静差。
+uint64_t sih_timestamp0;
+uint64_t sih_timestamp;
+uint64_t sih_model_timestamp;
 void * thread_sih(void * ptr)
 {
-  timespec thread_sih_sleep;
-  thread_sih_sleep.tv_sec = 0;
-  thread_sih_sleep.tv_nsec = 900*1000;
+  // timespec thread_sih_sleep;
+  // thread_sih_sleep.tv_sec = 0;
+  // thread_sih_sleep.tv_nsec = 900*1000;
 
   core_bind(SIH_CORE);
 
@@ -35,15 +41,16 @@ void * thread_sih(void * ptr)
   #if USING_THREAD_SYNC
 	char count_for_lpe = 0;
 	#endif
+  bool sih_timestamp_initd = false;
   while(1){
     /* Set model inputs here */
     // SIH_Model_U._c_out_s;
     actuator_output_msg.read(&_actuator_output_msg);
     memcpy(&SIH_Model_U._c_out_s.pwm, _actuator_output_msg.actuator_output, sizeof(SIH_Model_U._c_out_s.pwm));
     SIH_Model_U._c_out_s.time_stamp = _actuator_output_msg.timestamp;
-    
     /* Step the model */
     SIH_Model_step();
+
 
     //SIH_Model_Y.UnRealData;
     memcpy(_rflysim3d_output_msg.unrealdata, SIH_Model_Y.UnRealData, sizeof(_rflysim3d_output_msg.unrealdata));
@@ -107,9 +114,18 @@ void * thread_sih(void * ptr)
 		}
 		count_for_lpe++;
 		#endif
+    //usleep(500);
+    sih_adp_delay.delay_freq(1000);
 
     // nanosleep(&thread_sih_sleep,NULL);
-    delay_us_combined((uint64_t)(1000000.f / sih_rate),&scheduler.sih_flag,&sih_adaotive_delay);
+    //delay_us_combined((uint64_t)(1000000.f / sih_rate),&scheduler.sih_flag,&sih_adaotive_delay);
+    if(sih_timestamp_initd == false)
+    {
+      sih_timestamp_initd = true;
+      sih_timestamp0 = get_time_now();
+    }
+    sih_model_timestamp = SIH_Model_Y.usec;
+    sih_timestamp = get_time_now() - sih_timestamp0;
   }
   
 }
