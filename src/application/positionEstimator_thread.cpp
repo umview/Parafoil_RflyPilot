@@ -59,7 +59,7 @@ void * thread_lpe(void * ptr)
             if(baro_msg.read(&_baro_rcv))memcpy(&lpe_Obj.rtU._m_baro_s,&_baro_rcv, sizeof(lpe_Obj.rtU._m_baro_s));
 
             //set timestamp
-            lpe_Obj.rtU.timestamp = get_time_now();
+            lpe_Obj.rtU.time_stamp = get_time_now();
 
             //step
             lpe_Obj.step();

@@ -69,7 +69,7 @@ void * thread_attitudeEstimator(void * ptr)
 
             // mag decl data in beijing
             AttitudeEstimator_Obj.rtU.mag_decl = -0.124;
-            AttitudeEstimator_Obj.rtU.usec = get_time_now();
+            AttitudeEstimator_Obj.rtU.time_stamp = get_time_now();
             
             //step
             AttitudeEstimator_Obj.step();
