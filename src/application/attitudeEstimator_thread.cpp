@@ -24,6 +24,7 @@ void * thread_attitudeEstimator(void * ptr)
     // accel_raw_typedef _accel_raw;
     //push cf data
     cf_output_typedef _cf_msg;
+    cf_status_typedef _cf_status_msg;
     //read mag data from ringbuffer memcpy
     mag_typedef _mag;     
     //set lpe data
@@ -69,7 +70,7 @@ void * thread_attitudeEstimator(void * ptr)
 
             // mag decl data in beijing
             AttitudeEstimator_Obj.rtU.mag_decl = -0.124;
-            AttitudeEstimator_Obj.rtU.usec = get_time_now();
+            AttitudeEstimator_Obj.rtU.time_stamp = get_time_now();
             
             //step
             AttitudeEstimator_Obj.step();
@@ -77,7 +78,9 @@ void * thread_attitudeEstimator(void * ptr)
 
             memcpy(&_cf_msg,&AttitudeEstimator_Obj.rtY._e_cf_s,sizeof(_cf_msg));
             cf_output_msg.publish(&_cf_msg);
-            
+
+            memcpy(&_cf_status_msg, &AttitudeEstimator_Obj.rtY._e_cf_status_s, sizeof(_cf_status_msg));
+            cf_status_msg.publish(&_cf_status_msg);            
 
             for(int i = 0; i < 3; i++)
             {

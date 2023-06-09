@@ -108,7 +108,9 @@ int screen::outputscreen(void)
   baro_typedef _baro_msg;//baro_msg 
   gps_msg_typedef _gps_msg;//gps_msg
 
-  cf_output_typedef _cf_msg;//cf_output_msg     
+  cf_output_typedef _cf_msg;//cf_output_msg
+  cf_status_typedef _cf_status_msg;//cf_status_msg
+
   lpe_output_typedef _lpe_msg;//lpe_output_msg
   lpe_status_typedef _lpe_status_msg;//lpe_status_msg
 
@@ -118,18 +120,24 @@ int screen::outputscreen(void)
 
   rflypilot_config_typedef _config_msg;
   cf_output_msg.read(&_cf_msg);
+  cf_status_msg.read(&_cf_status_msg);
+
   gyro_msg.read(&_gyro_msg);
   accel_msg.read(&_accel_msg);
   mag_msg.read(&_mag_msg);
   gps_msg.read(&_gps_msg);
   lpe_output_msg.read(&_lpe_msg);
   lpe_status_msg.read(&_lpe_status_msg);
+  
   this->endscreen();
   this->printline(_lpe_msg.timestamp, _lpe_msg.pos_ned[0],_lpe_msg.pos_ned[1],_lpe_msg.pos_ned[2],"lpe px","lpe py","lpe pz");
   this->printline(_lpe_msg.timestamp, _lpe_msg.vel_ned[0],_lpe_msg.vel_ned[1],_lpe_msg.vel_ned[2],"lpe vx","lpe vy","lpe vz");
   this->printline(_lpe_status_msg.timestamp, _lpe_status_msg.baroBeta, _lpe_status_msg.baroInnov, _lpe_status_msg.baroAltRef, "baroBeta", "baroInnov", "baroAltRef");
   this->printline(_lpe_status_msg.timestamp, _lpe_status_msg.gpsBeta, _lpe_status_msg.gpsInnov[2], _lpe_status_msg.gpsAltRef, "gpsBeta", "gpsInnovZ", "gpsAltRef");
+
   this->printline(_cf_msg.timestamp, 57.3*_cf_msg.roll, 57.3*_cf_msg.pitch, 57.3*_cf_msg.yaw, "roll", "pitch","yaw");
+  this->printline(_cf_status_msg.timestamp, _cf_status_msg.magDelay*1000, _cf_status_msg.magDelayIndex, _cf_status_msg.magDelayStatus, "magDelayms","magDelayIndex","magDelayStatus");
+
   this->printline(_gyro_msg.timestamp, 57.3*_gyro_msg.gyro[0], 57.3*_gyro_msg.gyro[1], 57.3*_gyro_msg.gyro[2], "gyro x", "gyro y","gyro z");
   this->printline(_accel_msg.timestamp, _accel_msg.accel[0], _accel_msg.accel[1], _accel_msg.accel[2], "accel x", "accel y","accel z");
   this->printline(_mag_msg.timestamp, _mag_msg.mag[0], _mag_msg.mag[1], mag_msg.publish_rate_hz, "mag x", "mag y","magHz");

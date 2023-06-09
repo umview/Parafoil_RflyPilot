@@ -13,6 +13,17 @@ typedef struct
 }cf_output_typedef;
 extern ringbuffer_typedef<cf_output_typedef> cf_output_msg;//complementory filter output message
 
+typedef struct 
+{
+  uint64_t timestamp;
+  float correct_accel[3];
+  float correct_mag[3];
+  float magDelay;
+  int32_t magDelayIndex;
+  bool magDelayStatus;
+}cf_status_typedef;
+extern ringbuffer_typedef<cf_status_typedef> cf_status_msg;//Q estimator status
+
 typedef struct
 {
     uint64_t timestamp;

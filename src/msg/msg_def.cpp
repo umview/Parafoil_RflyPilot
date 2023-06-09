@@ -27,6 +27,8 @@
 #define LOG_DIV_10 10u
 
 ringbuffer_typedef<cf_output_typedef> cf_output_msg(CF_OUTPUT_N, "cf_output", LOG_DISABLE);
+ringbuffer_typedef<cf_status_typedef> cf_status_msg(CF_OUTPUT_N, "cf_status", LOG_DISABLE);
+
 ringbuffer_typedef<lpe_output_typedef> lpe_output_msg(LPE_OUTPUT_N, "lpe_output", LOG_DISABLE);
 ringbuffer_typedef<lpe_output_typedef> lpeLowPass_output_msg(LPE_OUTPUT_N, "lpeLowPass_output", LOG_DISABLE);
 ringbuffer_typedef<lpe_status_typedef> lpe_status_msg(LPE_OUTPUT_N, "lpe_status", LOG_DISABLE);
