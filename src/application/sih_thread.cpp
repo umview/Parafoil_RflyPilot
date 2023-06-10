@@ -42,12 +42,19 @@ void * thread_sih(void * ptr)
 	char count_for_lpe = 0;
 	#endif
   bool sih_timestamp_initd = false;
+  double yaw_err;
+  int16_t sih_count = 0;
   while(1){
     /* Set model inputs here */
     // SIH_Model_U._c_out_s;
     actuator_output_msg.read(&_actuator_output_msg);
     memcpy(&SIH_Model_U._c_out_s.pwm, _actuator_output_msg.actuator_output, sizeof(SIH_Model_U._c_out_s.pwm));
     SIH_Model_U._c_out_s.time_stamp = _actuator_output_msg.timestamp;
+
+    if(!_config.sih_use_real_state){
+      cf_output_msg.read(&_cf_msg);
+      yaw_err = SIH_Model_Y._e_cf_s.yaw -  _cf_msg.yaw;
+    }
     /* Step the model */
     SIH_Model_step();
 
@@ -68,7 +75,7 @@ void * thread_sih(void * ptr)
       lpe_output_msg.publish(&_lpe_msg);
 
       lpeLowPass_output_msg.publish(&_lpe_msg);
-    }
+    }    
 
     // SIH_Model_Y._m_gps_s;
     uint64_t gps_timestamp_old = _gps_msg.timestamp;
@@ -115,6 +122,13 @@ void * thread_sih(void * ptr)
 		count_for_lpe++;
 		#endif
     //usleep(500);
+    sih_count++;
+    if (sih_count>=1000)
+    {
+      sih_count = 0;
+      // printf("yaw errer: %6.3f\n",yaw_err);
+    }
+    
     sih_adp_delay.delay_freq(1000);
 
     // nanosleep(&thread_sih_sleep,NULL);

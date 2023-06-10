@@ -43,9 +43,9 @@ typedef struct
   float baroBeta;
   float gpsInnov[6];
   float baroInnov;
-  float gpsDelay;
   float gpsAltRef;
   float baroAltRef;
+  float gpsDelay;
   int32_t gpsDelayIndex;
   bool gpsDelayStatus;
   bool gpsUpdated;
