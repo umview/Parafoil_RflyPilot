@@ -52,7 +52,8 @@ SET(drivers_source
     src/drivers/actuator/fpga/actuator_fpga.cpp
     src/drivers/rc/sbus/sbus_api.cpp
     src/drivers/imu/icm42688p/ICM42688P.cpp
-    src/drivers/imu/icm20689/icm20689.cpp
+    # src/drivers/imu/icm20689/icm20689.cpp
+    src/drivers/imu/icm20689new/ICM20689.cpp
     src/drivers/imu/gyroscope/PX4Gyroscope.cpp
     src/drivers/imu/accelerometer/PX4Accelerometer.cpp  
     src/drivers/magnetometer/ist8310/ist8310.cpp
@@ -70,7 +71,8 @@ SET(drivers_include
     src/drivers/imu/icm42688p
     src/drivers/imu/accelerometer
     src/drivers/imu/gyroscope
-    src/drivers/imu/icm20689
+    # src/drivers/imu/icm20689
+    src/drivers/imu/icm20689new
     src/drivers/gps
     src/drivers/barometer
     src/drivers/barometer
