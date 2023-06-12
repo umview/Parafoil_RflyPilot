@@ -586,8 +586,12 @@ bool ICM20689::ProcessAccel(const hrt_abstime &timestamp_sample, const InvenSens
 
 		// sensor's frame is +x forward, +y left, +z up
 		//  flip y & z to publish right handed with z down (x forward, y right, z down)
-		accel.x[accel.samples] = accel_x;
-		accel.y[accel.samples] = (accel_y == INT16_MIN) ? INT16_MAX : -accel_y;
+		// accel.x[accel.samples] = accel_x;
+		// accel.y[accel.samples] = (accel_y == INT16_MIN) ? INT16_MAX : -accel_y;
+		// accel.z[accel.samples] = (accel_z == INT16_MIN) ? INT16_MAX : -accel_z;
+		// 坐标轴对齐
+		accel.x[accel.samples] = (accel_y == INT16_MIN) ? INT16_MAX : -accel_y;
+		accel.y[accel.samples] = -accel_x;
 		accel.z[accel.samples] = (accel_z == INT16_MIN) ? INT16_MAX : -accel_z;
 		accel.samples++;
 	}
@@ -616,8 +620,12 @@ void ICM20689::ProcessGyro(const hrt_abstime &timestamp_sample, const InvenSense
 
 		// sensor's frame is +x forward, +y left, +z up
 		//  flip y & z to publish right handed with z down (x forward, y right, z down)
-		gyro.x[i] = gyro_x;
-		gyro.y[i] = (gyro_y == INT16_MIN) ? INT16_MAX : -gyro_y;
+		// gyro.x[i] = gyro_x;
+		// gyro.y[i] = (gyro_y == INT16_MIN) ? INT16_MAX : -gyro_y;
+		// gyro.z[i] = (gyro_z == INT16_MIN) ? INT16_MAX : -gyro_z;
+		// 坐标轴对齐
+		gyro.x[i] = (gyro_y == INT16_MIN) ? INT16_MAX : -gyro_y;
+		gyro.y[i] = -gyro_x;
 		gyro.z[i] = (gyro_z == INT16_MIN) ? INT16_MAX : -gyro_z;
 	}
 
