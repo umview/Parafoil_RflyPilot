@@ -32,6 +32,8 @@
 #include "../accelerometer/PX4Accelerometer.h"
 #include "../gyroscope/PX4Gyroscope.h"
 
+typedef uint64_t	hrt_abstime;
+typedef uint32_t 	spi_drdy_gpio_t;
 using namespace math_px4;
 
 using namespace InvenSense_ICM20689;

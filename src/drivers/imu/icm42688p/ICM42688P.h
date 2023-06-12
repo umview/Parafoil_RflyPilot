@@ -87,18 +87,18 @@ private:
 	static constexpr float ACCEL_RATE{1e6f / FIFO_SAMPLE_DT};
 
 	// maximum FIFO samples per transfer is limited to the size of sensor_accel_fifo/sensor_gyro_fifo
-	static constexpr uint32_t FIFO_MAX_SAMPLES{math_px4::min<uint32_t>(math_px4::min<uint32_t>(FIFO::SIZE / sizeof(FIFO::DATA), sizeof(sensor_gyro_fifo_s::x) / sizeof(sensor_gyro_fifo_s::x[0])), sizeof(sensor_accel_fifo_s::x) / sizeof(sensor_accel_fifo_s::x[0]) * (int)(GYRO_RATE / ACCEL_RATE))};
+	static constexpr uint32_t FIFO_MAX_SAMPLES{math_px4::min<uint32_t>(math_px4::min<uint32_t>(InvenSense_ICM42688P::FIFO::SIZE / sizeof(InvenSense_ICM42688P::FIFO::DATA), sizeof(sensor_gyro_fifo_s::x) / sizeof(sensor_gyro_fifo_s::x[0])), sizeof(sensor_accel_fifo_s::x) / sizeof(sensor_accel_fifo_s::x[0]) * (int)(GYRO_RATE / ACCEL_RATE))};
 
 	// Transfer data
 	struct FIFOTransferBuffer {
-		uint8_t cmd{static_cast<uint8_t>(InvenSense_ICM42688P::Register::BANK_0::INT_STATUS) | DIR_READ};
+		uint8_t cmd{static_cast<uint8_t>(InvenSense_ICM42688P::Register::BANK_0::INT_STATUS) | InvenSense_ICM42688P::DIR_READ};
 		uint8_t INT_STATUS{0};
 		uint8_t FIFO_COUNTH{0};
 		uint8_t FIFO_COUNTL{0};
-		FIFO::DATA f[FIFO_MAX_SAMPLES] {};
+		InvenSense_ICM42688P::FIFO::DATA f[FIFO_MAX_SAMPLES] {};
 	};
 	// ensure no struct padding
-	static_assert(sizeof(FIFOTransferBuffer) == (4 + FIFO_MAX_SAMPLES *sizeof(FIFO::DATA)));
+	static_assert(sizeof(FIFOTransferBuffer) == (4 + FIFO_MAX_SAMPLES *sizeof(InvenSense_ICM42688P::FIFO::DATA)));
 
 	struct register_bank0_config_t {
 		InvenSense_ICM42688P::Register::BANK_0 reg;
@@ -145,9 +145,9 @@ private:
 	bool FIFORead(const hrt_abstime &timestamp_sample, uint8_t samples);
 	void FIFOReset();
 
-	void ProcessAccel(const hrt_abstime &timestamp_sample, const FIFO::DATA fifo[], const uint8_t samples);
-	void ProcessGyro(const hrt_abstime &timestamp_sample, const FIFO::DATA fifo[], const uint8_t samples);
-	bool ProcessTemperature(const FIFO::DATA fifo[], const uint8_t samples);
+	void ProcessAccel(const hrt_abstime &timestamp_sample, const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples);
+	void ProcessGyro(const hrt_abstime &timestamp_sample, const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples);
+	bool ProcessTemperature(const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples);
 
 	const spi_drdy_gpio_t _drdy_gpio{0};
 

@@ -1,11 +1,66 @@
 #include "ICM20689.h"
+
 #define spi0_path        "/dev/spidev0.0"//前面的0表示SPI1，后面的0表示片选引脚0
 // using namespace time_literals;
 using namespace math_px4;
 
 /* using example */
+class adaptive_delay_typedef icm20689new_delay(0.5,15,400);
 class ICM20689 my_icm20689;
+void * thread_icm20689_new(void * ptr)
+{
+	timespec thread_icm20689_sleep;
+    thread_icm20689_sleep.tv_sec = 0;
+    thread_icm20689_sleep.tv_nsec = 1*1000*1000;//1250us
+    core_bind(IMU_CORE);
+    rflypilot_config_typedef config;
+    rflypilot_config_msg.read(&config);
+    thread_msg_typedef _imu_thread;
+	#if USING_THREAD_SYNC
+	char count_for_lpe = 0;
+	#endif
+    while (1)
+    {
+     //  if(TASK_SCHEDULE_DEBUG)
+     //  {
+    	// _imu_thread.timestamp = get_time_now();
+    	// imu_thread_msg.publish(&_imu_thread);
+     //  }
 
+		my_icm20689.RunImpl();
+		#if USING_THREAD_SYNC
+		if(count_for_lpe == IMU_LPE)
+		{
+		pthread_mutex_lock(&mutex_imu2lpe);  
+		pthread_cond_signal(&cond_imu2lpe);   
+		pthread_mutex_unlock(&mutex_imu2lpe);
+		count_for_lpe = 0;
+		}
+		count_for_lpe++;
+		#endif
+        // nanosleep(&thread_icm20689_sleep,NULL);
+        delay_us_combined((uint64_t)(1000000.f / config.imu_rate),&scheduler.imu_flag,&icm20689new_delay);
+
+    }
+    return NULL;
+}
+void start_icm20689_new()
+{
+    printf("start icm20689new\n");
+    int ret = 0;
+
+    ret = my_icm20689.icm20689_init();
+    ret = my_icm20689.probe();
+    /* thread create */
+    int rc;
+    pthread_t thr_icm20689;
+    if(rc = pthread_create(&thr_icm20689, NULL, thread_icm20689_new, NULL))
+    {
+		printf(" thread cretated failed %d \n", rc);
+    }
+    printf("icm20689 process pid : %d\n", (int)getpid()); 
+}
+/******************** icm20689 driver **************************/
 static constexpr int16_t combine(uint8_t msb, uint8_t lsb)
 {
 	return (msb << 8u) | lsb;
