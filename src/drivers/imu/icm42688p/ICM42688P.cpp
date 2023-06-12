@@ -159,7 +159,7 @@ int ICM42688P::probe()
 {
 	const uint8_t whoami = RegisterRead(InvenSense_ICM42688P::Register::BANK_0::WHO_AM_I);
 
-	if (whoami != WHOAMI) {
+	if (whoami != InvenSense_ICM42688P::WHOAMI) {
 		printf("unexpected WHO_AM_I 0x%02x\n", whoami);
 		return PX4_ERROR;
 	}else{
@@ -189,7 +189,7 @@ void ICM42688P::RunImpl()
 		break;
 
 	case STATE::WAIT_FOR_RESET:
-		if ((RegisterRead(InvenSense_ICM42688P::Register::BANK_0::WHO_AM_I) == WHOAMI)
+		if ((RegisterRead(InvenSense_ICM42688P::Register::BANK_0::WHO_AM_I) == InvenSense_ICM42688P::WHOAMI)
 		    && (RegisterRead(InvenSense_ICM42688P::Register::BANK_0::DEVICE_CONFIG) == 0x00)
 		    && (RegisterRead(InvenSense_ICM42688P::Register::BANK_0::INT_STATUS) & INT_STATUS_BIT::RESET_DONE_INT)) {
 
@@ -273,7 +273,7 @@ void ICM42688P::RunImpl()
 				// check current FIFO count
 				const uint16_t fifo_count = FIFOReadCount();
 				// printf("fificont: %d\n",fifo_count);
-				if (fifo_count >= FIFO::SIZE) {
+				if (fifo_count >= InvenSense_ICM42688P::FIFO::SIZE) {
 					FIFOReset();
 					// printf("fifo overflow, reset fifo!\n");
 					// perf_count(_fifo_overflow_perf);
@@ -284,7 +284,7 @@ void ICM42688P::RunImpl()
 				} else {
 					// FIFO count (size in bytes)
 					// sizeof(FIFO::DATA) is 20;
-					samples = (fifo_count / sizeof(FIFO::DATA));
+					samples = (fifo_count / sizeof(InvenSense_ICM42688P::FIFO::DATA));
 					// printf("FIFO_MAX_SAMPLES is %d and samples is %d\n", FIFO_MAX_SAMPLES, samples);
 					if (samples > FIFO_MAX_SAMPLES) {
 						// not technically an overflow, but more samples than we expected or can publish
@@ -363,7 +363,7 @@ void ICM42688P::ConfigureSampleRate(int sample_rate)
 void ICM42688P::ConfigureFIFOWatermark(uint8_t samples)
 {
 	// FIFO watermark threshold in number of bytes
-	const uint16_t fifo_watermark_threshold = samples * sizeof(FIFO::DATA);
+	const uint16_t fifo_watermark_threshold = samples * sizeof(InvenSense_ICM42688P::FIFO::DATA);
 
 	for (auto &r : _register_bank0_cfg) {
 		if (r.reg == InvenSense_ICM42688P::Register::BANK_0::FIFO_CONFIG2) {
@@ -494,7 +494,7 @@ template <typename T>
 uint8_t ICM42688P::RegisterRead(T reg)
 {
 	uint8_t cmd[2] {};
-	cmd[0] = static_cast<uint8_t>(reg) | DIR_READ;
+	cmd[0] = static_cast<uint8_t>(reg) | InvenSense_ICM42688P::DIR_READ;
 	SelectRegisterBank(reg);
 	transfer(cmd, cmd, sizeof(cmd));
 	return cmd[1];
@@ -524,7 +524,7 @@ uint16_t ICM42688P::FIFOReadCount()
 {
 	// read FIFO count
 	uint8_t fifo_count_buf[3] {};
-	fifo_count_buf[0] = static_cast<uint8_t>(InvenSense_ICM42688P::Register::BANK_0::FIFO_COUNTH) | DIR_READ;
+	fifo_count_buf[0] = static_cast<uint8_t>(InvenSense_ICM42688P::Register::BANK_0::FIFO_COUNTH) | InvenSense_ICM42688P::DIR_READ;
 	SelectRegisterBank(REG_BANK_SEL_BIT::USER_BANK_0);
 
 	if (transfer(fifo_count_buf, fifo_count_buf, sizeof(fifo_count_buf)) != PX4_OK) {
@@ -547,7 +547,7 @@ bool ICM42688P::FIFORead(const hrt_abstime &timestamp_sample, uint8_t samples)
 //                  from RflyPilot_Project/RflyPilot/src/drivers/imu/icm42688p/ICM42688P.cpp:1:
 // RflyPilot_Project/RflyPilot/src/drivers/imu/icm42688p/limit.h:12:16: note: candidate: template<class _Tp> constexpr _Tp math_px4::min(_Tp, _Tp)
 //	const size_t transfer_size = math_px4::min(samples * sizeof(FIFO::DATA) + 4, (long unsigned int)(FIFO::SIZE));
-	const size_t transfer_size = math_px4::min(samples * sizeof(FIFO::DATA) + 4, (FIFO::SIZE));
+	const size_t transfer_size = math_px4::min(samples * sizeof(InvenSense_ICM42688P::FIFO::DATA) + 4, (InvenSense_ICM42688P::FIFO::SIZE));
 
 	SelectRegisterBank(REG_BANK_SEL_BIT::USER_BANK_0);
 
@@ -566,14 +566,14 @@ bool ICM42688P::FIFORead(const hrt_abstime &timestamp_sample, uint8_t samples)
 
 	const uint16_t fifo_count_bytes = combine(buffer.FIFO_COUNTH, buffer.FIFO_COUNTL);
 
-	if (fifo_count_bytes >= FIFO::SIZE) {
+	if (fifo_count_bytes >= InvenSense_ICM42688P::FIFO::SIZE) {
 		// perf_count(_fifo_overflow_perf);
 		printf("_fifo_overflow_perf2\n");
 		FIFOReset();
 		return false;
 	}
 
-	const uint8_t fifo_count_samples = fifo_count_bytes / sizeof(FIFO::DATA);
+	const uint8_t fifo_count_samples = fifo_count_bytes / sizeof(InvenSense_ICM42688P::FIFO::DATA);
 
 	if (fifo_count_samples == 0) {
 		// perf_count(_fifo_empty_perf);
@@ -590,32 +590,32 @@ bool ICM42688P::FIFORead(const hrt_abstime &timestamp_sample, uint8_t samples)
 		// With FIFO_ACCEL_EN and FIFO_GYRO_EN header should be 8’b_0110_10xx
 		const uint8_t FIFO_HEADER = buffer.f[i].FIFO_Header;
 
-		if (FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_MSG) {
+		if (FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_MSG) {
 			// FIFO sample empty if HEADER_MSG set
 			valid = false;
 			// printf("1\n");
 
-		} else if (!(FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_ACCEL)) {
+		} else if (!(FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_ACCEL)) {
 			// accel bit not set
 			valid = false;
 			// printf("2\n");
 
-		} else if (!(FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_GYRO)) {
+		} else if (!(FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_GYRO)) {
 			// gyro bit not set
 			valid = false;
 			// printf("3\n");
 
-		} else if (!(FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_20)) {
+		} else if (!(FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_20)) {
 			// Packet does not contain a new and valid extended 20-bit data
 			valid = false;
 			// printf("4\n");
 
-		} else if (FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_ODR_ACCEL) {
+		} else if (FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_ODR_ACCEL) {
 			// accel ODR changed
 			valid = false;
 			// printf("5\n");
 
-		} else if (FIFO_HEADER & FIFO::FIFO_HEADER_BIT::HEADER_ODR_GYRO) {
+		} else if (FIFO_HEADER & InvenSense_ICM42688P::FIFO::FIFO_HEADER_BIT::HEADER_ODR_GYRO) {
 			// gyro ODR changed
 			valid = false;
 			// printf("6\n");
@@ -649,7 +649,7 @@ void ICM42688P::FIFOReset()
 	// perf_count(_fifo_reset_perf);
 	
 	// SIGNAL_PATH_RESET: FIFO flush
-	RegisterSetBits(InvenSense_ICM42688P::Register::BANK_0::SIGNAL_PATH_RESET, SIGNAL_PATH_RESET_BIT::FIFO_FLUSH);
+	RegisterSetBits(InvenSense_ICM42688P::Register::BANK_0::SIGNAL_PATH_RESET, InvenSense_ICM42688P::SIGNAL_PATH_RESET_BIT::FIFO_FLUSH);
 
 	// reset while FIFO is disabled
 	_drdy_fifo_read_samples.store(0);
@@ -672,7 +672,7 @@ static constexpr int32_t reassemble_20bit(const uint32_t a, const uint32_t b, co
 	return static_cast<int32_t>(x);
 }
 
-void ICM42688P::ProcessAccel(const hrt_abstime &timestamp_sample, const FIFO::DATA fifo[], const uint8_t samples)
+void ICM42688P::ProcessAccel(const hrt_abstime &timestamp_sample, const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples)
 {
 	sensor_accel_fifo_s accel{};
 	accel.timestamp_sample = timestamp_sample;
@@ -760,7 +760,7 @@ void ICM42688P::ProcessAccel(const hrt_abstime &timestamp_sample, const FIFO::DA
 	}
 }
 
-void ICM42688P::ProcessGyro(const hrt_abstime &timestamp_sample, const FIFO::DATA fifo[], const uint8_t samples)
+void ICM42688P::ProcessGyro(const hrt_abstime &timestamp_sample, const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples)
 {
 	sensor_gyro_fifo_s gyro{};
 	gyro.timestamp_sample = timestamp_sample;
@@ -833,7 +833,7 @@ void ICM42688P::ProcessGyro(const hrt_abstime &timestamp_sample, const FIFO::DAT
 	}
 }
 
-bool ICM42688P::ProcessTemperature(const FIFO::DATA fifo[], const uint8_t samples)
+bool ICM42688P::ProcessTemperature(const InvenSense_ICM42688P::FIFO::DATA fifo[], const uint8_t samples)
 {
 	int16_t temperature[FIFO_MAX_SAMPLES];
 	float temperature_sum{0};
@@ -863,7 +863,7 @@ bool ICM42688P::ProcessTemperature(const FIFO::DATA fifo[], const uint8_t sample
 		}
 
 		// use average temperature reading
-		const float TEMP_degC = (temperature_avg / TEMPERATURE_SENSITIVITY) + TEMPERATURE_OFFSET;
+		const float TEMP_degC = (temperature_avg / InvenSense_ICM42688P::TEMPERATURE_SENSITIVITY) + InvenSense_ICM42688P::TEMPERATURE_OFFSET;
 
 		if (PX4_ISFINITE(TEMP_degC)) {
 			_px4_accel.set_temperature(TEMP_degC);

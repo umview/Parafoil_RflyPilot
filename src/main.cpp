@@ -35,7 +35,8 @@ int main(int argc, const char *argv[])
     case HIL:
       printf("mode : HIL\n");
       pca9685_dev.pca9685_init(I2C_BUS_1,PWM_FREQ, false);
-      start_icm20689();
+      // start_icm20689();
+      start_icm20689_new();
       start_ist8310();
       start_baro();
       start_gps("/dev/ttySC0");
