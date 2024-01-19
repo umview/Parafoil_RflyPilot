@@ -93,4 +93,6 @@ void write_msg(const char *filename, uint8_t *logged_data, size_t logged_data_le
 
 void write_flag_bits(const char *filename);
 
+void cp_file (char *path_from, char *path_to);
+
 #endif

@@ -37,10 +37,17 @@ void * thread_ulog(void * dir)
     if (stat(syspath, &st) == -1) {
         mkdir(syspath, 0777);
     }
-
+    
     /* Define ulog file name */
     char ulog_name[100] = {0};
     sprintf(ulog_name, "%s/log-%s/ulog-%s.ulg", (char*)dir, time_buf, time_buf);
+
+    /* Copy paramters.txt into current log path */
+    char my_path_to[100] = {0};
+    sprintf(my_path_to, "%s/log-%s/ulog-%s.txt", (char*)dir, time_buf, time_buf);
+    char my_path_from[50] = "./parameter.txt";
+    // char my_path_to[50] = "./par.txt";
+    cp_file(my_path_from, my_path_to);
 
     /* Write header */
     struct ulog_header_s header = {
@@ -364,3 +371,23 @@ void start_ulog(const char * dir)
   bool ret = create_thread("ulog", thread_ulog, (void*)config.log_dir);
 }
 
+void cp_file (char *path_from, char *path_to)
+{
+	FILE *fp_read = NULL;
+    FILE *fp_write = NULL;
+    // char ch = !EOF;
+    char ch;
+    fp_read = fopen(path_from, "r");
+    if (fp_read == NULL)
+    {
+        printf("The file is not exiting\n");
+    }
+    fp_write = fopen(path_to, "w");
+    
+    while ((ch = fgetc(fp_read)) != 255)
+    {
+        fputc(ch,fp_write);    
+    }
+    fclose(fp_read);
+    fclose(fp_write);
+}
