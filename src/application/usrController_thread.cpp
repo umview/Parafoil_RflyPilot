@@ -120,7 +120,8 @@ void * thread_usrController(void * ptr)
       
       //publish _actuator_output_msg for Simulink Display and SIH mode
       memcpy(&_actuator_output_msg.actuator_output, &usrController_Obj.usrController_Y._c_out_s.pwm, sizeof(_actuator_output_msg.actuator_output));
-      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;      
+      _actuator_output_msg.timestamp = usrController_Obj.usrController_Y._c_out_s.time_stamp;
+	  control_output_msg.publish(&_actuator_output_msg);//publish control output disregard disarm;  kechenxu 2023 12 09   
       // printf("pwm out is: %d %d %d %d\n",usrController_Obj.usrController_Y._c_out_s.pwm[0],usrController_Obj.usrController_Y._c_out_s.pwm[1],usrController_Obj.usrController_Y._c_out_s.pwm[2],usrController_Obj.usrController_Y._c_out_s.pwm[3]);
       //fail safe
       float pwm_output[8] = {0};

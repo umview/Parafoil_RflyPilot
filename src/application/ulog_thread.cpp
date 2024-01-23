@@ -28,19 +28,30 @@ void * thread_ulog(void * dir)
 
     sbus_packet_t _rc_input_msg;
     
+    int log_index;
+    log_index = find_log_index();
+    // printf("log index is %d\n\n", log_index);
+
     /* Set ulog path */
     char time_buf[50]={0};
     char syspath[100] = {0};
     get_compact_time_string(time(NULL), time_buf);   
-    sprintf(syspath, "%s/log-%s", (char*)dir, time_buf);        
+    sprintf(syspath, "%s/log_%d_%s", (char*)dir, log_index, time_buf);        
     struct stat st = {0};  
     if (stat(syspath, &st) == -1) {
         mkdir(syspath, 0777);
     }
-
+    
     /* Define ulog file name */
     char ulog_name[100] = {0};
-    sprintf(ulog_name, "%s/log-%s/ulog-%s.ulg", (char*)dir, time_buf, time_buf);
+    sprintf(ulog_name, "%s/log_%d_%s/ulog_%d-%s.ulg", (char*)dir, log_index, time_buf, log_index, time_buf);
+
+    /* Copy paramters.txt into current log path */
+    char my_path_to[100] = {0};
+    sprintf(my_path_to, "%s/log_%d_%s/ulog_%d-%s.txt", (char*)dir, log_index, time_buf, log_index, time_buf);
+    char my_path_from[50] = "./parameter.txt";
+    // char my_path_to[50] = "./par.txt";
+    cp_file(my_path_from, my_path_to);
 
     /* Write header */
     struct ulog_header_s header = {
@@ -364,3 +375,61 @@ void start_ulog(const char * dir)
   bool ret = create_thread("ulog", thread_ulog, (void*)config.log_dir);
 }
 
+void cp_file (char *path_from, char *path_to)
+{
+	FILE *fp_read = NULL;
+    FILE *fp_write = NULL;
+    // char ch = !EOF;
+    char ch;
+    fp_read = fopen(path_from, "r");
+    if (fp_read == NULL)
+    {
+        printf("The file is not exiting\n");
+    }
+    fp_write = fopen(path_to, "w");
+    
+    while ((ch = fgetc(fp_read)) != 255)
+    {
+        fputc(ch,fp_write);    
+    }
+    fclose(fp_read);
+    fclose(fp_write);
+}
+
+int find_log_index(void)
+{
+    int fp_read = -1;
+    int fp_write = -1;
+    int ret;
+    fp_read = open("./log_index.bin", O_RDONLY);
+    if (fp_read == -1)//file is not exist
+    {
+        // printf("The log_index.bin file is not exist!\n\n");
+        int buff[1];
+        buff[0] = 0;
+        fp_write = open("./log_index.bin", O_WRONLY | O_CREAT, 0777);
+        if (fp_write != -1){
+            ret = write(fp_write, buff, sizeof(buff));
+            close(fp_write);
+            fp_write = -1;
+        }
+        return 0;
+    }
+    else{
+        // printf("The log_index.bin file open success!\n\n");
+        int buff[1];
+        buff[0] = -1;
+        ret = read(fp_read, buff, sizeof(buff));
+        close(fp_read);
+        fp_read = -1;
+
+        buff[0] = buff[0] + 1;
+        fp_write = open("./log_index.bin", O_WRONLY);
+        ret = write(fp_write, buff, sizeof(buff));
+        close(fp_write);
+        fp_write = -1;
+
+        return buff[0];
+    }
+
+}
