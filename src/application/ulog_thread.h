@@ -95,4 +95,6 @@ void write_flag_bits(const char *filename);
 
 void cp_file (char *path_from, char *path_to);
 
+int find_log_index(void);
+
 #endif
