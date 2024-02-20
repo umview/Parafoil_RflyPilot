@@ -49,6 +49,7 @@ ringbuffer_typedef<gps_msg_typedef> gps_msg(GPS_N, "gps", LOG_DISABLE);
 ringbuffer_typedef<sbus_packet_t> rc_input_msg(SBUS_N, "rc_input", LOG_DISABLE);
 ringbuffer_typedef<actuator_output_typedef> actuator_output_msg(ACTUATOR_OUTPUT_N, "actuator_output", LOG_DISABLE);
 ringbuffer_typedef<actuator_output_typedef> aux_actuator_output_msg(ACTUATOR_OUTPUT_N, "aux_actuator_output", LOG_DISABLE);
+ringbuffer_typedef<actuator_output_typedef> control_output_msg(ACTUATOR_OUTPUT_N, "control_output", LOG_DISABLE);
 
 ringbuffer_typedef<rflysim3d_output_typedef> rflysim3d_output_msg(1,"rflysim3d",LOG_DISABLE);
 

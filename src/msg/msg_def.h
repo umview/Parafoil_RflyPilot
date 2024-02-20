@@ -130,6 +130,7 @@ typedef struct
 }actuator_output_typedef;
 extern ringbuffer_typedef<actuator_output_typedef> actuator_output_msg;//(GPS_N);
 extern ringbuffer_typedef<actuator_output_typedef> aux_actuator_output_msg;//(GPS_N);
+extern ringbuffer_typedef<actuator_output_typedef> control_output_msg;//用于显示解锁环节前的控制器内部输出，无视是否解锁。
 
 typedef struct
 {
