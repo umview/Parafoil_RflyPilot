@@ -63,3 +63,6 @@ ringbuffer_typedef<offboard_data_typedef> offboard_msg(5,"offboard_data",LOG_DIS
 ringbuffer_typedef<thread_msg_typedef> ctrl_thread_msg(10,"ctrl_thread",LOG_DISABLE);
 ringbuffer_typedef<thread_msg_typedef> imu_thread_msg(10,"imu_thread",LOG_DISABLE);
 ringbuffer_typedef<thread_msg_typedef> attest_thread_msg(10,"attest_thread",LOG_DISABLE);
+
+
+ringbuffer_typedef<my_data_typedef> my_data_msg(3, "my_data", LOG_DISABLE);

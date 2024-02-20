@@ -38,6 +38,7 @@ SET(source_file
     src/log/binlog.cpp
     src/console/console.cpp
     src/console/screen.cpp
+    src/mytask/mytask.cpp
 )
 
 
@@ -101,6 +102,7 @@ include_directories(
                     estimator_codegen
                     sih_codegen
                     basic_controller_codegen
+                    src/mytask
                     )
 
 link_directories(

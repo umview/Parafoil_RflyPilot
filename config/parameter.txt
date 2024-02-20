@@ -1,56 +1,77 @@
+view = 1500
 Wvx = 20
 Wvy = 20
-Wvz = 1000
-Wqz = 10
-Wwnx = 0
-Wwny = 0
-Wwnz = 0
-Wax = 0
-Way = 0
-Waz = 0
-Wwx = 0.2
-Wwy = 0.2
-Wwz = 0.2
-Wmotor = 0.1
-Wservo = 0.08
-R = 0.125
-h = 0.07
-mass = 0.742
-K_tau = 0.016
-drag_w_x = 0
-drag_w_y = 0
-drag_w_z = 0
-Jxx = 0.0063
-Jyy = 0.0021
-Jzz = 0.0049
+Wvz = 2000
+Wax = 10
+Way = 10
+Waz = 2000
+Wfax = 20
+Wfay = 20
+Wfaz = 2000
+Wqz = 0
+Wwx = 0.6
+Wwy = 0.6
+Wwz = 0.0
+Wmotor_rate = 0.01
+Wmotor_u = 0
+R = 0.12
+h = 0.00
+mass = 0.71
+K_tau = 0.0166
+drag_w_x = 0.0001
+drag_w_y = 0.0001
+drag_w_z = 0.0002
+Jxx = 0.0056
+Jyy = 0.0056
+Jzz = 0.0104
 Tmotor = 0.025
-Tservo = 0.035
-ServoAngleMax = 1.0472
-ThrustMax = 14
-faultThrustMax = 0
-roll_rate_kp = 0.1
+T_lpf = 0.027
+ThrustMax = 8
+
+
+roll_rate_kp = 0.05
 roll_rate_ki = 0
 
 pitch_rate_kp = 0.05
 pitch_rate_ki = 0
 
-yaw_rate_kp = 0.1
+yaw_rate_kp = 0.03
 yaw_rate_ki = 0
 
-roll_angle_kp = 1
-pitch_angle_kp = 0.8
-yaw_angle_kp = 1
-full_att_k = 8
+roll_angle_kp = 7.5
+pitch_angle_kp = 7.5
+yaw_angle_kp = 7.5
 
+max_yaw_rate = 100
+yaw_ctrl_mode = 1
+headfree_mode = 0
 
+kp_vel_z = 6
+ki_vel_z = 0
+kp_vel_xy = 6
+ki_vel_xy = 0
 
-kp_vel_z = 5
-ki_vel_z = 0.1
-kp_vel_xy = 2
-ki_vel_xy = 0.1
+kp_pos_z = 3
+ki_pos_z = 0
+kp_pos_xy = 3
+ki_pos_xy = 0
 
-kp_pos_z = 2
-kp_pos_xy = 2
+vel_mode_max_vel = 3
+manual_accel_scale = 9
 
 pos_vel_mode_switcher = 0
-vel_mode_max_vel = 2
+
+indi_enable = 0
+adrc_enable = 0
+adrc_td_h = 1
+adrc_td_r = 100
+adrc_nlsef_r = 220
+adrc_nlsef_h = 25
+adrc_nlsef_c = 2
+adrc_eso_b01 = 250
+adrc_eso_b02 = 6000
+adrc_eso_b03 = 1000
+adrc_eso_b0 = 200
+adrc_eso_h = 1
+adrc_eso_d = 0.01
+adrc_tau2sigma = 0.108

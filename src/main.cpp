@@ -12,6 +12,9 @@ int main(int argc, const char *argv[])
 
 
 
+
+
+
   read_param();
   calibration.calibration_file_check_and_load();
 
@@ -65,8 +68,10 @@ int main(int argc, const char *argv[])
       usleep(500000);
       start_usrController();
       //start_basicController();
-      // start_log(NULL);
-      start_ulog(NULL);
+      start_log(NULL);
+      //start_ulog(NULL);
+
+      //start_mytask();
     break;
 
     case SIH:
@@ -127,4 +132,58 @@ int main(int argc, const char *argv[])
     sleep(1);
   }
   return 0;
+}
+
+
+
+/**********************************************/
+
+class adaptive_delay_typedef adp_delay(0.5,15,0);//定义对象，kp=0.5，ki=15，offset=400us
+
+
+void * thread_send(void * ptr)
+{
+  my_data_typedef send_my_data;
+  uint32_t cnt = 0;
+  for(;;)
+  {
+    send_my_data.data[0] = 1;
+    send_my_data.data[1] = get_time_now()/1e6;
+    my_data_msg.publish(&send_my_data);
+    if(cnt++ == 300)
+    {
+      printf("send: %f , %f\n",send_my_data.data[0], send_my_data.data[1]);
+      cnt = 0;
+    }
+    adp_delay.delay_us(1000);
+  }
+}
+
+void * thread_recv(void * ptr)
+{
+  my_data_typedef recv_my_data;
+
+  for(;;)
+  {
+    my_data_msg.read(&recv_my_data);
+    printf("recv: %f , %f\n",recv_my_data.data[0], recv_my_data.data[1]);
+    printf("send rate : %f \n", my_data_msg.publish_rate_hz);
+    usleep(100000);
+  }
+}
+
+int _main(int argc, const char *argv[])
+{
+
+
+
+bool ret = create_thread("thread_send", thread_send, NULL);
+     ret = create_thread("thread_recv", thread_recv, NULL);
+  while(1)
+  {
+    sleep(1);
+  }
+
+  return 0;
+
 }

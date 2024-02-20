@@ -106,4 +106,9 @@ enum scheduler_mode_typedef
 #include "binlog.h"
 #include "system_app.h"
 #include "offboard_thread.h"
+
+#include "mytask.h"
+
+#include "mytask_thread.h"
+
 #endif

@@ -191,4 +191,12 @@ extern ringbuffer_typedef<thread_msg_typedef> imu_thread_msg;//(1,"imu_thread_ms
 extern ringbuffer_typedef<thread_msg_typedef> attest_thread_msg;//(1,"attest_thread_msg",LOG_DIV_1);
 extern ringbuffer_typedef<thread_msg_typedef> ctrl_thread_msg;//(1,"ctrl_thread_msg",LOG_DIV_1);
 
+
+typedef struct
+{
+    uint64_t timestamp;
+    float data[2];
+}my_data_typedef;
+extern ringbuffer_typedef<my_data_typedef> my_data_msg;
+
 #endif

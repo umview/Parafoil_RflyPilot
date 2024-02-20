@@ -2,13 +2,13 @@
 #validation mode SIH:1 HIL:2 EXP:3 OFFBOARD:4
 valid_mode = 3
 #SIH mode use real state
-sih_use_real_state = 1
+sih_use_real_state = 0
 #system sample rate
-imu_rate = 800 
+imu_rate = 1000
 mag_rate = 95 # max rate 100Hz
-controller_rate = 333
-attitude_est_rate = 500
-lpe_rate = 500
+controller_rate = 500
+attitude_est_rate = 1000
+lpe_rate = 1000
 #imu cutoff in Hz
 accel_cutoff_hz = 50 
 gyro_cutoff_hz = 50
@@ -21,9 +21,9 @@ ctrl_log_en = 1
 # msg scope enable
 sys_scope_en = 1
 est_scope_en = 0
-ctrl_scope_en = 1
+ctrl_scope_en = 0
 # string
-scope_ip = "192.168.199.152" # 152
-station_ip = "192.168.199.152"
+scope_ip = "192.168.199.233" # 152
+station_ip = "192.168.199.233"
 log_dir = "."
 ########################## USER DEFINED PARAMETER #########################
