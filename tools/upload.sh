@@ -1,5 +1,5 @@
 #!/bin/sh
-hostname="192.168.199.183"
+hostname="192.168.199.185"
 password="raspberry"
 
 if [ $# = 1 ]; then

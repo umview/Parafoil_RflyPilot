@@ -78,6 +78,8 @@ int main(int argc, const char *argv[])
       printf("mode : SIH\n");
       start_sih();
       usleep(500000);
+      start_log(NULL);
+
       if(!(_config_msg.sih_use_real_state))
       {
         start_attitudeEstimator();

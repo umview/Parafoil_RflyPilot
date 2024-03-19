@@ -129,7 +129,7 @@ void * thread_sih(void * ptr)
       // printf("yaw errer: %6.3f\n",yaw_err);
     }
     
-    sih_adp_delay.delay_freq(1000);
+    sih_adp_delay.delay_freq(1200);
 
     // nanosleep(&thread_sih_sleep,NULL);
     //delay_us_combined((uint64_t)(1000000.f / sih_rate),&scheduler.sih_flag,&sih_adaotive_delay);

@@ -6,7 +6,7 @@ sih_use_real_state = 0
 #system sample rate
 imu_rate = 1000
 mag_rate = 95 # max rate 100Hz
-controller_rate = 500
+controller_rate = 333
 attitude_est_rate = 1000
 lpe_rate = 1000
 #imu cutoff in Hz
@@ -23,7 +23,7 @@ sys_scope_en = 1
 est_scope_en = 0
 ctrl_scope_en = 0
 # string
-scope_ip = "192.168.199.233" # 152
-station_ip = "192.168.199.233"
+scope_ip = "192.168.199.177" # 152
+station_ip = "192.168.199.177"
 log_dir = "."
 ########################## USER DEFINED PARAMETER #########################

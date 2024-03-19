@@ -142,6 +142,10 @@ void * thread_usrController(void * ptr)
             //usrController_Obj.usrController_Y._c_out_s.pwm[i] = 1000;
             pwm_aux_output[i] = 1500;
         }
+
+            /* for Parafoil UAV with 400Hz PWM*/
+            pwm_output[0] = 2000;
+
         const uint16_t disarm_pwm[8] = {1000U,1000U,1000U,1000U,1000U,1000U,1000U,1000U};
         memcpy(&_actuator_output_msg.actuator_output, &disarm_pwm,sizeof(_actuator_output_msg.actuator_output));
       }else{

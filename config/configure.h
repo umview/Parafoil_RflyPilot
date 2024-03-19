@@ -29,10 +29,10 @@
 #define USING_THREAD_SYNC 0
 #define IMU_LPE 1
 #define LPE_ATT 1
-#define ATT_CTRL 2
+#define ATT_CTRL 3
 
 #define USE_RFLYPILOT 1
-#define USE_ONESHOT_125 1
+#define USE_ONESHOT_125 0
 #define OFFBOARD_DATA_N 20
 #define PWM_FREQ (USE_ONESHOT_125==1?1500:400)
 #define SERVO_PWM_FREQ 333
