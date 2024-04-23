@@ -10,3 +10,5 @@ yaw_angle_lpf_hz = 3
 L1_dist_min = 10
 L1_damping = 3
 L1_period = 8
+R_circle = 200
+adp_ctrl_en = 0

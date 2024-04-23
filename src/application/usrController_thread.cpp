@@ -162,10 +162,10 @@ void * thread_usrController(void * ptr)
       }else{
         for(int i = 0; i < 8; i++)
         {
-          if(_actuator_output_msg.actuator_output[i] > 1950)_actuator_output_msg.actuator_output[i] = 1950;
-          if(_actuator_output_msg.actuator_output[i] < 1050)_actuator_output_msg.actuator_output[i] = 1050;
-          if(_aux_actuator_output_msg.actuator_output[i] > 1950)_aux_actuator_output_msg.actuator_output[i] = 1950;
-          if(_aux_actuator_output_msg.actuator_output[i] < 1050)_aux_actuator_output_msg.actuator_output[i] = 1050;
+          if(_actuator_output_msg.actuator_output[i] > 2000)_actuator_output_msg.actuator_output[i] = 2000;
+          if(_actuator_output_msg.actuator_output[i] < 1000)_actuator_output_msg.actuator_output[i] = 1000;
+          if(_aux_actuator_output_msg.actuator_output[i] > 2000)_aux_actuator_output_msg.actuator_output[i] = 2000;
+          if(_aux_actuator_output_msg.actuator_output[i] < 1000)_aux_actuator_output_msg.actuator_output[i] = 1000;
             if(USE_ONESHOT_125 == 1)
             {
                 pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
