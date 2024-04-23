@@ -1,2 +1,12 @@
-yaw_rate_kp = 5
-yaw_rate_ki = 0
+yaw_rate_kp = 0.05
+yaw_rate_ki = 0.4
+yaw_rate_max = 1.1
+yaw_rate_max_int = 0.4
+yaw_rate_damping = -0.2
+yaw_rate_ff = 1
+yaw_rate_lpf_hz = 20
+yaw_angle_kp = 2
+yaw_angle_lpf_hz = 3
+L1_dist_min = 10
+L1_damping = 3
+L1_period = 8

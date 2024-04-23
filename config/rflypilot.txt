@@ -21,7 +21,7 @@ ctrl_log_en = 1
 # msg scope enable
 sys_scope_en = 1
 est_scope_en = 0
-ctrl_scope_en = 0
+ctrl_scope_en = 1
 # string
 scope_ip = "192.168.199.177" # 152
 station_ip = "192.168.199.177"

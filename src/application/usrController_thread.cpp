@@ -126,6 +126,7 @@ void * thread_usrController(void * ptr)
       //fail safe
       float pwm_output[8] = {0};
       float pwm_aux_output[8] = {0};
+      static uint32_t rc_loss_cnt = 0;
       if(((get_time_now() - _rc_input_msg.timestamp) > 8e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
       {
         // if(cont == 500)printf("remote controller signal loss\n");
@@ -144,13 +145,27 @@ void * thread_usrController(void * ptr)
         }
 
             /* for Parafoil UAV with 400Hz PWM*/
-            pwm_output[0] = 2000;
+            pwm_output[0] = 1000;
+            pwm_output[1] = 2000;
 
-        const uint16_t disarm_pwm[8] = {1000U,1000U,1000U,1000U,1000U,1000U,1000U,1000U};
+        const uint16_t disarm_pwm[8] = {1000,2000U,1000U,1000U,1000U,1000U,1000U,1000U};
         memcpy(&_actuator_output_msg.actuator_output, &disarm_pwm,sizeof(_actuator_output_msg.actuator_output));
+        // rc_loss_cnt ++;
+        // if(rc_loss_cnt == 100)
+        // {
+        //   rc_loss_cnt = 0;
+        //   printf("TIME : %f RC LOSS !! \n", get_time_now()/1e6);
+        //   printf("DEBUG\n");
+        //   printf("msg_timestamp:%f fail_safe %d frame_loss %d channel_6 %d\n", _rc_input_msg.timestamp/1e6, _rc_input_msg.failsafe, _rc_input_msg.frameLost, _rc_input_msg.channels[5] );
+        // }
+
       }else{
         for(int i = 0; i < 8; i++)
         {
+          if(_actuator_output_msg.actuator_output[i] > 1950)_actuator_output_msg.actuator_output[i] = 1950;
+          if(_actuator_output_msg.actuator_output[i] < 1050)_actuator_output_msg.actuator_output[i] = 1050;
+          if(_aux_actuator_output_msg.actuator_output[i] > 1950)_aux_actuator_output_msg.actuator_output[i] = 1950;
+          if(_aux_actuator_output_msg.actuator_output[i] < 1050)_aux_actuator_output_msg.actuator_output[i] = 1050;
             if(USE_ONESHOT_125 == 1)
             {
                 pwm_output[i] = ((float)_actuator_output_msg.actuator_output[i])/8;
