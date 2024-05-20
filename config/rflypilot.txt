@@ -23,7 +23,7 @@ sys_scope_en = 1
 est_scope_en = 0
 ctrl_scope_en = 1
 # string
-scope_ip = "192.168.199.177" # 152
-station_ip = "192.168.199.177"
+scope_ip = "192.168.199.127" # 152
+station_ip = "192.168.199.127"
 log_dir = "."
 ########################## USER DEFINED PARAMETER #########################

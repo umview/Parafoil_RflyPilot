@@ -1,6 +1,6 @@
 #include "sbus/DecoderFSM.h"
 #include "sbus/packet_decoder.h"
-
+#include <stdio.h>
 DecoderFSM::DecoderFSM()
         : _state(State::WAIT_FOR_HEADER)
         , _packetPos(0)
@@ -55,6 +55,7 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
 
                         // receive next packet
                         _state = State::WAIT_FOR_HEADER;
+                        //printf("packet verified ok\n");
                     }
                     // packet error but we found other possible headers
                     else if (headerByte >= 0)
@@ -62,6 +63,8 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
                         // retry scanning after last header
                         i = headerByte;
                         _state = State::WAIT_FOR_HEADER;
+                        //printf("headerByte >= 0\n");
+
                     }
                     else // out of headers to scan
                     {
@@ -109,14 +112,46 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
 
     return SBUS_OK;
 }
-
+static uint8_t calc_end_from_last(uint8_t last)
+{
+    uint8_t res = 0;
+    if(RC_SBUS_FUTABA_SUPPORTED == 1)
+    {
+        switch(last)
+        {
+            case 0x04:
+            res = 0x14;
+            break;
+            case 0x14:
+            res = 0x24;
+            break;
+            case 0x24:
+            res = 0x34;
+            break;
+            case 0x34:
+            res = 0x04;
+            break;
+        }
+    }else{
+        res = SBUS_END;
+    }
+    return res;
+}
 sbus_err_t DecoderFSM::verifyPacket()
 {
+    static uint8_t byte_24_last = 0x04;
     if (_packetBuf[0] == SBUS_HEADER &&
-        _packetBuf[SBUS_PACKET_SIZE - 1] == SBUS_END)
+        _packetBuf[SBUS_PACKET_SIZE - 1] == calc_end_from_last(byte_24_last))
+    {
+        byte_24_last = _packetBuf[SBUS_PACKET_SIZE - 1];
         return SBUS_OK;
+    }
     else
+    {
+        printf("check byte24 failed\n");
         return SBUS_FAIL;
+    }
+
 }
 
 sbus_err_t DecoderFSM::decodePacket()

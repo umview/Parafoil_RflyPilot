@@ -6,8 +6,48 @@ enum sbus_err_t sbus_decode(const uint8_t buf[],
     if (!packet || !buf) {
         return SBUS_ERR_INVALID_ARG;
     }
-    if (buf[0] != SBUS_HEADER || buf[24] != SBUS_END) {
+    // if (buf[0] != SBUS_HEADER || buf[24] != SBUS_END) {
+    //     return SBUS_FAIL;
+    // }
+    if (buf[0] != SBUS_HEADER ) {
         return SBUS_FAIL;
+    }
+    uint16_t *channels = packet->channels;
+    const uint8_t *payload = buf + 1;
+    channels[0]  = (uint16_t)((payload[0]    | payload[1] << 8)                          & 0x07FF);
+    channels[1]  = (uint16_t)((payload[1] >> 3 | payload[2] << 5)                        & 0x07FF);
+    channels[2]  = (uint16_t)((payload[2] >> 6 | payload[3] << 2 | payload[4] << 10)     & 0x07FF);
+    channels[3]  = (uint16_t)((payload[4] >> 1 | payload[5] << 7)                        & 0x07FF);
+    channels[4]  = (uint16_t)((payload[5] >> 4 | payload[6] << 4)                        & 0x07FF);
+    channels[5]  = (uint16_t)((payload[6] >> 7 | payload[7] << 1 | payload[8] << 9)      & 0x07FF);
+    channels[6]  = (uint16_t)((payload[8] >> 2 | payload[9] << 6)                        & 0x07FF);
+    channels[7]  = (uint16_t)((payload[9] >> 5 | payload[10] << 3)                       & 0x07FF);
+    channels[8]  = (uint16_t)((payload[11]   | payload[12] << 8)                         & 0x07FF);
+    channels[9]  = (uint16_t)((payload[12] >> 3 | payload[13] << 5)                      & 0x07FF);
+    channels[10] = (uint16_t)((payload[13] >> 6 | payload[14] << 2 | payload[15] << 10)  & 0x07FF);
+    channels[11] = (uint16_t)((payload[15] >> 1 | payload[16] << 7)                      & 0x07FF);
+    channels[12] = (uint16_t)((payload[16] >> 4 | payload[17] << 4)                      & 0x07FF);
+    channels[13] = (uint16_t)((payload[17] >> 7 | payload[18] << 1 | payload[19] << 9)   & 0x07FF);
+    channels[14] = (uint16_t)((payload[19] >> 2 | payload[20] << 6)                      & 0x07FF);
+    channels[15] = (uint16_t)((payload[20] >> 5 | payload[21] << 3)                      & 0x07FF);
+
+    uint8_t opt = buf[23] & 0xf;
+    packet->ch17      = opt & SBUS_OPT_C17;
+    packet->ch18      = opt & SBUS_OPT_C18;
+    packet->failsafe  = opt & SBUS_OPT_FS;
+    packet->frameLost = opt & SBUS_OPT_FL;
+
+    return SBUS_OK;
+}
+
+void print_channel(const uint8_t buf[],
+                   struct sbus_packet_t *packet)
+{
+    if (!packet || !buf) {
+        printf("SBUS_ERR_INVALID_ARG");
+    }
+    if (buf[0] != SBUS_HEADER) {
+        printf("SBUS_FAIL");
     }
 
     uint16_t *channels = packet->channels;
@@ -35,7 +75,10 @@ enum sbus_err_t sbus_decode(const uint8_t buf[],
     packet->failsafe  = opt & SBUS_OPT_FS;
     packet->frameLost = opt & SBUS_OPT_FL;
 
-    return SBUS_OK;
+    printf("rc channels input\n%d %d %d %d \n%d %d %d %d\n",channels[0],channels[1],channels[2],channels[3],
+          channels[4],channels[5],channels[6],channels[7]);
+    printf("failsafe %d framelost %d\n", packet->ch17, packet->ch18);
+
 }
 
 enum sbus_err_t sbus_encode(uint8_t buf[],

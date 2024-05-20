@@ -12,5 +12,5 @@
 #define SBUS_OPT_C18 (0b0010)
 #define SBUS_OPT_FS  (0b1000)
 #define SBUS_OPT_FL  (0b0100)
-
+#define RC_SBUS_FUTABA_SUPPORTED 1
 #endif

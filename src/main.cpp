@@ -28,7 +28,8 @@ int main(int argc, const char *argv[])
 
 
    start_sbus("/dev/ttyAMA0");
-   //rc_check();
+   rc_check();
+
    start_system_app();
 
    start_scope(NULL);

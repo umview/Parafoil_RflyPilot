@@ -2,7 +2,7 @@
 #include "sbus/sbus_tty.h"
 #include "sbus/sbus_low_latency.h"
 #include "sbus/packet_decoder.h"
-
+#include <stdio.h>
 SBUS::SBUS() noexcept
     : _fd(-1)
 {}
@@ -39,7 +39,12 @@ sbus_err_t SBUS::read()
         return SBUS_FAIL;
 
     int nRead = sbus_read(_fd, _readBuf, READ_BUF_SIZE);
-
+    // printf("nRead: %d _readBuf :\n", nRead);
+    // for(int i = 0; i < 30; i++)
+    // {
+    //     printf("%x ",_readBuf[i]);
+    // }
+    // printf("\n");
     // TODO SBUS_OK if timeout, else error
     if (nRead <= 0)
         return SBUS_OK;
