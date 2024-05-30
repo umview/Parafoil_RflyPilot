@@ -15,6 +15,7 @@ void * thread_usrController(void * ptr)
     /* usrController init */
     usrController_Obj.initialize();
     int cont = 500;
+    int cont_rc = 0;
     int i = 0;
     sbus_packet_t _rc_input_msg;//rc_input_msg
     //use imu or, gyro and accel according to fc mode 
@@ -127,9 +128,22 @@ void * thread_usrController(void * ptr)
       float pwm_output[8] = {0};
       float pwm_aux_output[8] = {0};
       static uint32_t rc_loss_cnt = 0;
-      if(((get_time_now() - _rc_input_msg.timestamp) > 8e5) || (_rc_input_msg.failsafe) || (_rc_input_msg.frameLost) || _rc_input_msg.channels[5] < 1200) 
+
+        //注：如果使用futaba遥控器， 增加消息frameLost的判断容易导致触发断联, failsafe也是如此
+
+         if(cont_rc++ == 500)
+         {
+           if((get_time_now() - _rc_input_msg.timestamp) > 4e5 || _rc_input_msg.failsafe)printf("RC signal lost !!!!\n");
+            // printf("delta time %f\n", _rc_input_msg.timestamp/1e6);
+            // printf("failsafe %d\n", _rc_input_msg.failsafe);
+            // printf("frameLost %d\n", _rc_input_msg.frameLost);
+            cont_rc = 0;
+         }
+
+      if(((get_time_now() - _rc_input_msg.timestamp) > 4e5) || _rc_input_msg.failsafe || _rc_input_msg.channels[5] < 1200) 
       {
-        // if(cont == 500)printf("remote controller signal loss\n");
+
+        
         for(i = 0; i<8; i++)
         {
             if(USE_ONESHOT_125 == 1)

@@ -63,7 +63,7 @@ sbus_err_t DecoderFSM::feed(const uint8_t buf[], int bufSize, bool *hadDesyncOut
                         // retry scanning after last header
                         i = headerByte;
                         _state = State::WAIT_FOR_HEADER;
-                        //printf("headerByte >= 0\n");
+                        printf("headerByte >= 0\n");
 
                     }
                     else // out of headers to scan
